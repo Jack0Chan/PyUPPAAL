@@ -1,4 +1,4 @@
-# pyUPPAAL
+# pyuppaal
 
 [link](https://www.yuque.com/docs/share/befff524-05cf-4276-be93-e507b65e6c73?)
 
