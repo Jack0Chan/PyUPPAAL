@@ -331,9 +331,3 @@ class UModel:
             pattern = Tracer.validate_and_get_untime_pattern(new_model_path, trace_path, self.edge_signal_dict)
         # print(patterns)
         return patterns
-
-    def new(self, a):
-        # print(a)
-        for key in a:
-            self.key = a
-
