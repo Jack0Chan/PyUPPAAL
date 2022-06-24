@@ -1,9 +1,25 @@
-import time
 import warnings
 from typing import List
 import os
 from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
+import functools
+
+
+def check_is_verifyta_path_empty(func):
+    """
+    装饰器，用来在verifyta运行前检测路径是否被设置。
+    """
+    @functools.wraps(func)
+    def checker_wrapper(*args, **kwargs):
+        # 注意verifyta是singleton，因此可以直接用Verifyta()调用到唯一的实例
+        if Verifyta().verifyta_path:
+            return func(*args, **kwargs)
+        else:
+            error_info = 'Verifyta path is not set.'
+            error_info += ' Please use "Verifyta().set_verifyta_path(verifyta_path: str)" to set the path of verifyta.'
+            raise ValueError(error_info)
+    return checker_wrapper
 
 
 class Verifyta:
@@ -27,6 +43,16 @@ class Verifyta:
 
         self.verifyta_path: str = ''
 
+    @property
+    def is_verifyta_empty(self):
+        """
+        check whether verifyta is set
+        """
+        if self.verifyta_path:
+            return True
+        else:
+            return False
+
     def set_verifyta_path(self, verifyta_path: str):
         """
         设置verifyta_path
@@ -45,18 +71,32 @@ class Verifyta:
                            "\nmacOS  : absolute_path_to_uppaal/bin-Darwin/verifyta"
             raise ValueError(f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
 
+    @check_is_verifyta_path_empty
     def simple_verify(self, model_path: str, trace_path: str):
         """
         简单验证，返回最短诊断路径（shortest path）
         model_path: str, 待验证的模型路径
-        trace_path: str, 需要保存的xml path文件路径
+        trace_path: str, 需要保存的xml or xtr path文件路径
         验证模型，并将验证结果的xml文件保存到trace_path中
         """
-        trace_path = trace_path.replace('.xml', '')
-        cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
-        res = os.popen(cmd).read()
+        # check trace_path format
+        if trace_path.endswith('.xml'):
+            trace_path = trace_path.replace('.xml', '')
+            cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
+            res = os.popen(cmd).read()
+        elif trace_path.endswith('.xtr'):
+            # trace_path = trace_path.replace('.xml', '')
+            # cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
+            # res = os.popen(cmd).read()
+            raise NotImplementedError()
+            res = ''
+        else:
+            error_info = 'trace_path should end with ".xml" or ".xtr".'
+            error_info += f' Currently trace_path = {trace_path}'
+            raise ValueError(error_info)
         return res
 
+    @check_is_verifyta_path_empty
     def cmd(self, cmd: str):
         """
         run common command with cmd, you can easily ignore the verifyta path.
@@ -66,6 +106,7 @@ class Verifyta:
             cmd = f'{self.verifyta_path} {cmd}'
         return cmd, os.popen(cmd).read()
 
+    @check_is_verifyta_path_empty
     def cmds_process(self, cmds: List[str], num_process: int = None):
         """
         note that sometimes, multiprocess is not faster than single-process or multi-threads
@@ -75,11 +116,12 @@ class Verifyta:
         return running cmds and associated result
         """
         if num_process == 1:
-            w = 'You are running with only 1 process, we recommend using self.cmd() method.'
+            w = 'You are running with only 1 process, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
         p = Pool(num_process)
         return p.map(self.cmd, cmds)
 
+    @check_is_verifyta_path_empty
     def cmds_threads(self, cmds: List[str], num_threads: int = None):
         """
         run a list of commands and return results
@@ -88,39 +130,7 @@ class Verifyta:
         return running cmds and associated result
         """
         if num_threads == 1:
-            w = 'You are running with only 1 thread, we recommend using self.cmd() method.'
+            w = 'You are running with only 1 thread, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
         p = ThreadPool(num_threads)
         return p.map(self.cmd, cmds)
-
-
-def test():
-    v = Verifyta()
-    v.set_verifyta_path('/Users/chenguangyao/Downloads/uppaal64-4.1.26/bin-Darwin/verifyta')
-    print('set up verifyta_path: ', v.verifyta_path)
-    l_cmd = ['-h' for _ in range(1)]
-
-    t = time.time()
-    v.cmds_process(l_cmd)
-    print('time with multi-process: ', time.time() - t)
-
-    t = time.time()
-    v.cmds_process(l_cmd, num_process=1)
-    print('time with 1-process: ', time.time() - t)
-
-    t = time.time()
-    v.cmds_threads(l_cmd)
-    print('time with multi-threads: ', time.time() - t)
-
-    t = time.time()
-    v.cmds_threads(l_cmd, num_threads=1)
-    print('time with 1-thread: ', time.time() - t)
-
-    t = time.time()
-    for cmd in l_cmd:
-        v.cmd(cmd)
-    print('time without multi-process: ', time.time() - t)
-
-
-if __name__ == '__main__':
-    test()
