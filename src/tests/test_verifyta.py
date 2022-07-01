@@ -3,14 +3,14 @@ import time
 
 
 def test():
-    Verifyta().verifyta_path = '666'
-    print('Verifyta().verifyta_path:', Verifyta().verifyta_path)
+    Verifyta()._verifyta_path = '666'
+    print('Verifyta().verifyta_path:', Verifyta()._verifyta_path)
 
     v = Verifyta()
-    print('         v.verifyta_path:', v.verifyta_path)
+    print('         v.verifyta_path:', v._verifyta_path)
 
     v.set_verifyta_path('/Users/chenguangyao/Downloads/uppaal64-4.1.26/bin-Darwin/verifyta')
-    print('set up verifyta_path: ', v.verifyta_path)
+    print('set up verifyta_path: ', v._verifyta_path)
     l_cmd = ['-h' for _ in range(1)]
 
     t = time.time()

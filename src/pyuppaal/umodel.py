@@ -16,13 +16,24 @@ class UModel:
         self.model_path: str = model_path
         self.element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
         self.root_elem: ET.Element = self.element_tree.getroot()
-        if not Verifyta().verifyta_path:
+        if not Verifyta()._verifyta_path:
             raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path().')
 
-    def save_model(self, new_model_path: str):
+    def get_model_path(self):
+        return self.model_path
+
+    def save(self):
+        new_model_path = self.model_path
         with open(new_model_path, 'w') as f:
             self.element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         self.model_path = new_model_path
+        return self.model_path
+
+    def save_as(self, new_model_path: str):
+        with open(new_model_path, 'w') as f:
+            self.element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+        self.model_path = new_model_path
+        return new_model_path
 
     def get_communication_graph(self, save_path=None):
         """
@@ -53,6 +64,13 @@ class UModel:
         # print(tmp_model_path)
         return Verifyta().simple_verify(tmp_model_path, trace_path)
 
+    def get_templates(self):
+        """
+        根据名字获取相应template的Element
+        template_name: string, template的名字
+        """
+        return self.element_tree.iter("template")
+
     def get_template(self, template_name: str):
         """
         根据名字获取相应template的Element
@@ -76,15 +94,7 @@ class UModel:
         self.root_elem.remove(template_elem)
         return True
 
-    def get_queries(self):
-        """
-        返回queries的字符串
-        """
-        query_formula_elems = self.element_tree.findall('./queries/query/formula')
-        queries = [query_elem.text for query_elem in query_formula_elems]
-        return queries
-
-    def __remove_queries(self):
+    def clear_queries(self):
         """
         删除queries_elem
         主要被set_queries调用
@@ -103,11 +113,19 @@ class UModel:
         返回修改queries后的self.get_queries()
         """
         # 首先删除所有的queries
-        self.__remove_queries()
+        self.clear_queries()
         # 然后构造queries并插入到模型中
         queries_elem = UFactory.queries(queries)
         self.root_elem.append(queries_elem)
         return self.get_queries()
+
+    def get_queries(self):
+        """
+        返回queries的字符串
+        """
+        query_formula_elems = self.element_tree.findall('./queries/query/formula')
+        queries = [query_elem.text for query_elem in query_formula_elems]
+        return queries
 
     def get_system(self):
         """
