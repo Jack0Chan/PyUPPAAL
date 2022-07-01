@@ -13,7 +13,7 @@ def check_is_verifyta_path_empty(func):
     @functools.wraps(func)
     def checker_wrapper(*args, **kwargs):
         # 注意verifyta是singleton，因此可以直接用Verifyta()调用到唯一的实例
-        if Verifyta().verifyta_path:
+        if Verifyta()._verifyta_path:
             return func(*args, **kwargs)
         else:
             error_info = 'Verifyta path is not set.'
@@ -41,14 +41,22 @@ class Verifyta:
             return
         self._is_first_init = False
 
-        self.verifyta_path: str = ''
+        self._verifyta_path: str = ''
 
     @property
     def is_verifyta_empty(self):
         """
         check whether verifyta is set
         """
-        if self.verifyta_path:
+        if self._verifyta_path:
+            return True
+        else:
+            return False
+
+    @property
+    def is_valid_verifyta_path(self):
+        res = os.popen(f'{self._verifyta_path} -h').read()
+        if 'Usage: verifyta [OPTION]... MODEL QUERY' in res:
             return True
         else:
             return False
@@ -63,13 +71,16 @@ class Verifyta:
         """
         res = os.popen(f'{verifyta_path} -h').read()
         if 'Usage: verifyta [OPTION]... MODEL QUERY' in res:
-            self.verifyta_path = verifyta_path
+            self._verifyta_path = verifyta_path
         else:
             example_info = "======== Example Paths ========" \
                            "\nWindows: absolute_path_to_uppaal\\bin-Windows\\verifyta.exe" \
                            "\nLinux  : absolute_path_to_uppaal/bin-Linux/verifyta" \
                            "\nmacOS  : absolute_path_to_uppaal/bin-Darwin/verifyta"
             raise ValueError(f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
+
+    def get_verifyta_path(self):
+        return self._verifyta_path
 
     @check_is_verifyta_path_empty
     def simple_verify(self, model_path: str, trace_path: str):
@@ -82,7 +93,7 @@ class Verifyta:
         # check trace_path format
         if trace_path.endswith('.xml'):
             trace_path = trace_path.replace('.xml', '')
-            cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
+            cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
             res = os.popen(cmd).read()
         elif trace_path.endswith('.xtr'):
             # trace_path = trace_path.replace('.xml', '')
@@ -97,13 +108,62 @@ class Verifyta:
         return res
 
     @check_is_verifyta_path_empty
+    def simple_verify_process(self, model_paths: List[str], trace_paths: List[str]):
+        cmds = []
+        for i in range(len(model_paths)):
+            model_path = model_paths[i]
+            trace_path = trace_paths[i]
+
+            # check trace_path format
+            if trace_path.endswith('.xml'):
+                trace_path = trace_path.replace('.xml', '')
+                cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
+                cmds.append(cmd)
+            elif trace_path.endswith('.xtr'):
+                # trace_path = trace_path.replace('.xml', '')
+                # cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
+                # res = os.popen(cmd).read()
+                raise NotImplementedError()
+            else:
+                error_info = 'trace_path should end with ".xml" or ".xtr".'
+                error_info += f' Currently trace_path = {trace_path}'
+                raise ValueError(error_info)
+
+        return self.cmds_process(cmds, len(cmds))
+
+    @check_is_verifyta_path_empty
+    def simple_verify_threads(self, model_paths: List[str], trace_paths: List[str]):
+        cmds = []
+        for i in range(len(model_paths)):
+            model_path = model_paths[i]
+            trace_path = trace_paths[i]
+
+            # check trace_path format
+            if trace_path.endswith('.xml'):
+                trace_path = trace_path.replace('.xml', '')
+                cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
+                cmds.append(cmd)
+            elif trace_path.endswith('.xtr'):
+                # trace_path = trace_path.replace('.xml', '')
+                # cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
+                # res = os.popen(cmd).read()
+                raise NotImplementedError()
+            else:
+                error_info = 'trace_path should end with ".xml" or ".xtr".'
+                error_info += f' Currently trace_path = {trace_path}'
+                raise ValueError(error_info)
+
+        return self.cmds_threads(cmds, len(cmds))
+
+
+    @check_is_verifyta_path_empty
     def cmd(self, cmd: str):
         """
         run common command with cmd, you can easily ignore the verifyta path.
         return the running cmd and the command result
         """
-        if self.verifyta_path not in cmd:
-            cmd = f'{self.verifyta_path} {cmd}'
+        if self._verifyta_path not in cmd:
+            cmd = f'{self._verifyta_path} {cmd}'
         return cmd, os.popen(cmd).read()
 
     @check_is_verifyta_path_empty
