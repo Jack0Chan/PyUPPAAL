@@ -4,7 +4,7 @@ import time
 
 v = Verifyta()
 # You MUST set the verifyta path firstly!
-v.set_verifyta_path(r'D:\study\HCPSLAB\uppaal-controller\src\Win_Linux-uppaal64-4.1.26\bin-Darwin\verifyta.exe')
+v.set_verifyta_path(r'D:\study\HCPSLAB\uppaal-controller\src\Win_Linux-uppaal64-4.1.26\bin-Windows\verifyta.exe')
 
 # verify P1 (verifyta_demo1.xml), save .xml file and print result
 res = v.simple_verify(model_path='verifyta_demo1.xml', trace_path='verifyta_demo1_trace.xml')
