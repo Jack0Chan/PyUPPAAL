@@ -70,7 +70,7 @@ class Verifyta:
         通过命令行调用f'{verifyta_path} -h'，查看返回内容是否包含 'Usage: verifyta [OPTION]... MODEL QUERY'
         """
         res = os.popen(f'{verifyta_path} -h').read()
-        if 'Usage: verifyta [OPTION]... MODEL QUERY' in res:
+        if '-h [ --help ]' in res:
             self._verifyta_path = verifyta_path
         else:
             example_info = "======== Example Paths ========" \
