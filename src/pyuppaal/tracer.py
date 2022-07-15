@@ -1,6 +1,99 @@
+# 这一行的import能够指定class的method返回自身类
+# 参考链接：https://www.nuomiphp.com/eplan/11188.html
+from __future__ import annotations
+from collections import namedtuple
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 from .verifyta import Verifyta
+
+
+# ClockZone = namedtuple('ClockZone', ['clock1', 'clock2', 'is_equal', 'bound_value'])
+# Transition = namedtuple('Transition', ['sync', 'start_process', 'end_process'])
+
+class ClockZone:
+    def __init__(self, clock1: str, clock2: str, is_equal: bool, bound_value: int):
+        """
+        clock1 - clock2 < or ≤ bound_value
+        """
+        self.clock1: str = clock1
+        self.clock2: str = clock2
+        self.is_equal: bool = is_equal
+        self.bound_value: int = bound_value
+
+    def __str__(self):
+        sign = '≤' if self.is_equal else '<'
+        res = f'{self.clock1} - {self.clock2} {sign} {self.bound_value}'
+        return res
+
+
+class Transition:
+    def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[str]):
+        self.sync: str = sync
+        self.start_process: str = start_process
+        self.end_process: List[str] = end_process
+        # 这个edges暂时没用，但是我们也先存下来了。
+        self.edges: List[str] = edges
+
+    def __str__(self):
+        res = f'{self.sync}: {self.start_process} -> {self.end_process}'
+        return res
+
+
+class SimulationTrace:
+    def __init__(self, states: List[List[str]], clock_constraints: List[ClockZone], transitions: List[Transition]):
+        """
+        第i个state和第i个transition有相同的clock constraints
+        第i个transition前面跟第i个state，详情看__str__()
+        """
+        # 注意三者长度, 前期开发用，后发布时候续注释掉
+        if len(states) == len(clock_constraints) == len(transitions) + 1:
+            pass
+        else:
+            raise ValueError(f'length should satisfy: len(states) == len(clock_constraints) == len(transitions) + 1\n'
+                             f'current length: len(states) = {len(states)}, '
+                             f'len(clock_constraints) = {len(clock_constraints)}, '
+                             f'len(transitions) + 1 = {len(transitions) + 1}.')
+        self.__states: List[List[str]] = states
+        self.__global_variables = None
+        self.__clock_constraints: List[ClockZone] = clock_constraints
+        self.__transitions: List[Transition] = transitions
+
+    @property
+    def states(self):
+        return self.__states
+
+    @property
+    def clock_constraints(self):
+        return self.__clock_constraints
+
+    @property
+    def transitions(self):
+        return self.__transitions
+
+    @property
+    def actions(self) -> List[str]:
+        # __transitions里的sync（action）
+        res = []
+        return res
+
+    def __str__(self):
+        raise NotImplementedError
+        res = ''
+        return res
+
+    def filter_by_actions(self, actions: List[str]) -> SimulationTrace:
+        """
+        filter edges by actions
+        return 保留edges以及clock constraints
+        """
+        pass
+
+    def filter_by_clocks(self, concerned_clocks: List[str], is_both: bool) -> SimulationTrace:
+        if is_both:
+            pass
+        else:
+            pass
+        pass
 
 
 class Tracer:
@@ -340,5 +433,9 @@ class Tracer:
                 transition_clock_bound = transition_clock_bounds[i]
                 small = -transition_clock_bound['sys.t(0)']['sys.gclk'][1]
                 large = transition_clock_bound['sys.gclk']['sys.t(0)'][1]
-                old_pattern_obs_events.append((signal, 'gclk>='+str(small), 'gclk<='+str(large)))
+                old_pattern_obs_events.append((signal, 'gclk>=' + str(small), 'gclk<=' + str(large)))
         return old_pattern_obs_events
+
+    @staticmethod
+    def extract_simulation_trace(xtr_file: str) -> SimulationTrace:
+        pass

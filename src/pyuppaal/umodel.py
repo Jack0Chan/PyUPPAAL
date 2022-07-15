@@ -193,8 +193,9 @@ class UModel:
         在<system></system>前添加新的线性monitor，并且自动添加到system中
         如果name有冲突，会自动替换原template
         monitor_name: string
-               signals: List[Tuple[str, int, int]],
+                 signals: List[Tuple[str, str, str]],
                  每个Tuple分别对应[signal, guard, inv]
+                 example: ['act_path!', 'gclk>=10', 'gclk<=10']
                  signal, guard, inv, name 都可以是None
                  signal: 信号名称
                  guard: int
@@ -284,7 +285,7 @@ class UModel:
         # 设置验证语句
         self.set_queries(['E<> Monitor0.pass'])
         # 保存构建好的模型
-        self.save_model(new_model_path)
+        self.save_model()
         # 获取第0个pattern
         pattern = Tracer.validate_and_get_untime_pattern(new_model_path, trace_path, self.edge_signal_dict)
         return pattern
