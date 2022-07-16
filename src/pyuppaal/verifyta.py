@@ -4,6 +4,7 @@ import os
 from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 import functools
+from multiprocessing import cpu_count
 
 
 def check_is_verifyta_path_empty(func):
@@ -83,77 +84,125 @@ class Verifyta:
         return self._verifyta_path
 
     @check_is_verifyta_path_empty
-    def simple_verify(self, model_path: str, trace_path: str):
+    def simple_verify(self, 
+                      model_path: str or List[str], 
+                      trace_path: str or List[str], 
+                      parallel: str=None):
         """
-        简单验证，返回最短诊断路径（shortest path）
-        model_path: str, 待验证的模型路径
-        trace_path: str, 需要保存的xml or xtr path文件路径
-        验证模型，并将验证结果的xml文件保存到trace_path中
+        Simple verification, return to the shortest diagnostic path.
+        model_path: str or str list, Model paths to be verified
+        trace_path: str or str list, Trace paths to be saved
+        parallel: str, select parallel method for accelerate verification, 
+                None(default):run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
+        Verify the model in model_path and save the verification results to trace_path
         """
-        # check trace_path format
-        if trace_path.endswith('.xml'):
-            trace_path = trace_path.replace('.xml', '')
-            cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
-            res = os.popen(cmd).read()
-        elif trace_path.endswith('.xtr'):
-            # trace_path = trace_path.replace('.xml', '')
-            # cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
-            # res = os.popen(cmd).read()
-            raise NotImplementedError()
-            res = ''
-        else:
-            error_info = 'trace_path should end with ".xml" or ".xtr".'
-            error_info += f' Currently trace_path = {trace_path}'
+        # check model_path and trace_path type is same
+        if type(model_path) != type(trace_path):
+            error_info = f'type of model_path and trace_path are inconsistent'
+            raise TypeError(error_info)
+
+        # check model_path is only one model, set parallel loop
+        if type(model_path) != list:
+            model_path, trace_path = [model_path], [trace_path]
+            parallel = None
+        
+        # check model_path and trace_path len is same
+        if len(model_path) != len(trace_path):
+            error_info = f'length of model_path and trace_path are inconsistent'
             raise ValueError(error_info)
-        return res
-
-    @check_is_verifyta_path_empty
-    def simple_verify_process(self, model_paths: List[str], trace_paths: List[str]):
+        
+        # set uppaal environment variables
+        cmd_env = 'set UPPAAL_COMPILE_ONLY='
+        
         cmds = []
-        for i in range(len(model_paths)):
-            model_path = model_paths[i]
-            trace_path = trace_paths[i]
+        for i in range(len(model_path)):
+            model_i = model_path[i]
+            trace_i = trace_path[i]
+
+            # check model_path exist
+            if not os.path.exists(model_i):
+                error_info = f'model_path {model_i} not found.'
+                raise FileNotFoundError(error_info)
 
             # check trace_path format
-            if trace_path.endswith('.xml'):
-                trace_path = trace_path.replace('.xml', '')
-                cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
+            if trace_i.endswith('.xml'):
+                trace_i = trace_i.replace('.xml', '')
+                cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -X {trace_i} {model_i}'
                 cmds.append(cmd)
-            elif trace_path.endswith('.xtr'):
-                # trace_path = trace_path.replace('.xml', '')
-                # cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
-                # res = os.popen(cmd).read()
-                raise NotImplementedError()
+            elif trace_i.endswith('.xtr'):
+                trace_i = trace_i.replace('.xtr', '')
+                cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -f {trace_i} {model_i}'
+                cmds.append(cmd)
             else:
                 error_info = 'trace_path should end with ".xml" or ".xtr".'
-                error_info += f' Currently trace_path = {trace_path}'
+                error_info += f' Currently trace_path = {trace_i}'
                 raise ValueError(error_info)
+        
+        # select parallel method
+        if parallel == 'process':
+            res = self.cmds_process(cmds=cmds)
+        elif parallel == 'threads':
+            res = self.cmds_threads(cmds=cmds)
+        else:
+            res = self.cmds_loop(cmds=cmds)
 
-        return self.cmds_process(cmds, len(cmds))
+        return res 
 
-    @check_is_verifyta_path_empty
-    def simple_verify_threads(self, model_paths: List[str], trace_paths: List[str]):
-        cmds = []
-        for i in range(len(model_paths)):
-            model_path = model_paths[i]
-            trace_path = trace_paths[i]
+    # @check_is_verifyta_path_empty
+    # def simple_verify_process(self, model_paths: List[str], trace_paths: List[str]):
+    #     cmds = []
+    #     for i in range(len(model_paths)):
+    #         model_path = model_paths[i]
+    #         trace_path = trace_paths[i]
 
-            # check trace_path format
-            if trace_path.endswith('.xml'):
-                trace_path = trace_path.replace('.xml', '')
-                cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
-                cmds.append(cmd)
-            elif trace_path.endswith('.xtr'):
-                # trace_path = trace_path.replace('.xml', '')
-                # cmd = f'{self.verifyta_path} -t 1 -X {trace_path} {model_path}'
-                # res = os.popen(cmd).read()
-                raise NotImplementedError()
-            else:
-                error_info = 'trace_path should end with ".xml" or ".xtr".'
-                error_info += f' Currently trace_path = {trace_path}'
-                raise ValueError(error_info)
+    #         # check model_path exist
+    #         if not os.path.exists(model_path):
+    #             error_info = f'model_path {model_path} not found.'
+    #             raise FileNotFoundError(error_info)
 
-        return self.cmds_threads(cmds, len(cmds))
+    #         # check trace_path format
+    #         if trace_path.endswith('.xml'):
+    #             trace_path = trace_path.replace('.xml', '')
+    #             cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
+    #             cmds.append(cmd)
+    #         elif trace_path.endswith('.xtr'):
+    #             trace_path = trace_path.replace('.xtr', '')
+    #             cmd = f'{self._verifyta_path} -t 1 -f {trace_path} {model_path}'
+    #             cmds.append(cmd)
+    #         else:
+    #             error_info = 'trace_path should end with ".xml" or ".xtr".'
+    #             error_info += f' Currently trace_path = {trace_path}'
+    #             raise ValueError(error_info)
+
+    #     return self.cmds_process(cmds, len(cmds))
+
+    # @check_is_verifyta_path_empty
+    # def simple_verify_threads(self, model_paths: List[str], trace_paths: List[str]):
+    #     cmds = []
+    #     for i in range(len(model_paths)):
+    #         model_path = model_paths[i]
+    #         trace_path = trace_paths[i]
+
+    #         # check model_path exist
+    #         if not os.path.exists(model_path):
+    #             error_info = f'model_path {model_path} not found.'
+    #             raise FileNotFoundError(error_info)
+
+    #         # check trace_path format
+    #         if trace_path.endswith('.xml'):
+    #             trace_path = trace_path.replace('.xml', '')
+    #             cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
+    #             cmds.append(cmd)
+    #         elif trace_path.endswith('.xtr'):
+    #             trace_path = trace_path.replace('.xtr', '')
+    #             cmd = f'{self._verifyta_path} -t 1 -f {trace_path} {model_path}'
+    #             cmds.append(cmd)
+    #         else:
+    #             error_info = 'trace_path should end with ".xml" or ".xtr".'
+    #             error_info += f' Currently trace_path = {trace_path}'
+    #             raise ValueError(error_info)
+
+    #     return self.cmds_threads(cmds, len(cmds))
 
 
     @check_is_verifyta_path_empty
@@ -167,6 +216,13 @@ class Verifyta:
         return cmd, os.popen(cmd).read()
 
     @check_is_verifyta_path_empty
+    def cmds_loop(self, cmds: List[str]):
+        """
+        run in sequence
+        """
+        return [self.cmd(tmp_cmd) for tmp_cmd in cmds]
+
+    @check_is_verifyta_path_empty
     def cmds_process(self, cmds: List[str], num_process: int = None):
         """
         note that sometimes, multiprocess is not faster than single-process or multi-threads
@@ -175,22 +231,28 @@ class Verifyta:
         if num_process is 1, it's better run with self.cmd
         return running cmds and associated result
         """
+        if num_process == None:
+            num_process = cpu_count()
+        
         if num_process == 1:
             w = 'You are running with only 1 process, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
-        p = Pool(num_process)
+        p = Pool(min(num_process, cpu_count()))
         return p.map(self.cmd, cmds)
 
     @check_is_verifyta_path_empty
     def cmds_threads(self, cmds: List[str], num_threads: int = None):
         """
         run a list of commands and return results
-        if num_threads is not given, it will run with num cpu cores
+        if num_threads is not given, it will run with num cpu cores * 2
         if num_threads is 1, it's better run with self.cmd
         return running cmds and associated result
         """
+        if num_threads == None:
+            num_threads = cpu_count()*2
+        
         if num_threads == 1:
             w = 'You are running with only 1 thread, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
-        p = ThreadPool(num_threads)
+        p = ThreadPool(min(num_threads, cpu_count()*2))
         return p.map(self.cmd, cmds)
