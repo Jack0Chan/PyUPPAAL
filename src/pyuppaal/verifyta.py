@@ -1,3 +1,4 @@
+from __future__ import annotations # support typing str | List[str]
 import warnings
 from typing import List
 import os
@@ -85,16 +86,17 @@ class Verifyta:
 
     @check_is_verifyta_path_empty
     def simple_verify(self, 
-                      model_path: str or List[str], 
-                      trace_path: str or List[str], 
+                      model_path: str | List[str], 
+                      trace_path: str | List[str], 
                       parallel: str=None):
         """
-        Simple verification, return to the shortest diagnostic path.
+        Simple verification, return to the shortest diagnostic path. 
+        Verify the model in model_path and save the verification results to trace_path
+        
         model_path: str or str list, Model paths to be verified
         trace_path: str or str list, Trace paths to be saved
         parallel: str, select parallel method for accelerate verification, 
-                None(default):run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
-        Verify the model in model_path and save the verification results to trace_path
+        None(default):run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
         """
         # check model_path and trace_path type is same
         if type(model_path) != type(trace_path):
