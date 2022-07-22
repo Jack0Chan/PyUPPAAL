@@ -1,4 +1,9 @@
-from __future__ import annotations # support typing str | List[str]
+# support typing str | List[str]
+# https://github.com/microsoft/pylance-release/issues/513
+from __future__ import annotations
+from ctypes import FormatError
+from distutils import extension
+from inspect import trace 
 import warnings
 from typing import List
 import os
@@ -6,7 +11,9 @@ from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 import functools
 from multiprocessing import cpu_count
+import platform
 
+is_windows = platform.system() == 'Windows'
 
 def check_is_verifyta_path_empty(func):
     """
@@ -87,7 +94,7 @@ class Verifyta:
     @check_is_verifyta_path_empty
     def simple_verify(self, 
                       model_path: str | List[str], 
-                      trace_path: str | List[str], 
+                      trace_path: str | List[str] = None, 
                       parallel: str=None):
         """
         Simple verification, return to the shortest diagnostic path. 
@@ -98,9 +105,17 @@ class Verifyta:
         parallel: str, select parallel method for accelerate verification, 
         None(default):run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
         """
+        # check trace_path is None
+        if trace_path is None:
+            if type(model_path) == str:
+                trace_path = os.path.splitext(model_path)[0] + '.xtr'
+            else:
+                trace_path = [os.path.splitext(x)[0]+'.xtr' for x in model_path]
+
         # check model_path and trace_path type is same
         if type(model_path) != type(trace_path):
-            error_info = f'type of model_path and trace_path are inconsistent'
+            error_info = f'type of model_path and trace_path are inconsistent\n'
+            error_info += f'model_path: {type(model_path)}, trace_path:{type(trace_path)}.'
             raise TypeError(error_info)
 
         # check model_path is only one model, set parallel loop
@@ -114,18 +129,16 @@ class Verifyta:
             raise ValueError(error_info)
         
         # set uppaal environment variables
-        cmd_env = 'set UPPAAL_COMPILE_ONLY='
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if is_windows else "UPPAAL_COMPILE_ONLY="
         
         cmds = []
         for i in range(len(model_path)):
             model_i = model_path[i]
             trace_i = trace_path[i]
-
             # check model_path exist
             if not os.path.exists(model_i):
                 error_info = f'model_path {model_i} not found.'
                 raise FileNotFoundError(error_info)
-
             # check trace_path format
             if trace_i.endswith('.xml'):
                 trace_i = trace_i.replace('.xml', '')
@@ -139,15 +152,18 @@ class Verifyta:
                 error_info = 'trace_path should end with ".xml" or ".xtr".'
                 error_info += f' Currently trace_path = {trace_i}'
                 raise ValueError(error_info)
-        
+
         # select parallel method
+        if parallel == None:
+            return self.cmds_loop(cmds=cmds)
         if parallel == 'process':
             res = self.cmds_process(cmds=cmds)
         elif parallel == 'threads':
             res = self.cmds_threads(cmds=cmds)
         else:
-            res = self.cmds_loop(cmds=cmds)
-
+            error_info = 'parallel should be "process" or "threads".'
+            error_info += f' Currently parallel = {parallel}'
+            raise ValueError(error_info)
         return res 
 
     # @check_is_verifyta_path_empty
@@ -258,3 +274,36 @@ class Verifyta:
             warnings.warn(w)
         p = ThreadPool(min(num_threads, cpu_count()*2))
         return p.map(self.cmd, cmds)
+
+    @check_is_verifyta_path_empty
+    def compile_to_if(self, model_path: str):
+        """Compile model_path(model.xml) to generate a intermediate format file (model.if). 
+
+        Args:
+            model_path (str): str or str list, Model path to be verified
+
+        Raises:
+            FileNotFoundError: model_path not found.
+            ValueError: model_path is not a xml format file.
+        """
+        if not os.path.exists(model_path):
+            error_info = f'model_path {model_path} not found.'
+            raise FileNotFoundError(error_info)
+        file_path, file_ext = os.path.splitext(model_path)
+        if_path = file_path + '.if'
+        
+        if file_ext != '.xml':
+            error_info = f'model_path {model_path} should be xml format file.'
+            raise ValueError(error_info)
+
+        # set uppaal environment variables
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=1'
+        cmd = cmd_env+"&&"+f'{self._verifyta_path} {model_path} > {if_path}'
+        self.cmd(cmd=cmd)
+        
+        if not os.path.exists(if_path):
+            error_info = f'if file {if_path} has not generated.'
+            raise FileNotFoundError(error_info)
+        return if_path
+
+        
