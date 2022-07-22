@@ -1,16 +1,29 @@
 # 这一行的import能够指定class的method返回自身类
 # 参考链接：https://www.nuomiphp.com/eplan/11188.html
 from __future__ import annotations
+from ast import Global, Raise
+from cgi import test
 from collections import namedtuple
+from inspect import trace
+from numbers import Real
+from operator import mod
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 from .verifyta import Verifyta
+from .config import *
+import os
+import platform
+
+
+platform_system = platform.system()
+tracer_custom = TRACER_CUSTOM_WINDOWS if platform.system(
+) == 'Windows' else TRACER_CUSTOM_LINUX
 
 
 # ClockZone = namedtuple('ClockZone', ['clock1', 'clock2', 'is_equal', 'bound_value'])
 # Transition = namedtuple('Transition', ['sync', 'start_process', 'end_process'])
 
-class ClockZone:
+class OneClockZone:
     def __init__(self, clock1: str, clock2: str, is_equal: bool, bound_value: int):
         """
         clock1 - clock2 < or ≤ bound_value
@@ -26,37 +39,143 @@ class ClockZone:
         return res
 
 
+class ClockZone:
+    def __init__(self, clockzones: List[OneClockZone]):
+        """
+        ClockZone List
+        """
+        self.clockzones = clockzones
+
+    def __str__(self):
+        res = f'[]'
+        if len(self.clockzones) > 0:
+            res = '['
+            for i in range(len(self.clockzones)):
+                res += f'{self.clockzones[i].__str__()}; '
+            res += ']'
+        return res
+
+
+class Edges:
+    def __init__(self, start_location, end_location, Guard: str, Sync: str, Update: str):
+        """Edges
+        process.start_location -> process.end_location: {Guard, Sync, Update} 
+        """
+        self.start_location = start_location
+        self.end_location = end_location
+        self.Guard = Guard
+        self.Sync = Sync
+        self.Update = Update
+        self.process = self.start_location.split('.')[0]
+        # self.is_sync = Sync != '0'
+        # self.is_grard = Guard != '1'
+
+    def __str__(self):
+        res = f'{self.process}.{self.start_location} -> {self.process}.{self.end_location}:'
+        res = res + f'{{{self.Guard};{self.Sync};{self.Update}}}'
+        return res
+
+    @property
+    def is_sync(self):
+        return self.Sync[-1] == '!' or self.Sync[-1] == '?'
+
+    @property
+    def sync_symbol(self):
+        if self.is_sync:
+            return self.Sync[:-1]
+        else:
+            return None
+
+    @property
+    def is_guard(self):
+        return self.Guard != '1'
+
+    @property
+    def sync_type(self):
+        if self.is_sync:
+            return 'send' if self.Sync[-1] == '!' else 'receive'
+        else:
+            return None
+
+
 class Transition:
-    def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[str]):
+    def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[Edges] = None):
         self.sync: str = sync
         self.start_process: str = start_process
         self.end_process: List[str] = end_process
         # 这个edges暂时没用，但是我们也先存下来了。
-        self.edges: List[str] = edges
+        self.edges: List[Edges] = edges
 
     def __str__(self):
-        res = f'{self.sync}: {self.start_process} -> {self.end_process}'
+        if self.sync is None:
+            res = f'{self.sync}: {self.edges[0].start_location} -> {self.edges[0].end_location}'
+        else:
+            res = f'{self.sync}: {self.start_process} -> {self.end_process}'
+        return res
+
+    @property
+    def action(self):
+        return self.sync
+
+
+class GlobalVar:
+    def __init__(self, variables_name: List[str], variables_value: List[float]):
+        """
+        GlobalVar: variables_name[i] = variables_value[i]
+        """
+        self.variables_name = variables_name
+        self.variables_value = variables_value
+
+    def __str__(self):
+        res = f'[]'
+        if len(self.variables_name) > 0:
+            res = '['
+            for i in range(len(self.variables_name)):
+                res += f'{self.variables_name[i]}={self.variables_value[i]}; '
+            res += ']'
         return res
 
 
-class SimulationTrace:
-    def __init__(self, states: List[List[str]], clock_constraints: List[ClockZone], transitions: List[Transition]):
+class SimTrace:
+    def __init__(self, states: List[List[str]] = [],
+                 clock_constraints: List[ClockZone] = [],
+                 transitions: List[Transition] = [],
+                 global_variables: List[GlobalVar] = []):
         """
         第i个state和第i个transition有相同的clock constraints
         第i个transition前面跟第i个state，详情看__str__()
         """
-        # 注意三者长度, 前期开发用，后发布时候续注释掉
-        if len(states) == len(clock_constraints) == len(transitions) + 1:
-            pass
-        else:
-            raise ValueError(f'length should satisfy: len(states) == len(clock_constraints) == len(transitions) + 1\n'
-                             f'current length: len(states) = {len(states)}, '
-                             f'len(clock_constraints) = {len(clock_constraints)}, '
-                             f'len(transitions) + 1 = {len(transitions) + 1}.')
         self.__states: List[List[str]] = states
-        self.__global_variables = None
+        self.__global_variables = global_variables
         self.__clock_constraints: List[ClockZone] = clock_constraints
         self.__transitions: List[Transition] = transitions
+
+        # check length correct
+        # is_equal_conlen = len(self.__states) == len(self.__clock_constraints)
+        # is_equal_tralen = len(self.__states) == len(
+        #     self.__transitions) + 1 or (len(self.__states) == len(self.__transitions) == 0)
+        # if not (is_equal_conlen and is_equal_tralen):
+        #     raise ValueError(f'length should satisfy: len(states) == len(clock_constraints) == len(transitions) + 1\n'
+        #                      f'current length: len(states) = {len(self.__states)}, '
+        #                      f'len(clock_constraints) = {len(self.__clock_constraints)}, '
+        #                      f'len(transitions) + 1 = {len(self.__transitions)+1}.')
+
+    def __str__(self):
+        res = ''
+        for i in range(len(self.__states)):
+            res += f'State [{i}]: {self.__states[i].__str__()}\n'
+            res += f'global_variables [{i}]: {self.__global_variables[i].__str__()}\n'
+            res += f'Clock_constraints [{i}]: {self.__clock_constraints[i].__str__()}\n'
+            if i < len(self.__states) - 1:
+                res += f'transitions [{i}]: {self.__transitions[i].__str__()}\n'
+                res += f'-----------------------------------\n'
+        return res
+
+    def set_empty(self):
+        self.__states: List[List[str]] = []
+        self.__global_variables = []
+        self.__clock_constraints: List[ClockZone] = []
+        self.__transitions: List[Transition] = []
 
     @property
     def states(self):
@@ -70,47 +189,178 @@ class SimulationTrace:
     def transitions(self):
         return self.__transitions
 
+    # 这个就是get_untimed_pattern
     @property
     def actions(self) -> List[str]:
-        # __transitions里的sync（action）
-        res = []
-        return res
+        return [x.action for x in self.transitions]
 
-    def __str__(self):
-        raise NotImplementedError
-        res = ''
-        return res
+    def filter_by_index(self, index_array: List[int]) -> SimTrace:
+        """通过下标索引筛选出对应的SimTrace
 
-    def filter_by_actions(self, actions: List[str]) -> SimulationTrace:
+        Args:
+            index_array (List[int]): 索引
+
+        Returns:
+            SimTrace: 返回一个SimTrace对象
+        """
+        new_states = [self.__states[i] for i in range(len(self.__states)) if i in index_array]
+        new_clock_cons = [self.__clock_constraints[i] for i in range(len(self.__clock_constraints)) if i in index_array]
+        new_transitions = [self.__transitions[i] for i in range(len(self.__transitions)) if i in index_array]
+        new_global_var = [self.__global_variables[i] for i in range(len(self.__global_variables)) if i in index_array]
+        new_simtrace = SimTrace(new_states, new_clock_cons, new_transitions, new_global_var)
+        return new_simtrace
+
+    def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
         """
         filter edges by actions
         return 保留edges以及clock constraints
         """
-        pass
+        index_array = [i for i in range(len(self.actions)) if self.actions[i] in focused_actions]
+        return self.filter_by_index(index_array)
 
-    def filter_by_clocks(self, concerned_clocks: List[str], is_both: bool) -> SimulationTrace:
+
+    def filter_by_clocks(self, concerned_clocks: List[str], is_both: bool) -> SimTrace:
+        """通过clockZone筛选trace
+
+        Args:
+            concerned_clocks (List[str]): _description_
+            is_both (bool): _description_
+
+        Returns:
+            SimTrace: _description_
+        """
         if is_both:
             pass
         else:
             pass
         pass
+        Raise(NotImplementedError)
+
+    def get_untime_pattern(self):
+        return self.actions
+    
+    # def get_timed_pattern(self):
+        
+        
 
 
 class Tracer:
     """
-    用来分析由命令行验证得到的xml格式的trace
+    用来分析由命令行验证得到的xtr格式的trace
     """
 
     @staticmethod
-    def get_timed_trace(trace_path: str) -> List[Tuple[str, str, str]]:
+    def get_timed_trace(model_path: str, trace_path: str, hold: bool=False) -> SimTrace:
         """
         获取trace_path的trace以及每个转移状态对应的gclk的区间
         注意由于UPPAAL验证返回的限制，这个trace并不是具体的时间，而是gclk的限制
         能够帮助我们构建更快速验证的Monitor，但是不一定能帮我们划分参数
-        返回
-        List[Tuple[str, str, str]]，即List<(Signal, lower_bound(类似guard), upper_bound(类似inv))>
+        返回 一个 SimulationTrace class.
+
+        hold: 保留中间生成文件(.if & .txt)
         """
-        pass
+        verifyta = Verifyta()
+        # use Verifta to compile model_path to if format file
+        if_file = verifyta.compile_to_if(model_path=model_path)
+        file_path, file_ext = os.path.splitext(if_file)
+        # use trcer_custom to generate txt file
+        trace_txt = file_path+'.txt'
+        cmd_command = f'{tracer_custom} {if_file} {trace_path} {trace_txt}'
+        cmd_res = os.popen(cmd_command).read()
+        # check file exist
+        if not os.path.exists(trace_txt):
+            error_info = f'trace txt file {trace_txt} has not generated.'
+            raise FileNotFoundError(error_info)
+        # load trace txt file
+        f = open(trace_txt, 'r')
+        trace_text = f.readlines()
+        f.close()
+
+        # construct SimulationTrace instance
+        clock_constraints, states, global_variables, transitions = [], [], [], []
+        for tr_ind in range(len(trace_text)):
+            state_text, globalvar_name, globalvar_val, clockzones_text, transitions_text = [], [], [], [], []
+            if trace_text[tr_ind].startswith('State'):
+                tmp_trace_i = trace_text[tr_ind][7:].strip().split(' ')
+                # print(trace_text[tr_ind][7:].strip())
+                for tr_sub in range(len(tmp_trace_i)):
+                    if ("=" in tmp_trace_i[tr_sub]) and ('<' not in tmp_trace_i[tr_sub]):
+                        # globalvariables
+                        var_name, var_val = tmp_trace_i[tr_sub].split('=')
+                        globalvar_name.append(var_name.strip())
+                        globalvar_val.append(var_val.strip())
+                    elif ('<' in tmp_trace_i[tr_sub]) and ('-' in tmp_trace_i[tr_sub]):
+                        # clockzones
+                        # print(tmp_trace_i[tr_sub])
+                        clocks, clk_bound = [x.strip() for x in tmp_trace_i[tr_sub].split('<')]
+                        clock1, clock2 = [x.strip() for x in clocks.split('-')]
+                        if clk_bound[0] == '=':
+                            clk_bound = clk_bound[1:]
+                            is_equal = True
+                        else:
+                            is_equal = False
+                        clkzone = OneClockZone(clock1=clock1.strip(), clock2=clock2.strip(' '),
+                                            is_equal=is_equal, bound_value=clk_bound.strip(' '))
+                        clockzones_text.append(clkzone)
+                    else:
+                        # state
+                        state_text.append(tmp_trace_i[tr_sub].strip())
+                clock_constraints.append(ClockZone(clockzones_text))
+                states.append(state_text)
+                global_variables.append(GlobalVar(
+                    globalvar_name, globalvar_val))
+                # print(clockzones_text[0].__str__())
+                # print(state_text)
+                # print(globalvar_name, globalvar_val)
+            elif trace_text[tr_ind].startswith('Transition'):
+                tmp_trace_i = trace_text[tr_ind][12:].strip().split('}')[:-1]
+                edges_list = []
+                end_process = []
+                sync_symbol = None
+                start_process = None
+                for tr_sub in range(len(tmp_trace_i)):
+                    trans_comp, edge_trans = tmp_trace_i[tr_sub].split('{')
+                    start_location, end_location = [x.strip() for x in trans_comp.split('->')]
+                    guard, sync, update = [x.strip() for x in edge_trans.split(';')[:-1]]
+                    # strip
+                    tmp_edge = Edges(
+                        start_location, end_location, guard, sync, update)
+                    if tmp_edge.sync_type == 'send':
+                        start_process = tmp_edge.process
+                        sync_symbol = tmp_edge.sync_symbol
+                    elif tmp_edge.sync_type == 'receive':
+                        end_process.append(tmp_edge.process)
+                    else:
+                        start_process = tmp_edge.process
+                        end_process.append(tmp_edge.process)
+                    edges_list.append(tmp_edge)
+                transitions.append(Transition(sync=sync_symbol, start_process=start_process,
+                                              end_process=end_process, edges=edges_list))
+            else:
+                pass
+        # remove if and txt file
+        if not hold:
+            os.remove(if_file)
+            os.remove(trace_txt)
+        return SimTrace(states, clock_constraints, transitions, global_variables)
+
+    @staticmethod
+    def get_untime_pattern(trace_path: str, edge_signal_dict: Dict[str, str]):
+        """
+        获取trace_path的untime的pattern，即所有的!actions，并根据edge_signal_dict替换成可读信号
+        trace_path: str, xml trace的路径
+        edge_signal_dict示例：{'NSA.Edge2.actPath!': 'actPathSA!'}
+        意思是将'NSA.Edge2.actPath!'替换为'actPathSA'
+        注意，为了方便构造edge_signal_dict，可以调用并打印Tracer.get_untime_trace()
+        """
+        
+
+        untime_trace = Tracer.get_untime_trace(trace_path)
+        # print('========== get_untime_pattern', trace_path, edge_signal_dict, untime_trace)
+        return Tracer.convert_trace_to_pattern(untime_trace, edge_signal_dict)
+
+
+
 
     @staticmethod
     def get_timed_pattern(trace_path: str) -> List[Tuple[str, str, str]]:
@@ -382,22 +632,9 @@ class Tracer:
         # print(untime_trace)
 
         # pattern = [edge_signal_dict[i[0]] for i in untime_trace if i[0] in edge_signal_dict]
-        pattern = [edge_signal_dict[i[0]] for i in untime_trace[0] if i[0] in edge_signal_dict]
+        pattern = [edge_signal_dict[i[0]]
+                   for i in untime_trace[0] if i[0] in edge_signal_dict]
         return pattern
-
-    @staticmethod
-    def get_untime_pattern(trace_path: str, edge_signal_dict: Dict[str, str]):
-        """
-        获取trace_path的untime的pattern，即所有的!actions，并根据edge_signal_dict替换成可读信号
-        trace_path: str, xml trace的路径
-        edge_signal_dict示例：{'NSA.Edge2.actPath!': 'actPathSA!'}
-        意思是将'NSA.Edge2.actPath!'替换为'actPathSA'
-        注意，为了方便构造edge_signal_dict，可以调用并打印Tracer.get_untime_trace()
-        """
-
-        untime_trace = Tracer.get_untime_trace(trace_path)
-        # print('========== get_untime_pattern', trace_path, edge_signal_dict, untime_trace)
-        return Tracer.convert_trace_to_pattern(untime_trace, edge_signal_dict)
 
     @staticmethod
     def validate_and_get_untime_pattern(model_path: str, trace_path: str, edge_signal_dict: Dict[str, str]):
@@ -413,7 +650,8 @@ class Tracer:
             # 那么验证得到的模型应该是test1.xml
             trace_path = trace_path.replace('.xml', '1.xml')
             new_trace_path = trace_path
-            pattern = Tracer.get_untime_pattern(new_trace_path, edge_signal_dict)
+            pattern = Tracer.get_untime_pattern(
+                new_trace_path, edge_signal_dict)
             # print('======== validate_and_get_untime_pattern', pattern, model_path, trace_path)
             return pattern
         else:
@@ -423,7 +661,8 @@ class Tracer:
     def get_old_pattern_obs_events(trace_path, edge_signal_dict):
         trace_path = trace_path.replace('.xml', '1.xml')
         trace = Tracer.get_untime_trace(trace_path)[0]
-        transition_clock_bounds = Tracer.get_transition_clock_bounds(trace_path)
+        transition_clock_bounds = Tracer.get_transition_clock_bounds(
+            trace_path)
         old_pattern_obs_events = []
         for i in range(len(trace)):
             transition = trace[i]
@@ -433,7 +672,8 @@ class Tracer:
                 transition_clock_bound = transition_clock_bounds[i]
                 small = -transition_clock_bound['sys.t(0)']['sys.gclk'][1]
                 large = transition_clock_bound['sys.gclk']['sys.t(0)'][1]
-                old_pattern_obs_events.append((signal, 'gclk>=' + str(small), 'gclk<=' + str(large)))
+                old_pattern_obs_events.append(
+                    (signal, 'gclk>=' + str(small), 'gclk<=' + str(large)))
         return old_pattern_obs_events
 
     @staticmethod

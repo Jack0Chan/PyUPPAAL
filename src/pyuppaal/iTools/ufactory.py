@@ -1,10 +1,11 @@
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 
+from numpy import single
 
 class UFactory:
     """
-    usage: UppaalFactory.function(xxx)
+    usage: UFactory.function(xxx)
     用户一般不直接调用这个class
     用来生产UPPAAL里的xml element组件，主要包含
     declaration, (简单字符串)
@@ -66,7 +67,7 @@ class UFactory:
         queries_elem = ET.Element('queries')
         # 构建并加入多个queries element
         for query in queries:
-            queries_elem.append(UppaalFactory.__query(query))
+            queries_elem.append(UFactory.__query(query))
         return queries_elem
 
     @staticmethod
@@ -109,8 +110,9 @@ class UFactory:
         return location
 
     @staticmethod
-    def transition(sourceID: int, targetID: int, pos_x: int, pos_y: int,
-                   guard: str = None, sync: str = None, clock_reset: str = None):
+    def transition(sourceID: int, targetID: int, pos_x: int, pos_y: int, 
+                   guard: str = None, sync: str = None, clock_reset: str = None, 
+                   nail: bool = False):
         """
         sourceID: int, 起点id
         targetID: int, 终点id
@@ -118,6 +120,7 @@ class UFactory:
         guard: str, edge的guard，如't>=10', 't>100'
         sync: str, synchronisation信号，需要注明!或者？
         clock_reset: str, 如't=0'
+        nail: bool, False: 表示是否让边弯曲，适用于同起点终点存在多条路径的情况。
         完整transition示例：
         <transition>
             <source ref="id7"/>
@@ -155,6 +158,11 @@ class UFactory:
                                                     'y': str(pos_y - 60)})
             label_assignment.text = clock_reset
             transition.append(label_assignment)
+        # 构建并添加nail (弯曲结点)
+        if nail:
+            nail_element = ET.Element('nail', {'x': str(pos_x),
+                                               'y': str(pos_y)})
+            transition.append(nail_element)
         return transition
 
     @staticmethod
@@ -162,9 +170,9 @@ class UFactory:
                  parameter: str = None, declaration: str = None):
         """
         name: str, template的名字
-        locations: List[ET.Element], 由UppaalFactory.construct_location()构造出的一系列locations
+        locations: List[ET.Element], 由UFactory.construct_location()构造出的一系列locations
         init_id: int, initial location的id，比如47
-        transitions: List[ET.Element], 由UppaalFactory.construct_transition()构造出的一系列transitions
+        transitions: List[ET.Element], 由UFactory.construct_transition()构造出的一系列transitions
         parameter: str,
             比如：<parameter>broadcast chan &amp;actNode, actPath,int tERPMin, int tERPMax</parameter>
         declaration: str,
@@ -200,7 +208,7 @@ class UFactory:
         # 创建并加入declaration
         if declaration is not None:
             declaration_elem = ET.Element('declaration')
-            declaration_elem.text = parameter
+            declaration_elem.text = declaration
             template.append(declaration_elem)
 
         # 加入locations
@@ -217,21 +225,51 @@ class UFactory:
         return template
 
     @staticmethod
-    def input(input_signals: List[Tuple[str, str, str]], init_id: int, input_name: str = 'Input'):
+    def input(input_name: str, signals: List[Tuple[str, str, str]], init_id: int):
         """
         构建输入的线性模型，类似monitor
+        input_name: string
+        signals: List[Tuple[str, int, int]],
+                 每个tuple分别对应[signal, guard, inv]
+                 signal, guard, inv, name 都可以是None
+                 signal: 信号名称
+                 guard: str, 比如gclk>=10
+                 inv: str, 比如gclk<=5
+                 注意：在连接的时候是按照信号在list出现的顺序连接的
+        init_id: int, 用来设置Monitor中最小的<init ref='xxx'/>
         """
-        pass
+         # 创建locations
+        locations = []
+        for i in range(len(signals)):
+            # [signal, guard, inv, name]
+            location = UFactory.location(init_id + i, 300 * i, 200, signals[i][2])
+            locations.append(location)
+        # 需要多一个尾巴location
+        location = UFactory.location(init_id + len(signals), 300 * len(signals), 200, name='pass')
+        locations.append(location)
+        # 创建transitions
+        transitions = []
+        for i in range(len(signals)):
+            # [signal, guard, inv]
+            transition = UFactory.transition(init_id + i, init_id + i + 1, i * 300 + 100, 200,
+                                                  signals[i][1], signals[i][0]+'!')
+            transitions.append(transition)
+        # 获得clock name并创建declaration
+        clk_name = signals[0][1].split('>')[0]
+        declaration = f'clock {clk_name};'
+        monitor_elem = UFactory.template(input_name, locations, init_id, transitions,declaration=declaration)
+        return monitor_elem
 
     @staticmethod
-    def monitor(monitor_name: str, signals: List[Tuple[str, str, str]], init_id: int, strict: bool = False):
+    def monitor(monitor_name: str, signals: List[Tuple[str, str, str]], observe_action: List[str], 
+                init_id: int, strict: bool = False, allpattern: bool=False):
         """
         构建新的线性monitor
         monitor_name: string
         signals: List[Tuple[str, int, int]],
                  每个tuple分别对应[signal, guard, inv]
                  signal, guard, inv, name 都可以是None
-                 signal: 信号名称, 需要带上?
+                 signal: 信号名称
                  guard: str, 比如gclk>=10
                  inv: str, 比如gclk<=5
                  注意：在连接的时候是按照信号在list出现的顺序连接的
@@ -248,36 +286,22 @@ class UFactory:
         # 创建locations
         locations = []
         for i in range(len(signals)):
-            # [signal, guard, inv, name]
-            location = UppaalFactory.location(init_id + i, 300 * i, 200, signals[i][2])
+            # [signal, guard, inv]
+            inv = None if allpattern else signals[i][2]
+            location = UFactory.location(init_id + i, 300 * i, 200, inv=inv)
             locations.append(location)
         # 需要多一个尾巴location
-        location = UppaalFactory.location(init_id + len(signals), 300 * len(signals), 200, name='pass')
+        location = UFactory.location(init_id + len(signals), 300 * len(signals), 200, name='pass')
         locations.append(location)
 
         # 创建transitions
         transitions = []
         for i in range(len(signals)):
             # [signal, guard, inv]
-            transition = UppaalFactory.transition(init_id + i, init_id + i + 1, i * 300 + 100, 200,
-                                                  signals[i][1], signals[i][0])
+            guard = None if allpattern else signals[i][1]
+            transition = UFactory.transition(init_id + i, init_id + i + 1, i * 300 + 100, 200,
+                                                  guard=guard, sync=signals[i][0]+'?')
             transitions.append(transition)
-
-        # # 如果是strict，需要创建一个fail location，并且构建对应transitions边指向fail
-        # if strict:
-        #     # 构建一个fail location
-        #     fail_location_id = init_id + len(signals) + 1
-        #     # 注意inv是最后的
-        #     location = UppaalFactory.location(fail_location_id, 300 * len(signals) // 2, -200, inv=signals[-1][2],
-        #                                       name='fail')
-        #     locations.append(location)
-        #
-        #     # 构建指向fail的transitions
-        #     for i in range(len(signals)):
-        #         # 指向fail，注意guard是小于等于
-        #         transition = UppaalFactory.transition(init_id + i, fail_location_id, i * 300 + 100, -200,
-        #                                               signals[i][1].replace('>=', '<'), signals[i][0])
-        #         transitions.append(transition)
 
         # 如果是strict，需要给每个location创建fail location，并且构建对应transitions边指向对应的fail location
         if strict:
@@ -285,183 +309,30 @@ class UFactory:
             for i in range(len(signals)):
                 # 构建一个fail location
                 fail_location_id = init_id + len(signals) + i + 1
-                # 注意inv是对应的编号
-                location = UppaalFactory.location(fail_location_id, 300 * i, -200, inv=signals[i][2].replace('<=', '<'),
+                # check allpattern
+                inv = None if allpattern else signals[i][2].replace('<=', '<')
+                location = UFactory.location(fail_location_id, 300 * i, -200, inv=inv,
                                                   name='fail' + str(i))
                 locations.append(location)
+                actions_length = 200 // len(observe_action)
+                # 需要对每一个observe action指向fail transitions
+                for j in range(len(observe_action)):
+                    # 指向fail，注意guard是大于
+                    guard = None if allpattern else signals[i - 1][1].replace('>=', '>')
+                    if allpattern and (observe_action[j] == signals[i][0]):
+                        continue
+                    if i == 0:
+                        transition = UFactory.transition(init_id + i, fail_location_id, i * 300 + (j-len(observe_action)//2) * actions_length, -100,
+                                                         guard=None, sync=observe_action[j]+'?',nail=True)
+                    else:
+                        transition = UFactory.transition(init_id + i, fail_location_id, i * 300 + (j-len(observe_action)//2) * actions_length, -100,
+                                                         guard=guard, sync=observe_action[j]+'?',nail=True)
 
-                # 指向fail，注意guard是大于
-                if i == 0:
-                    transition = UppaalFactory.transition(init_id + i, fail_location_id, i * 300 + 100, -100,
-                                                          None, signals[i][0])
-                else:
-                    transition = UppaalFactory.transition(init_id + i, fail_location_id, i * 300 + 100, -100,
-                                                          signals[i - 1][1].replace('>=', '>'), signals[i][0])
-
-                transitions.append(transition)
-
-        monitor_elem = UppaalFactory.template(monitor_name, locations, init_id, transitions)
-        return monitor_elem
-
-    @staticmethod
-    def strict_monitor(monitor_name: str, signals: List[Tuple[str, str, str]], init_id: int):
-        """
-        构建新的线性monitor，并且要求在给定观测之外禁止有其他观测
-        该函数调用了UppaalFactory.monitor()，让strict = True
-        monitor_name: string
-        signals: List[Tuple[str, int, int]],
-                 每个tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称, 需要带上?
-                 guard: str, 比如gclk>=10
-                 inv: str, 比如gclk<=5
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        init_id: int, 用来设置Monitor中最小的<init ref='xxx'/>
-        """
-        return UppaalFactory.monitor(monitor_name, signals, init_id, strict=True)
-
-    @staticmethod
-    def monitor_allpatterns(monitor_name: str, signals: List[Tuple[str, str, str]], init_id: int, edge_signal_dict: Dict[str, str]):
-        """
-        构建新的线性monitor
-        monitor_name: string
-        signals: List[Tuple[str, int, int]],
-                 每个tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称, 需要带上?
-                 guard: str, 比如gclk>=10
-                 inv: str, 比如gclk<=5
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        init_id: int, 用来设置Monitor中最小的<init ref='xxx'/>
-        strict: bool, 是否是严格观测。如果strict是True，则要求在给定观测之外禁止有其他观测。
-        附：一个Monitor的基本框架为：
-            <template>
-                <name>Monitor</name>
-                <location> </location>
-                <init ref="id47"/>
-                <transition> </transition>
-            </template>
-        """
-        # 创建locations
-        locations = []
-        for i in range(len(signals)):
-            # [signal, guard, inv, name]
-            location = UppaalFactory.location(init_id + i, 300 * i, 200, None)
-            locations.append(location)
-        # 需要多一个尾巴location
-        location = UppaalFactory.location(init_id + len(signals), 300 * len(signals), 200, name='pass')
-        locations.append(location)
-
-        # 创建非法locations
-        for i in range(len(signals)):
-            j = 0
-            for value in edge_signal_dict.values():
-                if signals[i][0] != value.replace('!', '?'):
-                    # [signal, guard, inv, name]
-                    location = UppaalFactory.location(init_id + len(signals) + 1 + i * (len(edge_signal_dict)-1) + j, 300 * i, 500 + 100 * j, None)
-                    locations.append(location)
-                    j += 1
-
-        # 创建transitions
-        transitions = []
-        for i in range(len(signals)):
-            # [signal, guard, inv]
-            transition = UppaalFactory.transition(init_id + i, init_id + i + 1, i * 300 + 100, 200,
-                                                  None, signals[i][0])
-            transitions.append(transition)
-
-        # 创建非法transitions
-        for i in range(len(signals)):
-            j = 0
-            for value in edge_signal_dict.values():
-                if signals[i][0] != value.replace('!', '?'):
-                    # [signal, guard, inv]
-                    transition = UppaalFactory.transition(init_id + i, init_id + len(signals) + 1 + i * (len(edge_signal_dict)-1) + j, i * 300 + 100, 200,
-                                                          None, value.replace('!', '?'))
                     transitions.append(transition)
-                    j += 1
-
-        monitor_elem = UppaalFactory.template(monitor_name, locations, init_id, transitions)
-        return monitor_elem
-
-    @staticmethod
-    def input(monitor_name: str, signals: List[Tuple[str, str, str]], init_id: int, strict: bool = False):
-        """
-        构建新的线性monitor
-        monitor_name: string
-        signals: List[Tuple[str, int, int]],
-                 每个tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称, 需要带上?
-                 guard: str, 比如gclk>=10
-                 inv: str, 比如gclk<=5
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        init_id: int, 用来设置Monitor中最小的<init ref='xxx'/>
-        strict: bool, 是否是严格观测。如果strict是True，则要求在给定观测之外禁止有其他观测。
-        附：一个Monitor的基本框架为：
-            <template>
-                <name>Monitor</name>
-                <location> </location>
-                <init ref="id47"/>
-                <transition> </transition>
-            </template>
-        """
-        # 创建locations
-        locations = []
-        for i in range(len(signals)):
-            # [signal, guard, inv, name]
-            location = UppaalFactory.location(init_id + i, 300 * i, 200, signals[i][2])
-            locations.append(location)
-        # 需要多一个尾巴location
-        location = UppaalFactory.location(init_id + len(signals), 300 * len(signals), 200, name='Finish')
-        locations.append(location)
-
-        # 创建transitions
-        transitions = []
-        for i in range(len(signals)):
-            # [signal, guard, inv]
-            transition = UppaalFactory.transition(init_id + i, init_id + i + 1, i * 300 + 100, 200,
-                                                  signals[i][1], signals[i][0])
-            transitions.append(transition)
-
-        # # 如果是strict，需要创建一个fail location，并且构建对应transitions边指向fail
-        # if strict:
-        #     # 构建一个fail location
-        #     fail_location_id = init_id + len(signals) + 1
-        #     # 注意inv是最后的
-        #     location = UppaalFactory.location(fail_location_id, 300 * len(signals) // 2, -200, inv=signals[-1][2],
-        #                                       name='fail')
-        #     locations.append(location)
-        #
-        #     # 构建指向fail的transitions
-        #     for i in range(len(signals)):
-        #         # 指向fail，注意guard是小于等于
-        #         transition = UppaalFactory.transition(init_id + i, fail_location_id, i * 300 + 100, -200,
-        #                                               signals[i][1].replace('>=', '<'), signals[i][0])
-        #         transitions.append(transition)
-
-        # 如果是strict，需要给每个location创建fail location，并且构建对应transitions边指向对应的fail location
-        if strict:
-            # 构建指向fail的transitions
-            for i in range(len(signals)):
-                # 构建一个fail location
-                fail_location_id = init_id + len(signals) + i + 1
-                # 注意inv是对应的编号
-                location = UppaalFactory.location(fail_location_id, 300 * i, -200, inv=signals[i][2].replace('<=', '<'),
-                                                  name='fail' + str(i))
-                locations.append(location)
-
-                # 指向fail，注意guard是大于
-                if i == 0:
-                    transition = UppaalFactory.transition(init_id + i, fail_location_id, i * 300 + 100, -100,
-                                                          None, None)
-                else:
-                    transition = UppaalFactory.transition(init_id + i, fail_location_id, i * 300 + 100, -100,
-                                                          signals[i - 1][1].replace('>=', '>'), None)
-
-                transitions.append(transition)
-
-        monitor_elem = UppaalFactory.template(monitor_name, locations, init_id, transitions)
+        # 获得clock name并创建declaration
+        clk_name = signals[0][1].split('>')[0]
+        declaration = None if allpattern else f'clock {clk_name};'
+        monitor_elem = UFactory.template(monitor_name, locations, init_id, transitions, declaration=declaration)
         return monitor_elem
 
     @staticmethod

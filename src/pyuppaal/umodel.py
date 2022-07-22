@@ -1,10 +1,15 @@
 # coding=utf-8
+from imp import new_module
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
+
+from pyuppaal.namedtuple import TimedActions
 from .verifyta import Verifyta
 from .iTools import UFactory
-from .tracer import Tracer
+from .tracer import SimTrace, Tracer
+import os
 
+# verifyta_ins = Verifyta()
 
 class UModel:
     """
@@ -35,6 +40,12 @@ class UModel:
         self.model_path = new_model_path
         return new_model_path
 
+    def copy_as(self, new_model_path: str):
+        with open(new_model_path, 'w') as f:
+            self.element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+        # self.model_path = new_model_path
+        return new_model_path
+    
     def get_communication_graph(self, save_path=None):
         """
         get the communication graph of the uppaal model and save it to a `.md` file
@@ -60,7 +71,7 @@ class UModel:
         idx = self.model_path.rfind('/')
         # tmp_model_path: ../tmp_verify_AVNRT_Initial_straight.xml
         tmp_model_path = f'{self.model_path[:idx + 1]}tmp_verify_{self.model_path[idx + 1:]}'
-        self.save_model(tmp_model_path)
+        self.save(tmp_model_path)
         # print(tmp_model_path)
         return Verifyta().simple_verify(tmp_model_path, trace_path)
 
@@ -93,6 +104,9 @@ class UModel:
             return False
         self.root_elem.remove(template_elem)
         return True
+    
+    # def same_name_template(self, template_name: str):
+
 
     def clear_queries(self):
         """
@@ -188,7 +202,8 @@ class UModel:
         ids = [int(location_elem.attrib['id'][2:]) for location_elem in location_elems]
         return max(ids)
 
-    def add_monitor(self, monitor_name: str, signals: List[Tuple[str, str, str]], strict: bool = False):
+    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str], 
+                    strict: bool = False, allpattern: bool = False):
         """
         在<system></system>前添加新的线性monitor，并且自动添加到system中
         如果name有冲突，会自动替换原template
@@ -207,39 +222,13 @@ class UModel:
         start_id = self.get_max_location_id() + 1
         # 删除相同名字的monitor
         self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals, start_id)
-        if strict:
-            monitor = UFactory.strict_monitor(monitor_name, signals, start_id)
+        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), observe_actions, start_id, strict, allpattern)
         self.root_elem.insert(-2, monitor)
         # 将新到monitor加入到system中
         self.add_system(monitor_name)
         return None
 
-    def add_monitor_allpatterns(self, monitor_name: str, signals: List[Tuple[str, str, str]], edge_signal_dict: Dict[str, str]):
-        """
-        在<system></system>前添加新的线性monitor，并且自动添加到system中
-        如果name有冲突，会自动替换原template
-        monitor_name: string
-               signals: List[Tuple[str, int, int]],
-                 每个Tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称
-                 guard: int
-                 inv: int
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        startID: int, 用来设置Monitor中最小的startID, 防止id冲突
-        strict: bool, 判断是否构建strict monitor，正常来说是false
-        """
-        start_id = self.get_max_location_id() + 1
-        # 删除相同名字的monitor
-        self.remove_template(monitor_name)
-        monitor = UFactory.monitor_allpatterns(monitor_name, signals, start_id, edge_signal_dict)
-        self.root_elem.insert(-2, monitor)
-        # 将新到monitor加入到system中
-        self.add_system(monitor_name)
-        return None
-
-    def add_input(self, signals: List[Tuple[str, str, str]], input_template_name: str = 'Input'):
+    def add_input(self, input_template_name: str, signals: TimedActions):
         """
         在<system></system>前添加新的线性monitor，并且自动添加到system中
         如果name有冲突，会自动替换原template
@@ -257,40 +246,57 @@ class UModel:
         start_id = self.get_max_location_id() + 1
         # 删除相同名字的monitor
         self.remove_template(input_template_name)
-        monitor = UFactory.input(input_template_name, signals, start_id)
-        self.root_elem.insert(-2, monitor)
+        input_model = UFactory.input(input_template_name, signals.convert_to_list_tuple(), start_id)
+        self.root_elem.insert(-2, input_model)
         # 将新到monitor加入到system中
-        # self.add_system(input_name)
+        self.add_system(input_template_name)
         return None
 
-    def find_a_pattern(self, observable_events: List[Tuple[str, str, str]], trace_path):
+    def find_a_pattern(self, inputs: TimedActions, observes: TimedActions, 
+                       focused_actions: List[str], observe_actions: List[str], hold=False):
         """
-        注意这里的input已经在模型中，并且原模型不包含任何Monitor
-
-        observable_events: List[Tuple[str, str, str]]
-        在给定input和observation的情况下寻找所有可能的counter example
-        基本思路：
-        Monitor0: observable events
-        Monitor1: 基于Monitor0返回的trace
+        inputs: 输入信号模块的TimedActions
+        observers: 观测信号模块的TimedActions
+        input_actions: 输入信号列表
+        observe_actions
         """
         # 设置路径
         # 新模型路径，不覆盖原模型
-        new_model_path = self.model_path.replace('../Test/', '../Test/patterns_')
+        new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
+        self.copy_as(new_model_path=new_model_path)
+        new_umodel = UModel(new_model_path)
+
         # 将要保存的path路径
         # trace_path = f"{new_model_path.replace('.xml', '')}"
 
         patterns = []
         # 构建Monitor0
-        self.add_monitor('Monitor0', observable_events, strict=True)
+        
+        new_umodel.add_input('input0', inputs)
+        new_umodel.add_monitor('Monitor0', observes, observe_actions=observe_actions, strict=True)
         # 设置验证语句
-        self.set_queries(['E<> Monitor0.pass'])
+        new_umodel.set_queries(['E<> Monitor0.pass'])
         # 保存构建好的模型
-        self.save_model()
+        new_umodel.save()
         # 获取第0个pattern
-        pattern = Tracer.validate_and_get_untime_pattern(new_model_path, trace_path, self.edge_signal_dict)
-        return pattern
+        Verifyta().simple_verify(new_model_path)
+        trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
+        if not os.path.exists(trace_path):
+            error_info = f'trace txt file {trace_path} has not generated.\n'
+            raise FileNotFoundError(error_info)
+        # 通过Trace 得到 Simtrace对象
+        simtrace = Tracer.get_timed_trace(new_model_path, trace_path)
+        # focused_actions = list(set(input_actions + hidden_actions + observe_actions))
+        # print(focused_actions)
+        pattern_seq = simtrace.filter_by_actions(focused_actions)
 
-    def find_all_patterns(self, observable_events: List[Tuple[str, str, str]], trace_path):
+        if not hold:
+            os.remove(new_model_path)
+            os.remove(trace_path)
+        return pattern_seq.actions
+
+    def find_all_patterns(self, inputs: TimedActions, observes: TimedActions, 
+                          focused_actions: List[str], observe_actions: List[str], hold=False):
         """
         注意这里的input已经在模型中，并且原模型不包含任何Monitor
 
@@ -300,53 +306,44 @@ class UModel:
         Monitor0: observable events
         Monitor1: 基于Monitor0返回的trace
         """
-        # 设置路径
-        # 新模型路径，不覆盖原模型
-        # new_model_path = self.model_path.replace('../Test/', '../Test/patterns_')
-        new_model_path = self.model_path.replace('../Umodel_test/', '../Umodel_test/patterns_')
-        # 将要保存的path路径
-        # trace_path = f"{new_model_path.replace('.xml', '')}"
-
-        patterns = []
-        # 构建Monitor0
-        self.add_monitor('Monitor0', observable_events, strict=True)
-        # 设置验证语句
-        self.set_queries(['E<> Monitor0.pass'])
-        # 保存构建好的模型
-        self.save_model(new_model_path)
-        # 获取第0个patterns
-        pattern = Tracer.validate_and_get_untime_pattern(new_model_path, trace_path, self.edge_signal_dict)
-
-        # 根据上一个pattern构建monitor并循环
+        # 首先
+        new_patterns = self.find_a_pattern(inputs, observes, focused_actions, observe_actions, hold=True)
+        new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
+        new_umodel = UModel(new_model_path)
+        
+        # 根据初始的pattern构建monitor并循环, 初始Moniter为0
+        all_patterns = []
         monitor_id = 0
-        while len(pattern) != 0:
-            # print('new_pattern:', pattern)
-            patterns.append(pattern)
+        while len(new_patterns) != 0:
             monitor_id += 1
-            # Method1:
-            # 上一个pattern改为monitor的形式
-            # 设置每个location的inv为observation的最大时间
-            # old_pattern_obs_events = [(signal.replace('!', '?'), '', observable_events[-1][-1]) for signal in pattern]
-            # Method2:改成timeTrace的时刻
-            old_pattern_obs_events = Tracer.get_old_pattern_obs_events(trace_path, self.edge_signal_dict)
-            # Method3:
-
-            # 构建Monitor_k
-            # print(old_pattern_obs_events)
-            # self.add_monitor(f'Monitor{monitor_id}', old_pattern_obs_events)
-            self.add_monitor_allpatterns(f'Monitor{monitor_id}', old_pattern_obs_events, self.edge_signal_dict)
+            all_patterns.append(new_patterns)
+            # 将pattern[List] -> TimedActions
+            new_observes = TimedActions(new_patterns)
+            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
 
             # 构造验证语句
             # 构造monitor.pass
             # !Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id + 1)])
+            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'E<> Monitor0.pass && {monitor_pass_str}'
 
             # 设置验证语句
-            self.set_queries([monitor_pass_str])
+            new_umodel.set_queries([monitor_pass_str])
             # 保存构建好的模型
-            self.save_model(new_model_path)
-            pattern = Tracer.validate_and_get_untime_pattern(new_model_path, trace_path, self.edge_signal_dict)
-        # print(patterns)
-        return patterns
+            new_umodel.save()
+            
+            Verifyta().simple_verify(new_umodel.model_path)
+            
+            trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
+            if not os.path.exists(trace_path):
+                error_info = f'trace txt file {trace_path} has not generated.\n'
+                raise FileNotFoundError(error_info)
+            
+            # 通过Trace 得到 Simtrace对象
+            simtrace = Tracer.get_timed_trace(new_umodel.model_path, trace_path)
+            new_patterns = simtrace.filter_by_actions(focused_actions).actions
+        if not hold:
+            os.remove(new_model_path)
+            os.remove(trace_path)
+        return all_patterns
