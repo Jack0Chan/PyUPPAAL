@@ -1,9 +1,6 @@
 # support typing str | List[str]
 # https://github.com/microsoft/pylance-release/issues/513
 from __future__ import annotations
-from ctypes import FormatError
-from distutils import extension
-from inspect import trace 
 import warnings
 from typing import List
 import os
