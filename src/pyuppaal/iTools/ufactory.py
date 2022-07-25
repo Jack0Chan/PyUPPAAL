@@ -1,8 +1,6 @@
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 
-from numpy import single
-
 class UFactory:
     """
     usage: UFactory.function(xxx)

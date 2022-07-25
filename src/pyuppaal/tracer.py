@@ -1,12 +1,6 @@
 # 这一行的import能够指定class的method返回自身类
 # 参考链接：https://www.nuomiphp.com/eplan/11188.html
 from __future__ import annotations
-from ast import Global, Raise
-from cgi import test
-from collections import namedtuple
-from inspect import trace
-from numbers import Real
-from operator import mod
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 from .verifyta import Verifyta
@@ -16,8 +10,7 @@ import platform
 
 
 platform_system = platform.system()
-tracer_custom = TRACER_CUSTOM_WINDOWS if platform.system(
-) == 'Windows' else TRACER_CUSTOM_LINUX
+tracer_custom = TRACER_CUSTOM_WINDOWS if platform.system() == 'Windows' else TRACER_CUSTOM_LINUX
 
 
 # ClockZone = namedtuple('ClockZone', ['clock1', 'clock2', 'is_equal', 'bound_value'])
@@ -192,7 +185,7 @@ class SimTrace:
     # 这个就是get_untimed_pattern
     @property
     def actions(self) -> List[str]:
-        return [x.action for x in self.transitions]
+        return [x.action for x in self.transitions if x.action is not None]
 
     def filter_by_index(self, index_array: List[int]) -> SimTrace:
         """通过下标索引筛选出对应的SimTrace
@@ -210,12 +203,15 @@ class SimTrace:
         new_simtrace = SimTrace(new_states, new_clock_cons, new_transitions, new_global_var)
         return new_simtrace
 
-    def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
+    def filter_by_actions(self, focused_actions: List[str]=None) -> SimTrace:
         """
         filter edges by actions
         return 保留edges以及clock constraints
         """
-        index_array = [i for i in range(len(self.actions)) if self.actions[i] in focused_actions]
+        if focused_actions is None:
+            return self
+        
+        index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
         return self.filter_by_index(index_array)
 
 
