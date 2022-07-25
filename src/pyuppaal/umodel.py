@@ -3,8 +3,6 @@ import sys
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 
-from numpy import broadcast
-
 from pyuppaal.namedtuple import TimedActions
 from .verifyta import Verifyta
 from .iTools import UFactory
