@@ -92,7 +92,7 @@ class Verifyta:
     def simple_verify(self, 
                       model_path: str | List[str], 
                       trace_path: str | List[str] = None, 
-                      parallel: str=None):
+                      parallel: str=None, options = None):
         """
         Simple verification, return to the shortest diagnostic path. 
         Verify the model in model_path and save the verification results to trace_path
@@ -139,11 +139,19 @@ class Verifyta:
             # check trace_path format
             if trace_i.endswith('.xml'):
                 trace_i = trace_i.replace('.xml', '')
-                cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -X {trace_i} {model_i}'
+                if options is not None:
+                    options_str = " ".join(options)
+                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -X {trace_i} {options_str} {model_i}'
+                else:
+                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -X {trace_i} {model_i}'
                 cmds.append(cmd)
             elif trace_i.endswith('.xtr'):
                 trace_i = trace_i.replace('.xtr', '')
-                cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -f {trace_i} {model_i}'
+                if options is not None:
+                    options_str = " ".join(options)
+                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -f {trace_i} {options_str} {model_i}'
+                else:
+                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -f {trace_i} {model_i}'
                 cmds.append(cmd)
             else:
                 error_info = 'trace_path should end with ".xml" or ".xtr".'
