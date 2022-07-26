@@ -284,7 +284,7 @@ class UModel:
         return None
 
     def find_a_pattern(self, inputs: TimedActions, observes: TimedActions, 
-                       observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False):
+                       observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options = None):
         """
         inputs: 输入信号模块的TimedActions
         observers: 观测信号模块的TimedActions
@@ -310,7 +310,7 @@ class UModel:
         # 保存构建好的模型
         new_umodel.save()
         # 获取第0个pattern
-        Verifyta().simple_verify(new_model_path)
+        Verifyta().simple_verify(new_model_path, options=options)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []
@@ -382,7 +382,7 @@ class UModel:
         return all_patterns
 
 
-    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False):
+    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
         input_actions: 输入信号列表
         observe_actions
@@ -396,7 +396,7 @@ class UModel:
         if query is not None:
             new_umodel.set_queries(queries=query)
 
-        Verifyta().simple_verify(new_model_path)
+        Verifyta().simple_verify(new_model_path,options=options)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []
@@ -432,9 +432,11 @@ class UModel:
         all_patterns = []
         monitor_id = 0
         iter = 1
-        while len(new_patterns) != 0 and (iter <= max_patterns) if max_patterns is not None else True:
-            monitor_id += 1
+        while len(new_patterns) != 0:
             all_patterns.append((monitor_pass_str, new_patterns))
+            if max_patterns is not None and iter >= max_patterns:
+                break
+            monitor_id += 1
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
             new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
