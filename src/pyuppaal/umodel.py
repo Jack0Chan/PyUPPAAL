@@ -1,4 +1,5 @@
 # coding=utf-8
+from ast import Raise
 import sys
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
@@ -424,7 +425,21 @@ class UModel:
         Monitor1: 基于Monitor0返回的trace
         """
         # 首先
-        default_query, new_patterns = self.find_a_pattern_with_query(query, focused_actions, hold=True)
+        query = query.strip()
+        if not (query.startswith('A[]') or query.startswith('E<>')):
+            raise NotImplementedError('Only support E<> and A[] query!')
+        
+        if query.startswith('A[]'):
+            default_query = query[3:].strip()
+            if default_query[0] == '!':
+                default_query = "E<> " + default_query[1:].strip()
+            elif default_query[0:3] == "not":
+                default_query = "E<> " + default_query[3:].strip()
+            else:
+                default_query = "E<> ! " + default_query.strip()
+        else:
+            default_query = query
+        default_query, new_patterns = self.find_a_pattern_with_query(default_query, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         new_umodel = UModel(new_model_path)
         monitor_pass_str = default_query
@@ -443,15 +458,11 @@ class UModel:
 
             # 构造验证语句
             # 构造monitor.pass
-            if default_query.startswith('E<>'): # 找到并返回满足条件的路径
                 # E<> Monitor0.pass & !Monitor1.pass
-                monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
-                # E<> !Monitor0.pass & !Monitor1.pass
-                monitor_pass_str = f'{default_query} && {monitor_pass_str}'
-            elif default_query.startswith('A[]'): #找到并返回不满足条件的路径
-                monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
-                # E<> !Monitor0.pass & !Monitor1.pass
-                monitor_pass_str = f'{default_query.replace("A[]","E<> !")} && {monitor_pass_str}'
+            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            # E<> !Monitor0.pass & !Monitor1.pass
+            monitor_pass_str = f'{default_query} && {monitor_pass_str}'
+                
             
             # 设置验证语句
             new_umodel.set_queries([monitor_pass_str])
