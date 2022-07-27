@@ -230,7 +230,7 @@ class SimTrace:
         else:
             pass
         pass
-        Raise(NotImplementedError)
+        raise NotImplementedError('NotImplementedError')
 
     def get_untime_pattern(self):
         return self.actions

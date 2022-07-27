@@ -329,4 +329,4 @@ PTrafficLights = TrafficLight();
 PPedestrian = Pedestrian(0, 10);
 
 system PCar, PTrafficLights, PPedestrian,Monitor1,Monitor2,Monitor3,Monitor4;</system>
-	<queries><query><formula>E&lt;&gt; ! not (PPedestrian.Crossing and PCar.Crossing) &amp;&amp; !Monitor1.pass &amp;&amp; !Monitor2.pass &amp;&amp; !Monitor3.pass &amp;&amp; !Monitor4.pass</formula><comment /></query></queries></nta>
+	<queries><query><formula>E&lt;&gt; (PPedestrian.Crossing and PCar.Crossing) &amp;&amp; !Monitor1.pass &amp;&amp; !Monitor2.pass &amp;&amp; !Monitor3.pass &amp;&amp; !Monitor4.pass</formula><comment /></query></queries></nta>
