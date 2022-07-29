@@ -201,7 +201,7 @@ clock tTL;</declaration>
 		</location>
 		<location id="id13" x="-688" y="-42">
 			<name x="-714" y="-68">Crossing</name>
-			<label kind="invariant" x="-714" y="-34">tp&lt;=tPCrssMax</label>
+			<label kind="invariant" x="-739" y="-8">tp&lt;=tPCrssMax</label>
 		</location>
 		<location id="id14" x="-586" y="-101">
 			<name x="-569" y="-110">CheckTL</name>
@@ -242,17 +242,18 @@ clock tTL;</declaration>
 		<transition>
 			<source ref="id15"/>
 			<target ref="id13"/>
+			<label kind="synchronisation" x="-654" y="-42">pCrss!</label>
 			<label kind="assignment" x="-646" y="-59">tp=0</label>
 		</transition>
 		<transition>
 			<source ref="id13"/>
 			<target ref="id17"/>
-			<label kind="guard" x="-748" y="-42">tp&gt;=tPCrssMin</label>
+			<label kind="guard" x="-782" y="-34">tp&gt;=tPCrssMin</label>
 		</transition>
 		<transition>
 			<source ref="id14"/>
 			<target ref="id15"/>
-			<label kind="synchronisation" x="-586" y="-85">pGreen?</label>
+			<label kind="synchronisation" x="-578" y="-85">pGreen?</label>
 		</transition>
 		<transition>
 			<source ref="id14"/>
@@ -287,7 +288,7 @@ clock tc;</declaration>
 		<transition>
 			<source ref="id22"/>
 			<target ref="id18"/>
-			<label kind="synchronisation" x="153" y="68">cCrss!</label>
+			<label kind="synchronisation" x="161" y="68">cCrss!</label>
 		</transition>
 		<transition>
 			<source ref="id20"/>
