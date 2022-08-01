@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pyuppaal",
-    version="0.0.2",
+    version="0.0.5",
     author="Jack0Chan",
     author_email="",
     description="A research tool that can simulate, verify or modify UPPAAL models with python. It can also help to analyze counter-examples in .xml format",
