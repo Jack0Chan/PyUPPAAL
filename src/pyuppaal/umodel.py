@@ -261,9 +261,9 @@ class UModel:
         return None
 
     def add_input(self, input_template_name: str, signals: TimedActions):
-        """
-        在<system></system>前添加新的线性monitor，并且自动添加到system中
+        """在<system></system>前添加新的线性monitor，并且自动添加到system中
         如果name有冲突，会自动替换原template
+        
         monitor_name: string
                signals: List[Tuple[str, int, int]],
                  每个Tuple分别对应[signal, guard, inv]

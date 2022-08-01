@@ -349,13 +349,9 @@ class Tracer:
         意思是将'NSA.Edge2.actPath!'替换为'actPathSA'
         注意，为了方便构造edge_signal_dict，可以调用并打印Tracer.get_untime_trace()
         """
-        
-
         untime_trace = Tracer.get_untime_trace(trace_path)
         # print('========== get_untime_pattern', trace_path, edge_signal_dict, untime_trace)
         return Tracer.convert_trace_to_pattern(untime_trace, edge_signal_dict)
-
-
 
 
     @staticmethod
@@ -366,72 +362,74 @@ class Tracer:
         """
         pass
 
-    @staticmethod
-    def get_transition_clock_bounds(trace_path: str) -> List[Dict[str, Dict[str, Tuple[str, int]]]]:
-        """
-        获取trace_path的clock_bounds
-        trace_path: trace的xml路径
-        return clock_bounds的列表
-                clock_bounds里的每个Dict代表着（key减value）的取值范围
-                比如 {'clock A':{'clock B':["<=",5]}}的意思是
-                'clock A-clock B <= 5'
+    # @staticmethod
+    # def get_transition_clock_bounds(trace_path: str) -> List[Dict[str, Dict[str, Tuple[str, int]]]]:
+    #     """
+    #     获取trace_path的clock_bounds
+    #     trace_path: trace的xml路径
+    #     return clock_bounds的列表
+    #             clock_bounds里的每个Dict代表着（key减value）的取值范围
+    #             比如 {'clock A':{'clock B':["<=",5]}}的意思是
+    #             'clock A-clock B <= 5'
 
-                clock_bound['clock A']['clock B'] = ('<=', 5)
-        """
-        et = ET.ElementTree(file=trace_path)
+    #             clock_bound['clock A']['clock B'] = ('<=', 5)
+    #     """
+    #     et = ET.ElementTree(file=trace_path)
 
-        nodes = list()
-        for node in et.iter('node'):
-            # node.attrib 示例
-            # {'id': 'State42', 'location_vector': 'LocVec42', 'dbm_instance': 'DBM42 ', 'variable_vector': 'varvec.1'}
-            # attrib_id = node.attrib['id']
-            nodes.append(node.attrib['dbm_instance'][:-1])
-        # print(nodes)
+    #     nodes = list()
+    #     for node in et.iter('node'):
+    #         # node.attrib 示例
+    #         # {'id': 'State42', 'location_vector': 'LocVec42', 'dbm_instance': 'DBM42 ', 'variable_vector': 'varvec.1'}
+    #         # attrib_id = node.attrib['id']
+    #         nodes.append(node.attrib['dbm_instance'][:-1])
+    #     # print(nodes)
 
-        # 将dbm按照"DBM1","DBM2"的顺序进行排序
-        dbms = []
-        i = 1
-        while nodes:
-            dbm = 'DBM' + str(i)
-            if nodes.count(dbm) == 0:
-                i += 1
-                continue
-            else:
-                index = nodes.index(dbm)
-                dbms.append(nodes[index])
-                nodes.pop(index)
-        # print(dbms)
+    #     # 将dbm按照"DBM1","DBM2"的顺序进行排序
+    #     dbms = []
+    #     i = 1
+    #     while nodes:
+    #         dbm = 'DBM' + str(i)
+    #         if nodes.count(dbm) == 0:
+    #             i += 1
+    #             continue
+    #         else:
+    #             index = nodes.index(dbm)
+    #             dbms.append(nodes[index])
+    #             nodes.pop(index)
+    #     # print(dbms)
 
-        # 寻找所有的dbm_instance
-        dbm_instances = {}
-        for dbm_instance in et.iter('dbm_instance'):
-            dbm_instances[dbm_instance.attrib['id']] = dbm_instance
+    #     # 寻找所有的dbm_instance
+    #     dbm_instances = {}
+    #     for dbm_instance in et.iter('dbm_instance'):
+    #         dbm_instances[dbm_instance.attrib['id']] = dbm_instance
 
-        # 将所有的dbm_instance的信息按照dbm的顺序进行储存
-        transition_clock_bounds = []
-        for dbm in dbms:
-            dbm_instance = dbm_instances[dbm]
-            transition_clock_bound = dict()
-            for child in dbm_instance:
-                attrib = child.attrib
-                # {'clock1': 'NHisV.t', 'clock2': 'NHisV.t', 'bound': '0', 'comp': '<='}
-                key_a = attrib['clock1']
-                key_b = attrib['clock2']
-                val = (attrib['comp'], int(attrib['bound']))
-                if key_a in transition_clock_bound:
-                    transition_clock_bound[key_a].update({key_b: val})
-                else:
-                    transition_clock_bound.update({key_a: {key_b: val}})
+    #     # 将所有的dbm_instance的信息按照dbm的顺序进行储存
+    #     transition_clock_bounds = []
+    #     for dbm in dbms:
+    #         dbm_instance = dbm_instances[dbm]
+    #         transition_clock_bound = dict()
+    #         for child in dbm_instance:
+    #             attrib = child.attrib
+    #             # {'clock1': 'NHisV.t', 'clock2': 'NHisV.t', 'bound': '0', 'comp': '<='}
+    #             key_a = attrib['clock1']
+    #             key_b = attrib['clock2']
+    #             val = (attrib['comp'], int(attrib['bound']))
+    #             if key_a in transition_clock_bound:
+    #                 transition_clock_bound[key_a].update({key_b: val})
+    #             else:
+    #                 transition_clock_bound.update({key_a: {key_b: val}})
 
-            transition_clock_bounds.append(transition_clock_bound)
+    #         transition_clock_bounds.append(transition_clock_bound)
 
-        return transition_clock_bounds
+    #     return transition_clock_bounds
 
     @staticmethod
     def get_edge_clock_bounds(trace_path: str) -> [Dict[str, List[Tuple[Tuple[str, int], Tuple[str, int]]]]]:
         """
         获取trace_path的edge对应的clock_bounds
+
         trace_path: trace的xml路径
+        
         return 每条边对应的clock_bounds的列表
                 edge对应的clock_bounds里的每个Dict代表着经过key的时间的取值范围
                 比如{'PSAHisA.Edge2': [(('>=', 0), ('<=', 28)), (('>=', 0), ('<=', 28))]}的意思是
@@ -556,59 +554,59 @@ class Tracer:
 
         return parameter_edge
 
-    @staticmethod
-    def get_untime_trace(trace_path: str):
-        """
-        这里我们不调用get_timed_trace，因为可以减少对DBM的搜索，从而提高运行效率
-        获取trace_path的untime的trace
-        trace_path: trace的xml路径
-        return transitions的列表
-                transitions里的每个list的第0个元素是发送edge，后面的为接收edge
-                比如['NSA.Edge2', 'PSAHisA.Edge1', 'Monitor.Edge1']的意思是
-                'NSA.Edge2'发送信号给了'PSAHisA.Edge1'和'Monitor.Edge1'
-        """
-        et = ET.ElementTree(file=trace_path)
-        # print('======== get_untime_trace', ET.dump(et))
-        # 找到trace中所有的edges，方便为transitions的edges添加后缀
-        # 比如'NSA.Edge1'添加'.actNode?'后缀变为'NSA.Edge1.actNode?'
-        # edges长这样：
-        '''
-        <edge id="Monitor.Edge1" from="Monitor._id44" to="Monitor._id33">
-                <guard>gclk &gt;= 0</guard>
-                <sync>actPathSA?</sync>
-                <update>1</update>
-        </edge>
-        '''
-        # 构建edge: sync的字典
-        # 例如：{'NSA.Edge1': 'actNode?', 'NSA.Edge2': 'actPath!'}
-        edges = {}
-        for edge in et.iter('edge'):
-            # edge.attrib 示例  {'id': 'NSA.Edge1', 'from': 'NSA.Rest', 'to': 'NSA._id2'}
-            attrib_id = edge.attrib['id']
-            edges[attrib_id] = f"{attrib_id}.{edge.find('sync').text}"
+    # @staticmethod
+    # def get_untime_trace(trace_path: str):
+    #     """
+    #     这里我们不调用get_timed_trace，因为可以减少对DBM的搜索，从而提高运行效率
+    #     获取trace_path的untime的trace
+    #     trace_path: trace的xml路径
+    #     return transitions的列表
+    #             transitions里的每个list的第0个元素是发送edge，后面的为接收edge
+    #             比如['NSA.Edge2', 'PSAHisA.Edge1', 'Monitor.Edge1']的意思是
+    #             'NSA.Edge2'发送信号给了'PSAHisA.Edge1'和'Monitor.Edge1'
+    #     """
+    #     et = ET.ElementTree(file=trace_path)
+    #     # print('======== get_untime_trace', ET.dump(et))
+    #     # 找到trace中所有的edges，方便为transitions的edges添加后缀
+    #     # 比如'NSA.Edge1'添加'.actNode?'后缀变为'NSA.Edge1.actNode?'
+    #     # edges长这样：
+    #     '''
+    #     <edge id="Monitor.Edge1" from="Monitor._id44" to="Monitor._id33">
+    #             <guard>gclk &gt;= 0</guard>
+    #             <sync>actPathSA?</sync>
+    #             <update>1</update>
+    #     </edge>
+    #     '''
+    #     # 构建edge: sync的字典
+    #     # 例如：{'NSA.Edge1': 'actNode?', 'NSA.Edge2': 'actPath!'}
+    #     edges = {}
+    #     for edge in et.iter('edge'):
+    #         # edge.attrib 示例  {'id': 'NSA.Edge1', 'from': 'NSA.Rest', 'to': 'NSA._id2'}
+    #         attrib_id = edge.attrib['id']
+    #         edges[attrib_id] = f"{attrib_id}.{edge.find('sync').text}"
 
-        # 找到trace中所有的transitions
-        # transitions长这样：
-        '''
-        <transition from="State1" to="State2" edges="Input.Edge1 ConvertIn.Edge1 "/>
-        <transition from="State2" to="State3" edges="ConvertIn.Edge2 NSA.Edge1 "/>
-        <transition from="State3" to="State4" edges="NSA.Edge2 PSAHisA.Edge1 Monitor.Edge1 "/>
-        '''
-        # transitions例子：['Input.Edge1', 'ConvertIn.Edge1', 'ConvertIn.Edge2']
-        transitions = []
-        for transition in et.iter('transition'):
-            # transition.attrib: {'from': 'State1', 'to': 'State2', 'edges': 'Input.Edge1 ConvertIn.Edge1 '}
-            tmp = transition.attrib['edges'].split(' ')
-            tmp.pop()
-            # 为transitions加后缀，比如
-            # [['Input.Edge1', 'ConvertIn.Edge1'], ['ConvertIn.Edge2', 'NSA.Edge1']]变为
-            # [['Input.Edge1.sigIn!', 'ConvertIn.Edge1.sigIn?'], ['ConvertIn.Edge2.actNodeSA!', 'NSA.Edge1.actNode?']]
-            for i in range(len(tmp)):
-                tmp[i] = edges[tmp[i]]
-            transitions.append(tmp)
+    #     # 找到trace中所有的transitions
+    #     # transitions长这样：
+    #     '''
+    #     <transition from="State1" to="State2" edges="Input.Edge1 ConvertIn.Edge1 "/>
+    #     <transition from="State2" to="State3" edges="ConvertIn.Edge2 NSA.Edge1 "/>
+    #     <transition from="State3" to="State4" edges="NSA.Edge2 PSAHisA.Edge1 Monitor.Edge1 "/>
+    #     '''
+    #     # transitions例子：['Input.Edge1', 'ConvertIn.Edge1', 'ConvertIn.Edge2']
+    #     transitions = []
+    #     for transition in et.iter('transition'):
+    #         # transition.attrib: {'from': 'State1', 'to': 'State2', 'edges': 'Input.Edge1 ConvertIn.Edge1 '}
+    #         tmp = transition.attrib['edges'].split(' ')
+    #         tmp.pop()
+    #         # 为transitions加后缀，比如
+    #         # [['Input.Edge1', 'ConvertIn.Edge1'], ['ConvertIn.Edge2', 'NSA.Edge1']]变为
+    #         # [['Input.Edge1.sigIn!', 'ConvertIn.Edge1.sigIn?'], ['ConvertIn.Edge2.actNodeSA!', 'NSA.Edge1.actNode?']]
+    #         for i in range(len(tmp)):
+    #             tmp[i] = edges[tmp[i]]
+    #         transitions.append(tmp)
 
-        # print(edges)
-        return transitions, edges
+    #     # print(edges)
+    #     return transitions, edges
 
     @staticmethod
     def convert_trace_to_pattern(untime_trace: List[List[str]], edge_signal_dict: Dict[str, str]):
