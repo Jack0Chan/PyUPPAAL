@@ -311,7 +311,8 @@ class UModel:
         # 保存构建好的模型
         new_umodel.save()
         # 获取第0个pattern
-        Verifyta().simple_verify(new_model_path, options=options)
+        # Verifyta().simple_verify(new_model_path, options=options)
+        Verifyta().simple_verify(new_model_path)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []
@@ -383,7 +384,7 @@ class UModel:
         return all_patterns
 
 
-    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
+    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False):
         """
         input_actions: 输入信号列表
         observe_actions
@@ -397,7 +398,8 @@ class UModel:
         if query is not None:
             new_umodel.set_queries(queries=query)
 
-        Verifyta().simple_verify(new_model_path,options=options)
+        # Verifyta().simple_verify(new_model_path,options=options)
+        Verifyta().simple_verify(new_model_path)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []

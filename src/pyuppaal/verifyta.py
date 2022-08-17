@@ -1,18 +1,18 @@
 # support typing str | List[str]
 # https://github.com/microsoft/pylance-release/issues/513
 from __future__ import annotations
+
 import warnings
 from typing import List
 import os
 from multiprocessing import Pool
+from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 import functools
-from multiprocessing import cpu_count
 import platform
 
-is_windows = platform.system() == 'Windows'
 
-def check_is_verifyta_path_empty(func):
+def __check_is_verifyta_path_empty(func):
     """
     装饰器，用来在verifyta运行前检测路径是否被设置。
     """
@@ -47,36 +47,40 @@ class Verifyta:
             return
         self._is_first_init = False
 
-        self._verifyta_path: str = ''
+        self._verifyta_path: str = None
+        self._num_cpu: int = cpu_count()
+        self._is_windows: bool = self.operating_system == 'Windows'
+    
+    
+    @property
+    def operating_system(self) -> str:
+        return platform.system()
 
     @property
-    def is_verifyta_empty(self):
-        """
-        check whether verifyta is set
-        """
-        if self._verifyta_path:
-            return True
-        else:
-            return False
+    def num_cpu(self) -> int:
+        return self._num_cpu
 
     @property
-    def is_valid_verifyta_path(self):
+    def verifyta_path(self) -> str:
+        return self.verifyta_path
+
+    def __is_valid_verifyta_path(self, verifyta_path: str):
         res = os.popen(f'{self._verifyta_path} -h').read()
-        if 'Usage: verifyta [OPTION]... MODEL QUERY' in res:
+        if '-h [ --help ]' in res:
             return True
         else:
             return False
 
     def set_verifyta_path(self, verifyta_path: str):
         """
-        设置verifyta_path
-        verifyta_path: str, 用户指定的verifyta_path
+        Set verifyta path, and you will get tips if `verifyta_path` is invalid.
+        This function will check whether `verifyta_path` is valid by following steps:
+        1. run '{verifyta_path} -h' with cmd
+        2. check whether '-h [ --help ]' is in the result
 
-        设置时会验证verifyta path的合法性，方法如下：
-        通过命令行调用f'{verifyta_path} -h'，查看返回内容是否包含 'Usage: verifyta [OPTION]... MODEL QUERY'
+        :verifyta_path: str, absolute path to `verifyta`
         """
-        res = os.popen(f'{verifyta_path} -h').read()
-        if '-h [ --help ]' in res:
+        if self.__is_valid_verifyta_path(verifyta_path):
             self._verifyta_path = verifyta_path
         else:
             example_info = "======== Example Paths ========" \
@@ -85,34 +89,36 @@ class Verifyta:
                            "\nmacOS  : absolute_path_to_uppaal/bin-Darwin/verifyta"
             raise ValueError(f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
 
-    def get_verifyta_path(self):
+    def get_verifyta_path(self) -> str:
         return self._verifyta_path
 
-    @check_is_verifyta_path_empty
+    @__check_is_verifyta_path_empty
     def simple_verify(self, 
                       model_path: str | List[str], 
                       trace_path: str | List[str] = None, 
-                      parallel: str=None, options = None):
+                      parallel: str=None, 
+                      options = None) -> List[str]:
         """
-        Simple verification, return to the shortest diagnostic path. 
-        Verify the model in model_path and save the verification results to trace_path
+        Simple verification with default options, return to the shortest diagnostic path. 
+        Verify the model in model_path and save the verification results to trace_path.
         
-        model_path: str or str list, Model paths to be verified
-        trace_path: str or str list, Trace paths to be saved
-        parallel: str, select parallel method for accelerate verification, 
-        None(default):run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
+        :model_path: str or List[str], model paths to be verified.
+        :trace_path: str or List[str], trace paths to be saved. Both `.xtr` and `.xml` formats are supported.
+        :parallel: str, <'process'|'threads'>, select parallel method for accelerate verification, 
+            None(default): run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
+        :options: 想办法把这个参数去掉，注意修改demo.ipynb以及UModel里的内容。
         """
-        # check trace_path is None
+        # check whether trace_path is None
         if trace_path is None:
             if type(model_path) == str:
                 trace_path = os.path.splitext(model_path)[0] + '.xtr'
             else:
                 trace_path = [os.path.splitext(x)[0]+'.xtr' for x in model_path]
 
-        # check model_path and trace_path type is same
+        # check model_path and trace_path type is the same type
         if type(model_path) != type(trace_path):
-            error_info = f'type of model_path and trace_path are inconsistent\n'
-            error_info += f'model_path: {type(model_path)}, trace_path:{type(trace_path)}.'
+            error_info = f'type of model_path and trace_path are inconsistent\n' \
+                         f'model_path: {type(model_path)}, trace_path:{type(trace_path)}.'
             raise TypeError(error_info)
 
         # check model_path is only one model, set parallel loop
@@ -122,11 +128,12 @@ class Verifyta:
         
         # check model_path and trace_path len is same
         if len(model_path) != len(trace_path):
-            error_info = f'length of model_path and trace_path are inconsistent'
+            error_info = f'length of model_path and trace_path are inconsistent\n' \
+                         f'model_path: {len(model_path)}, trace_path: {len(trace_path)}'
             raise ValueError(error_info)
         
         # set uppaal environment variables
-        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if is_windows else "UPPAAL_COMPILE_ONLY="
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self._is_windows else "UPPAAL_COMPILE_ONLY="
         
         cmds = []
         for i in range(len(model_path)):
@@ -171,64 +178,7 @@ class Verifyta:
             raise ValueError(error_info)
         return res 
 
-    # @check_is_verifyta_path_empty
-    # def simple_verify_process(self, model_paths: List[str], trace_paths: List[str]):
-    #     cmds = []
-    #     for i in range(len(model_paths)):
-    #         model_path = model_paths[i]
-    #         trace_path = trace_paths[i]
-
-    #         # check model_path exist
-    #         if not os.path.exists(model_path):
-    #             error_info = f'model_path {model_path} not found.'
-    #             raise FileNotFoundError(error_info)
-
-    #         # check trace_path format
-    #         if trace_path.endswith('.xml'):
-    #             trace_path = trace_path.replace('.xml', '')
-    #             cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
-    #             cmds.append(cmd)
-    #         elif trace_path.endswith('.xtr'):
-    #             trace_path = trace_path.replace('.xtr', '')
-    #             cmd = f'{self._verifyta_path} -t 1 -f {trace_path} {model_path}'
-    #             cmds.append(cmd)
-    #         else:
-    #             error_info = 'trace_path should end with ".xml" or ".xtr".'
-    #             error_info += f' Currently trace_path = {trace_path}'
-    #             raise ValueError(error_info)
-
-    #     return self.cmds_process(cmds, len(cmds))
-
-    # @check_is_verifyta_path_empty
-    # def simple_verify_threads(self, model_paths: List[str], trace_paths: List[str]):
-    #     cmds = []
-    #     for i in range(len(model_paths)):
-    #         model_path = model_paths[i]
-    #         trace_path = trace_paths[i]
-
-    #         # check model_path exist
-    #         if not os.path.exists(model_path):
-    #             error_info = f'model_path {model_path} not found.'
-    #             raise FileNotFoundError(error_info)
-
-    #         # check trace_path format
-    #         if trace_path.endswith('.xml'):
-    #             trace_path = trace_path.replace('.xml', '')
-    #             cmd = f'{self._verifyta_path} -t 1 -X {trace_path} {model_path}'
-    #             cmds.append(cmd)
-    #         elif trace_path.endswith('.xtr'):
-    #             trace_path = trace_path.replace('.xtr', '')
-    #             cmd = f'{self._verifyta_path} -t 1 -f {trace_path} {model_path}'
-    #             cmds.append(cmd)
-    #         else:
-    #             error_info = 'trace_path should end with ".xml" or ".xtr".'
-    #             error_info += f' Currently trace_path = {trace_path}'
-    #             raise ValueError(error_info)
-
-    #     return self.cmds_threads(cmds, len(cmds))
-
-
-    @check_is_verifyta_path_empty
+    @__check_is_verifyta_path_empty
     def cmd(self, cmd: str):
         """
         run common command with cmd, you can easily ignore the verifyta path.
@@ -238,32 +188,36 @@ class Verifyta:
             cmd = f'{self._verifyta_path} {cmd}'
         return cmd, os.popen(cmd).read()
 
-    @check_is_verifyta_path_empty
+    @__check_is_verifyta_path_empty
     def cmds_loop(self, cmds: List[str]):
         """
         run in sequence
         """
         return [self.cmd(tmp_cmd) for tmp_cmd in cmds]
 
-    @check_is_verifyta_path_empty
+    @__check_is_verifyta_path_empty
     def cmds_process(self, cmds: List[str], num_process: int = None):
         """
-        note that sometimes, multiprocess is not faster than single-process or multi-threads
+        Warning: multiprocess may be slower than single-process or multi-threads
         run a list of commands and return results
         if num_process is not given, it will run with num cpu cores
         if num_process is 1, it's better run with self.cmd
         return running cmds and associated result
         """
         if num_process == None:
-            num_process = cpu_count()
+            num_process = self._num_cpu
         
         if num_process == 1:
             w = 'You are running with only 1 process, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
-        p = Pool(min(num_process, cpu_count()))
+        elif num_process > self._num_cpu:
+            w = f'num_process ({num_process}) is greater than multiprocessing.cpu_count() ({self._num_cpu}).'
+            warnings.warn(w)
+        # p = Pool(min(num_process, cpu_count()))
+        p = Pool(num_process)
         return p.map(self.cmd, cmds)
 
-    @check_is_verifyta_path_empty
+    @__check_is_verifyta_path_empty
     def cmds_threads(self, cmds: List[str], num_threads: int = None):
         """
         run a list of commands and return results
@@ -272,15 +226,19 @@ class Verifyta:
         return running cmds and associated result
         """
         if num_threads == None:
-            num_threads = cpu_count()*2
+            num_threads = self._num_cpu * 2
         
         if num_threads == 1:
             w = 'You are running with only 1 thread, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
-        p = ThreadPool(min(num_threads, cpu_count()*2))
+        elif num_threads > self._num_cpu * 2:
+            w = f'num_process ({num_threads}) is greater than 2 * multiprocessing.cpu_count() ({2*self._num_cpu}).'
+            warnings.warn(w)
+
+        p = ThreadPool(num_threads)
         return p.map(self.cmd, cmds)
 
-    @check_is_verifyta_path_empty
+    @__check_is_verifyta_path_empty
     def compile_to_if(self, model_path: str):
         """Compile model_path(model.xml) to generate a intermediate format file (model.if). 
 
