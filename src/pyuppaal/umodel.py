@@ -31,27 +31,17 @@ class UModel:
     def model_path(self) -> str:
         return self.__model_path
 
-    def save(self):
-        new_model_path = self.model_path
-        with open(new_model_path, 'w') as f:
-            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
-        self.model_path = new_model_path
-        return self.model_path
-
     def save_as(self, new_model_path: str) -> UModel:
         with open(new_model_path, 'w') as f:
             self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         self.model_path = new_model_path
         return UModel(new_model_path)
 
-    # copy可以被save as取代
-    # def copy_to(self, new_model_path: str) -> UModel:
-    #     with open(new_model_path, 'w') as f:
-    #         self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
-    #     # self.model_path = new_model_path
-    #     return UModel(new_model_path)
+    def save(self) -> UModel:
+        new_model_path = self.model_path
+        return self.save_as(new_model_path)
     
-    def get_communication_graph(self, save_path=None):
+    def get_communication_graph(self, save_path=None) -> str:
         """
         这个函数功能要升级
         get the communication graph of the uppaal model and save it to a `.md` file
@@ -69,7 +59,7 @@ class UModel:
             f.write(mermaid)
         return mermaid
 
-    def verify(self, trace_path: str):
+    def verify(self, trace_path: str) -> List[str]:
         """
         验证模型，并将验证结果保存到trace_path中
         """
@@ -81,14 +71,14 @@ class UModel:
         # print(tmp_model_path)
         return Verifyta().simple_verify(tmp_model_path, trace_path)
 
-    def get_templates(self):
+    def get_templates(self) -> List[str]:
         """
         根据名字获取相应template的Element
         template_name: string, template的名字
         """
         return self.__element_tree.iter("template")
 
-    def get_template(self, template_name: str):
+    def get_template(self, template_name: str) -> str:
         """
         根据名字获取相应template的Element
         template_name: string, template的名字
@@ -98,7 +88,7 @@ class UModel:
                 return template
         return None
 
-    def remove_template(self, template_name: str):
+    def remove_template(self, template_name: str) -> bool:
         """
         删除指定的template
         template_name: string
@@ -131,7 +121,7 @@ class UModel:
         root.remove(queries_elem)
         return True
 
-    def set_queries(self, queries: List[str]):
+    def set_queries(self, queries: List[str]) -> None:
         """
         设置query
         queries: List[str], query组成的list
@@ -142,24 +132,22 @@ class UModel:
         # 然后构造queries并插入到模型中
         queries_elem = UFactory.queries(queries)
         self.__root_elem.append(queries_elem)
-        return self.get_queries()
 
-    def get_system(self):
+    def get_system(self) -> str:
         """
         返回system的字符串
         """
         system_elem = self.__element_tree.find('system')
         return system_elem.text
 
-    def set_system(self, system_str: str):
+    def set_system(self, system_str: str) -> None:
         """
         修改system的字符串为system_str
         """
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
-        return system_str
 
-    def add_system(self, system_str: str):
+    def add_system(self, system_str: str) -> None:
         """
         添加system。值得注意的是，这里实现方法是简单拼接system_str到末尾，并调整好末尾分号的位置，
         那么，如果想添加多个system，比如test1和test2，那么直接传入'test1, test2'即可
@@ -168,31 +156,28 @@ class UModel:
         current_system = self.get_system()
         new_system = f'{current_system[:current_system.rfind(";")]},{system_str};'
         self.set_system(new_system)
-        return self.get_system()
 
-    def get_declaration(self):
+    def get_declaration(self) -> str:
         """
         返回declaration的字符串
         """
         declaration_elem = self.__element_tree.find('declaration')
         return declaration_elem.text
 
-    def set_declaration(self, declaration_str: str):
+    def set_declaration(self, declaration_str: str) -> None:
         """
         设置整个declarations
         """
         declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
-        return declaration_str
 
-    def add_declaration(self, declaration_str: str):
+    def add_declaration(self, declaration_str: str) -> None:
         """
         添加一条新的语句到最后一行或者第一行
         """
         current_declaration = self.get_declaration()
         new_declaration = f'{current_declaration[:-1]},{declaration_str};'
         self.set_declaration(new_declaration)
-        return self.get_declaration()
 
     def get_max_location_id(self) -> int:
         """
@@ -231,7 +216,6 @@ class UModel:
         #     start_index = end_index
         return list(set(broadcast_chan))
             
-
     def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, 
                     strict: bool = False, allpattern: bool = False):
         """
@@ -383,7 +367,6 @@ class UModel:
             os.remove(trace_path)
 
         return all_patterns
-
 
     def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
