@@ -43,7 +43,11 @@ class UModel:
     
     def get_communication_graph(self, save_path=None) -> None:
         """
-        这个函数功能要升级
+        这个函数功能要升级，save_path可以提供svg、png等格式
+        思路
+        1. 一个是通过 github 源码：https://github.com/mermaid-js
+        2. 通过 this link 爬下来：https://mermaid.live/edit
+
         get the communication graph of the uppaal model and save it to a `.md` file
         save_path: string, the path of aiming file
         return mermaid string
@@ -150,14 +154,14 @@ class UModel:
         system_elem.text = system_str
 
     # def add_system(self, system_str: str) -> None:
-        """
-        添加system。值得注意的是，这里实现方法是简单拼接system_str到末尾，并调整好末尾分号的位置，
-        那么，如果想添加多个system，比如test1和test2，那么直接传入'test1, test2'即可
-        返回self.get_system()
-        """
-        current_system = self.get_system()
-        new_system = f'{current_system[:current_system.rfind(";")]},{system_str};'
-        self.set_system(new_system)
+    #     """
+    #     添加system。值得注意的是，这里实现方法是简单拼接system_str到末尾，并调整好末尾分号的位置，
+    #     那么，如果想添加多个system，比如test1和test2，那么直接传入'test1, test2'即可
+    #     返回self.get_system()
+    #     """
+    #     current_system = self.get_system()
+    #     new_system = f'{current_system[:current_system.rfind(";")]},{system_str};'
+    #     self.set_system(new_system)
 
 # declaration
     def get_declaration(self) -> str:
@@ -174,13 +178,13 @@ class UModel:
         declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
 
-    def add_declaration(self, declaration_str: str) -> None:
-        """
-        添加一条新的语句到最后一行或者第一行
-        """
-        current_declaration = self.get_declaration()
-        new_declaration = f'{current_declaration[:-1]},{declaration_str};'
-        self.set_declaration(new_declaration)
+    # def add_declaration(self, declaration_str: str) -> None:
+    #     """
+    #     添加一条新的语句到最后一行或者第一行
+    #     """
+    #     current_declaration = self.get_declaration()
+    #     new_declaration = f'{current_declaration[:-1]},{declaration_str};'
+    #     self.set_declaration(new_declaration)
 
 # other
     def get_max_location_id(self) -> int:
