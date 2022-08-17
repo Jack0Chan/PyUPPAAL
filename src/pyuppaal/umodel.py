@@ -10,45 +10,50 @@ from .iTools import UFactory
 from .tracer import SimTrace, Tracer
 import os
 
+# support return typing UModel
+from __future__ import annotations
+
 # verifyta_ins = Verifyta()
 
 class UModel:
     """
     载入UPPAAL模型，进行分析、编辑、验证、保存等操作
     """
-
     def __init__(self, model_path: str):
         # 模型路径，如 '../AVNRT_Initial_straight.xml'
-        self.model_path: str = model_path
-        self.element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
-        self.root_elem: ET.Element = self.element_tree.getroot()
-        if not Verifyta()._verifyta_path:
-            raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path().')
+        self.__model_path: str = model_path
+        self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
+        self.__root_elem: ET.Element = self.__element_tree.getroot()
+        if not Verifyta().verifyta_path:
+            raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path(xxx).')
 
-    def get_model_path(self):
-        return self.model_path
+    @property
+    def model_path(self) -> str:
+        return self.__model_path
 
     def save(self):
         new_model_path = self.model_path
         with open(new_model_path, 'w') as f:
-            self.element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         self.model_path = new_model_path
         return self.model_path
 
-    def save_as(self, new_model_path: str):
+    def save_as(self, new_model_path: str) -> UModel:
         with open(new_model_path, 'w') as f:
-            self.element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         self.model_path = new_model_path
-        return new_model_path
+        return UModel(new_model_path)
 
-    def copy_as(self, new_model_path: str):
-        with open(new_model_path, 'w') as f:
-            self.element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
-        # self.model_path = new_model_path
-        return new_model_path
+    # copy可以被save as取代
+    # def copy_to(self, new_model_path: str) -> UModel:
+    #     with open(new_model_path, 'w') as f:
+    #         self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+    #     # self.model_path = new_model_path
+    #     return UModel(new_model_path)
     
     def get_communication_graph(self, save_path=None):
         """
+        这个函数功能要升级
         get the communication graph of the uppaal model and save it to a `.md` file
         save_path: string, the path of aiming file
         return mermaid string
@@ -81,14 +86,14 @@ class UModel:
         根据名字获取相应template的Element
         template_name: string, template的名字
         """
-        return self.element_tree.iter("template")
+        return self.__element_tree.iter("template")
 
     def get_template(self, template_name: str):
         """
         根据名字获取相应template的Element
         template_name: string, template的名字
         """
-        for template in self.element_tree.iter("template"):
+        for template in self.__element_tree.iter("template"):
             if template.find('name').text == template_name:
                 return template
         return None
@@ -103,18 +108,23 @@ class UModel:
         template_elem = self.get_template(template_name)
         if template_elem is None:
             return False
-        self.root_elem.remove(template_elem)
+        self.__root_elem.remove(template_elem)
         return True
-    
-    # def same_name_template(self, template_name: str):
 
+    def get_queries(self) -> List[str]:
+        """
+        返回queries的字符串
+        """
+        query_formula_elems = self.__element_tree.findall('./queries/query/formula')
+        queries = ''.join([query_elem.text for query_elem in query_formula_elems])
+        return queries
 
-    def clear_queries(self):
+    def clear_queries(self) -> bool:
         """
         删除queries_elem
         主要被set_queries调用
         """
-        root = self.root_elem
+        root = self.__root_elem
         queries_elem = root.find('queries')
         if queries_elem is None:
             return False
@@ -131,29 +141,21 @@ class UModel:
         self.clear_queries()
         # 然后构造queries并插入到模型中
         queries_elem = UFactory.queries(queries)
-        self.root_elem.append(queries_elem)
+        self.__root_elem.append(queries_elem)
         return self.get_queries()
-
-    def get_queries(self):
-        """
-        返回queries的字符串
-        """
-        query_formula_elems = self.element_tree.findall('./queries/query/formula')
-        queries = ''.join([query_elem.text for query_elem in query_formula_elems])
-        return queries
 
     def get_system(self):
         """
         返回system的字符串
         """
-        system_elem = self.element_tree.find('system')
+        system_elem = self.__element_tree.find('system')
         return system_elem.text
 
     def set_system(self, system_str: str):
         """
         修改system的字符串为system_str
         """
-        system_elem = self.element_tree.find('system')
+        system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
         return system_str
 
@@ -172,14 +174,14 @@ class UModel:
         """
         返回declaration的字符串
         """
-        declaration_elem = self.element_tree.find('declaration')
+        declaration_elem = self.__element_tree.find('declaration')
         return declaration_elem.text
 
     def set_declaration(self, declaration_str: str):
         """
         设置整个declarations
         """
-        declaration_elem = self.element_tree.find('declaration')
+        declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
         return declaration_str
 
@@ -196,7 +198,7 @@ class UModel:
         """
         获取当前模型最大的location_id，方便制造新的模板
         """
-        location_elems = self.element_tree.findall('./template/location')
+        location_elems = self.__element_tree.findall('./template/location')
         # <location id="id0" x="-187" y="-76">
         # <location id="id1" x="25" y="-76">
         # <location id="id2" x="-51" y="-119">
@@ -255,7 +257,7 @@ class UModel:
         # 删除相同名字的monitor
         self.remove_template(monitor_name)
         monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), observe_actions, start_id, strict, allpattern)
-        self.root_elem.insert(-2, monitor)
+        self.__root_elem.insert(-2, monitor)
         # 将新到monitor加入到system中
         self.add_system(monitor_name)
         return None
@@ -279,7 +281,7 @@ class UModel:
         # 删除相同名字的monitor
         self.remove_template(input_template_name)
         input_model = UFactory.input(input_template_name, signals.convert_to_list_tuple(), start_id)
-        self.root_elem.insert(-2, input_model)
+        self.__root_elem.insert(-2, input_model)
         # 将新到monitor加入到system中
         self.add_system(input_template_name)
         return None
@@ -311,8 +313,7 @@ class UModel:
         # 保存构建好的模型
         new_umodel.save()
         # 获取第0个pattern
-        # Verifyta().simple_verify(new_model_path, options=options)
-        Verifyta().simple_verify(new_model_path)
+        Verifyta().simple_verify(new_model_path, options=options)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []
@@ -384,7 +385,7 @@ class UModel:
         return all_patterns
 
 
-    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False):
+    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
         input_actions: 输入信号列表
         observe_actions
@@ -398,8 +399,7 @@ class UModel:
         if query is not None:
             new_umodel.set_queries(queries=query)
 
-        # Verifyta().simple_verify(new_model_path,options=options)
-        Verifyta().simple_verify(new_model_path)
+        Verifyta().simple_verify(new_model_path,options=options)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []

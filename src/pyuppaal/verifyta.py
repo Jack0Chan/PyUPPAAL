@@ -19,7 +19,7 @@ def __check_is_verifyta_path_empty(func):
     @functools.wraps(func)
     def checker_wrapper(*args, **kwargs):
         # 注意verifyta是singleton，因此可以直接用Verifyta()调用到唯一的实例
-        if Verifyta()._verifyta_path:
+        if Verifyta().verifyta_path:
             return func(*args, **kwargs)
         else:
             error_info = 'Verifyta path is not set.'
@@ -33,23 +33,23 @@ class Verifyta:
     uppaal commandline tools
     """
     # make singleton
-    _instance = None
-    _is_first_init = True
+    __instance = None
+    __is_first_init = True
 
     def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = object.__new__(cls)
-        return cls._instance
+        if cls.__instance is None:
+            cls.__instance = object.__new__(cls)
+        return cls.__instance
 
     def __init__(self):
         # make singleton
-        if not self._is_first_init:
+        if not self.__is_first_init:
             return
-        self._is_first_init = False
+        self.__is_first_init = False
 
-        self._verifyta_path: str = None
-        self._num_cpu: int = cpu_count()
-        self._is_windows: bool = self.operating_system == 'Windows'
+        self.__verifyta_path: str = None
+        self.__num_cpu: int = cpu_count()
+        self.__is_windows: bool = self.operating_system == 'Windows'
     
     
     @property
@@ -58,20 +58,20 @@ class Verifyta:
 
     @property
     def num_cpu(self) -> int:
-        return self._num_cpu
+        return self.__num_cpu
 
     @property
     def verifyta_path(self) -> str:
-        return self.verifyta_path
+        return self.__verifyta_path
 
-    def __is_valid_verifyta_path(self, verifyta_path: str):
-        res = os.popen(f'{self._verifyta_path} -h').read()
+    def __is_valid__verifyta_path(self, verifyta_path: str):
+        res = os.popen(f'{self.__verifyta_path} -h').read()
         if '-h [ --help ]' in res:
             return True
         else:
             return False
 
-    def set_verifyta_path(self, verifyta_path: str):
+    def set__verifyta_path(self, verifyta_path: str):
         """
         Set verifyta path, and you will get tips if `verifyta_path` is invalid.
         This function will check whether `verifyta_path` is valid by following steps:
@@ -80,8 +80,8 @@ class Verifyta:
 
         :verifyta_path: str, absolute path to `verifyta`
         """
-        if self.__is_valid_verifyta_path(verifyta_path):
-            self._verifyta_path = verifyta_path
+        if self.__is_valid__verifyta_path(verifyta_path):
+            self.__verifyta_path = verifyta_path
         else:
             example_info = "======== Example Paths ========" \
                            "\nWindows: absolute_path_to_uppaal\\bin-Windows\\verifyta.exe" \
@@ -89,8 +89,8 @@ class Verifyta:
                            "\nmacOS  : absolute_path_to_uppaal/bin-Darwin/verifyta"
             raise ValueError(f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
 
-    def get_verifyta_path(self) -> str:
-        return self._verifyta_path
+    def get__verifyta_path(self) -> str:
+        return self.__verifyta_path
 
     @__check_is_verifyta_path_empty
     def simple_verify(self, 
@@ -133,7 +133,7 @@ class Verifyta:
             raise ValueError(error_info)
         
         # set uppaal environment variables
-        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self._is_windows else "UPPAAL_COMPILE_ONLY="
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self.__is_windows else "UPPAAL_COMPILE_ONLY="
         
         cmds = []
         for i in range(len(model_path)):
@@ -148,17 +148,17 @@ class Verifyta:
                 trace_i = trace_i.replace('.xml', '')
                 if options is not None:
                     options_str = " ".join(options)
-                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -X {trace_i} {options_str} {model_i}'
+                    cmd = cmd_env+'&&'+f'{self.__verifyta_path} -X {trace_i} {options_str} {model_i}'
                 else:
-                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -X {trace_i} {model_i}'
+                    cmd = cmd_env+'&&'+f'{self.__verifyta_path} -t 1 -X {trace_i} {model_i}'
                 cmds.append(cmd)
             elif trace_i.endswith('.xtr'):
                 trace_i = trace_i.replace('.xtr', '')
                 if options is not None:
                     options_str = " ".join(options)
-                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -f {trace_i} {options_str} {model_i}'
+                    cmd = cmd_env+'&&'+f'{self.__verifyta_path} -f {trace_i} {options_str} {model_i}'
                 else:
-                    cmd = cmd_env+'&&'+f'{self._verifyta_path} -t 1 -f {trace_i} {model_i}'
+                    cmd = cmd_env+'&&'+f'{self.__verifyta_path} -t 1 -f {trace_i} {model_i}'
                 cmds.append(cmd)
             else:
                 error_info = 'trace_path should end with ".xml" or ".xtr".'
@@ -184,8 +184,8 @@ class Verifyta:
         run common command with cmd, you can easily ignore the verifyta path.
         return the running cmd and the command result
         """
-        if self._verifyta_path not in cmd:
-            cmd = f'{self._verifyta_path} {cmd}'
+        if self.__verifyta_path not in cmd:
+            cmd = f'{self.__verifyta_path} {cmd}'
         return cmd, os.popen(cmd).read()
 
     @__check_is_verifyta_path_empty
@@ -205,13 +205,13 @@ class Verifyta:
         return running cmds and associated result
         """
         if num_process == None:
-            num_process = self._num_cpu
+            num_process = self.__num_cpu
         
         if num_process == 1:
             w = 'You are running with only 1 process, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
-        elif num_process > self._num_cpu:
-            w = f'num_process ({num_process}) is greater than multiprocessing.cpu_count() ({self._num_cpu}).'
+        elif num_process > self.__num_cpu:
+            w = f'num_process ({num_process}) is greater than multiprocessing.cpu_count() ({self.__num_cpu}).'
             warnings.warn(w)
         # p = Pool(min(num_process, cpu_count()))
         p = Pool(num_process)
@@ -226,13 +226,13 @@ class Verifyta:
         return running cmds and associated result
         """
         if num_threads == None:
-            num_threads = self._num_cpu * 2
+            num_threads = self.__num_cpu * 2
         
         if num_threads == 1:
             w = 'You are running with only 1 thread, we recommend using Verifyta().cmd() method.'
             warnings.warn(w)
-        elif num_threads > self._num_cpu * 2:
-            w = f'num_process ({num_threads}) is greater than 2 * multiprocessing.cpu_count() ({2*self._num_cpu}).'
+        elif num_threads > self.__num_cpu * 2:
+            w = f'num_process ({num_threads}) is greater than 2 * multiprocessing.cpu_count() ({2*self.__num_cpu}).'
             warnings.warn(w)
 
         p = ThreadPool(num_threads)
@@ -261,7 +261,7 @@ class Verifyta:
 
         # set uppaal environment variables
         cmd_env = 'set UPPAAL_COMPILE_ONLY=1'
-        cmd = cmd_env+"&&"+f'{self._verifyta_path} {model_path} > {if_path}'
+        cmd = cmd_env+"&&"+f'{self.__verifyta_path} {model_path} > {if_path}'
         self.cmd(cmd=cmd)
         
         if not os.path.exists(if_path):
