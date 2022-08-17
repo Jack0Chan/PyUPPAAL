@@ -41,7 +41,7 @@ class UModel:
         new_model_path = self.model_path
         return self.save_as(new_model_path)
     
-    def get_communication_graph(self, save_path=None) -> str:
+    def get_communication_graph(self, save_path=None) -> None:
         """
         这个函数功能要升级
         get the communication graph of the uppaal model and save it to a `.md` file
@@ -57,9 +57,8 @@ class UModel:
             save_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
         with open(save_path, "w") as f:
             f.write(mermaid)
-        return mermaid
 
-    def verify(self, trace_path: str) -> List[str]:
+    def verify(self, trace_path: str) -> str:
         """
         验证模型，并将验证结果保存到trace_path中
         """
@@ -69,8 +68,9 @@ class UModel:
         tmp_model_path = f'{self.model_path[:idx + 1]}tmp_verify_{self.model_path[idx + 1:]}'
         self.save(tmp_model_path)
         # print(tmp_model_path)
-        return Verifyta().simple_verify(tmp_model_path, trace_path)
+        return Verifyta().simple_verify(tmp_model_path, trace_path)[0]
 
+# templates
     def get_templates(self) -> List[str]:
         """
         根据名字获取相应template的Element
@@ -101,6 +101,7 @@ class UModel:
         self.__root_elem.remove(template_elem)
         return True
 
+# queries
     def get_queries(self) -> List[str]:
         """
         返回queries的字符串
@@ -133,6 +134,7 @@ class UModel:
         queries_elem = UFactory.queries(queries)
         self.__root_elem.append(queries_elem)
 
+# system
     def get_system(self) -> str:
         """
         返回system的字符串
@@ -147,7 +149,7 @@ class UModel:
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
 
-    def add_system(self, system_str: str) -> None:
+    # def add_system(self, system_str: str) -> None:
         """
         添加system。值得注意的是，这里实现方法是简单拼接system_str到末尾，并调整好末尾分号的位置，
         那么，如果想添加多个system，比如test1和test2，那么直接传入'test1, test2'即可
@@ -157,6 +159,7 @@ class UModel:
         new_system = f'{current_system[:current_system.rfind(";")]},{system_str};'
         self.set_system(new_system)
 
+# declaration
     def get_declaration(self) -> str:
         """
         返回declaration的字符串
@@ -179,6 +182,7 @@ class UModel:
         new_declaration = f'{current_declaration[:-1]},{declaration_str};'
         self.set_declaration(new_declaration)
 
+# other
     def get_max_location_id(self) -> int:
         """
         获取当前模型最大的location_id，方便制造新的模板
@@ -215,7 +219,8 @@ class UModel:
         #     broadcast_chan += tmp_actions
         #     start_index = end_index
         return list(set(broadcast_chan))
-            
+
+# all patterns      
     def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, 
                     strict: bool = False, allpattern: bool = False):
         """
