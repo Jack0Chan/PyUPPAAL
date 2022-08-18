@@ -4,7 +4,7 @@ import sys
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 
-from pyuppaal.namedtuple import TimedActions
+# from pyuppaal.namedtuple import TimedActions
 from .verifyta import Verifyta
 from .iTools import UFactory
 from .tracer import SimTrace, Tracer
@@ -14,6 +14,30 @@ import os
 from __future__ import annotations
 
 # verifyta_ins = Verifyta()
+class TimedActions:
+    def __init__(self, actions: List[str], lb: List[int] = None, ub: List[str] = None):
+        self.actions = actions
+        self.lb = lb
+        self.ub = ub
+        if self.lb is None:
+            self.lb = [-1 for i in range(len(self.actions))]
+        if self.ub is None:
+            self.ub = [-1 for i in range(len(self.actions))]
+    
+    @property
+    def is_patterns(self):
+        return all(self.lb) == -1 and all(self.ub) == -1
+
+    def convert_to_list_tuple(self, clk_name='monitor_clk'):
+        self.clk_name = clk_name
+        res = []
+        for i in range(len(self.actions)):
+            res.append((self.actions[i], f'{clk_name}>={self.lb[i]}', f'{clk_name}<={self.ub[i]}'))
+        return res
+    
+    def convert_to_patterns(self):
+        return self.actions
+
 
 class UModel:
     """
@@ -24,8 +48,8 @@ class UModel:
         self.__model_path: str = model_path
         self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
-        if not Verifyta().verifyta_path:
-            raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path(xxx).')
+        # if not Verifyta().verifyta_path:
+        #     raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path(xxx).')
 
     @property
     def model_path(self) -> str:
