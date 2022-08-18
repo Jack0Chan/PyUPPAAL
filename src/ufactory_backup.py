@@ -13,8 +13,19 @@ class UFactory:
     transition,
     template,
     """
+
     @staticmethod
-    def __query(query: str) -> ET.Element:
+    def declaration(declaration: str):
+        """
+        构造UPPAAL的declaration
+        declaration: str, declaration里的全部内容
+        """
+        dec_elem = ET.Element('declaration')
+        dec_elem.text = declaration
+        return dec_elem
+
+    @staticmethod
+    def __query(query: str):
         """
         query: str, 验证语句
         构造一个query
@@ -56,16 +67,6 @@ class UFactory:
         for query in queries:
             queries_elem.append(UFactory.__query(query))
         return queries_elem
-
-    @staticmethod
-    def declaration(declaration: str) -> ET.Element:
-        """
-        构造UPPAAL的declaration
-        declaration: str, declaration里的全部内容
-        """
-        dec_elem = ET.Element('declaration')
-        dec_elem.text = declaration
-        return dec_elem
 
     @staticmethod
     def location(location_id: int, pos_x: int, pos_y: int,
@@ -331,3 +332,18 @@ class UFactory:
         declaration = None if allpattern else f'clock {clk_name};'
         monitor_elem = UFactory.template(monitor_name, locations, init_id, transitions, declaration=declaration)
         return monitor_elem
+
+    @staticmethod
+    def signal_converter(signal_dict: Dict[str, str], init_id: int, converter_name: str = 'SignalConverter'):
+        """
+        将某些可观测信号转化成另一些信号
+        signal_dict: Dict[str, str]，信号对应的字典
+        init_id: int, location最小的id，防止location的冲突
+
+        比如：signal_dict = {'actPathHisA': 'sigOut',
+                            'actPathHisH': 'sigOut',
+                            'actPathHisV': 'sigOut',
+                            'sigIn': 'actNodeSA'}
+        会构造出如xx图片的自动机
+        """
+        pass
