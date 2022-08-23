@@ -12,7 +12,7 @@ import functools
 import platform
 
 
-def __check_is_verifyta_path_empty(func):
+def check_is_verifyta_path_empty(func):
     """
     装饰器，用来在verifyta运行前检测路径是否被设置。
     """
@@ -64,14 +64,16 @@ class Verifyta:
     def verifyta_path(self) -> str:
         return self.__verifyta_path
 
-    def __is_valid__verifyta_path(self, verifyta_path: str):
-        res = os.popen(f'{self.__verifyta_path} -h').read()
+    def __is_valid_verifyta_path(self, verifyta_path: str):
+        cmd = f'{verifyta_path} -h'
+        # print(cmd)
+        res = os.popen(cmd).read()
         if '-h [ --help ]' in res:
             return True
         else:
             return False
 
-    def set__verifyta_path(self, verifyta_path: str):
+    def set_verifyta_path(self, verifyta_path: str):
         """
         Set verifyta path, and you will get tips if `verifyta_path` is invalid.
         This function will check whether `verifyta_path` is valid by following steps:
@@ -80,7 +82,7 @@ class Verifyta:
 
         :verifyta_path: str, absolute path to `verifyta`
         """
-        if self.__is_valid__verifyta_path(verifyta_path):
+        if self.__is_valid_verifyta_path(verifyta_path):
             self.__verifyta_path = verifyta_path
         else:
             example_info = "======== Example Paths ========" \
@@ -92,7 +94,7 @@ class Verifyta:
     def get__verifyta_path(self) -> str:
         return self.__verifyta_path
 
-    @__check_is_verifyta_path_empty
+    @check_is_verifyta_path_empty
     def simple_verify(self, 
                       model_path: str | List[str], 
                       trace_path: str | List[str] = None, 
@@ -165,6 +167,9 @@ class Verifyta:
                 error_info += f' Currently trace_path = {trace_i}'
                 raise ValueError(error_info)
 
+        # debug
+        # print(cmds)
+
         # select parallel method
         if parallel == None:
             return self.cmds_loop(cmds=cmds)
@@ -178,7 +183,7 @@ class Verifyta:
             raise ValueError(error_info)
         return res 
 
-    @__check_is_verifyta_path_empty
+    @check_is_verifyta_path_empty
     def cmd(self, cmd: str):
         """
         run common command with cmd, you can easily ignore the verifyta path.
@@ -188,14 +193,14 @@ class Verifyta:
             cmd = f'{self.__verifyta_path} {cmd}'
         return cmd, os.popen(cmd).read()
 
-    @__check_is_verifyta_path_empty
+    @check_is_verifyta_path_empty
     def cmds_loop(self, cmds: List[str]):
         """
         run in sequence
         """
         return [self.cmd(tmp_cmd) for tmp_cmd in cmds]
 
-    @__check_is_verifyta_path_empty
+    @check_is_verifyta_path_empty
     def cmds_process(self, cmds: List[str], num_process: int = None):
         """
         Warning: multiprocess may be slower than single-process or multi-threads
@@ -217,7 +222,7 @@ class Verifyta:
         p = Pool(num_process)
         return p.map(self.cmd, cmds)
 
-    @__check_is_verifyta_path_empty
+    @check_is_verifyta_path_empty
     def cmds_threads(self, cmds: List[str], num_threads: int = None):
         """
         run a list of commands and return results
@@ -238,7 +243,7 @@ class Verifyta:
         p = ThreadPool(num_threads)
         return p.map(self.cmd, cmds)
 
-    @__check_is_verifyta_path_empty
+    @check_is_verifyta_path_empty
     def compile_to_if(self, model_path: str):
         """Compile model_path(model.xml) to generate a intermediate format file (model.if). 
 

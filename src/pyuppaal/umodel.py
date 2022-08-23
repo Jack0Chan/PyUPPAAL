@@ -1,3 +1,6 @@
+# support return typing UModel
+from __future__ import annotations
+
 # coding=utf-8
 from ast import Raise
 import sys
@@ -6,12 +9,9 @@ import xml.etree.cElementTree as ET
 
 # from pyuppaal.namedtuple import TimedActions
 from .verifyta import Verifyta
-from .iTools import UFactory
+from .iTools import UFactory, build_cg
 from .tracer import SimTrace, Tracer
 import os
-
-# support return typing UModel
-from __future__ import annotations
 
 # verifyta_ins = Verifyta()
 class TimedActions:
@@ -76,7 +76,6 @@ class UModel:
         save_path: string, the path of aiming file
         return mermaid string
         """
-        from iTools import build_cg
         mermaid = build_cg(self.model_path)
         if save_path is None:
             # rfind: 找到最右边的index

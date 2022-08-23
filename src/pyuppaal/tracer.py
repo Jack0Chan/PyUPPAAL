@@ -323,9 +323,13 @@ class Tracer:
         if_file = verifyta.compile_to_if(model_path=model_path)
         file_path, file_ext = os.path.splitext(if_file)
         # use trcer_custom to generate txt file
-        trace_txt = file_path+'.txt'
+        trace_txt = file_path +'.txt'
         cmd_command = f'{tracer_custom} {if_file} {trace_path} {trace_txt}'
         cmd_res = os.popen(cmd_command).read()
+        # debug
+        print(cmd_command)
+        print(cmd_res)
+        
         # check file exist
         if not os.path.exists(trace_txt):
             error_info = f'trace txt file {trace_txt} has not generated.'
