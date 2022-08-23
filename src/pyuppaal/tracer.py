@@ -327,8 +327,8 @@ class Tracer:
         cmd_command = f'{tracer_custom} {if_file} {trace_path} {trace_txt}'
         cmd_res = os.popen(cmd_command).read()
         # debug
-        print(cmd_command)
-        print(cmd_res)
+        # print(cmd_command)
+        # print(cmd_res)
         
         # check file exist
         if not os.path.exists(trace_txt):
