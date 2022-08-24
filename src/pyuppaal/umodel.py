@@ -58,7 +58,12 @@ class UModel:
     def save_as(self, new_model_path: str) -> UModel:
         with open(new_model_path, 'w') as f:
             self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
-        self.model_path = new_model_path
+        self.__model_path = new_model_path
+        return UModel(new_model_path)
+
+    def copy_as(self, new_model_path: str) -> UModel:
+        with open(new_model_path, 'w') as f:
+            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_model_path)
 
     def save(self) -> UModel:
@@ -275,7 +280,20 @@ class UModel:
         monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), observe_actions, start_id, strict, allpattern)
         self.__root_elem.insert(-2, monitor)
         # 将新到monitor加入到system中
-        self.add_system(monitor_name)
+        cur_system = self.get_system()
+        cur_system = cur_system.split('\n')
+        cur_system = [x.strip() for x in cur_system]
+        for i in range(len(cur_system)):
+            if cur_system[i].startswith('system'):
+                tmpl = cur_system[i][6:].split(',')
+                tmpl = [y.strip() for y in tmpl]
+                tmpl = [y.strip(';') for y in tmpl]
+                if monitor_name not in tmpl:
+                    tmpl.insert(0,monitor_name)
+                cur_system[i] = 'system ' + ','.join(tmpl) + ';'
+                break
+        cur_system = '\n'.join(cur_system)
+        self.set_system(cur_system)
         return None
 
     def add_input(self, input_template_name: str, signals: TimedActions):
@@ -299,7 +317,20 @@ class UModel:
         input_model = UFactory.input(input_template_name, signals.convert_to_list_tuple(), start_id)
         self.__root_elem.insert(-2, input_model)
         # 将新到monitor加入到system中
-        self.add_system(input_template_name)
+        cur_system = self.get_system()
+        cur_system = cur_system.split('\n')
+        cur_system = [x.strip() for x in cur_system]
+        for i in range(len(cur_system)):
+            if cur_system[i].startswith('system'):
+                tmpl = cur_system[i][6:].split(',')
+                tmpl = [y.strip() for y in tmpl]
+                tmpl = [y.strip(';') for y in tmpl]
+                if input_template_name not in tmpl or input_template_name+';' not in tmpl:
+                    tmpl.insert(0,input_template_name)
+                cur_system[i] = 'system ' + ','.join(tmpl) + ';'
+                break
+        cur_system = '\n'.join(cur_system)
+        self.set_system(cur_system)
         return None
 
     def find_a_pattern(self, inputs: TimedActions, observes: TimedActions, 
@@ -313,8 +344,7 @@ class UModel:
         # 设置路径
         # 新模型路径，不覆盖原模型
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        self.copy_as(new_model_path=new_model_path)
-        new_umodel = UModel(new_model_path)
+        new_umodel = self.copy_as(new_model_path=new_model_path)
         # 将要保存的path路径
         # trace_path = f"{new_model_path.replace('.xml', '')}"
 
