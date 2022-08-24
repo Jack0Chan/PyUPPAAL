@@ -56,12 +56,20 @@ class UModel:
         return self.__model_path
 
     def save_as(self, new_model_path: str) -> UModel:
+        """
+        save as会把原来的UModel的model_path修改掉
+        copy as不会修改原来的UModel的model_path
+        """
         with open(new_model_path, 'w') as f:
             self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         self.__model_path = new_model_path
         return UModel(new_model_path)
 
     def copy_as(self, new_model_path: str) -> UModel:
+        """
+        save as会把原来的UModel的model_path修改掉
+        copy as不会修改原来的UModel的model_path
+        """
         with open(new_model_path, 'w') as f:
             self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_model_path)
