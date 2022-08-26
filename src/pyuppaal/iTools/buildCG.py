@@ -2,7 +2,8 @@
 
 def get_str_before(string: str, label: str):
     """
-    Return the substring of 'string' before the first occurrence of 'label'.
+    :return: the substring of 'string' before the first occurrence of 'label'.
+
     If 'label' doesn't exist in 'string', raise error.
     """
     index = string.find(label)
@@ -12,7 +13,8 @@ def get_str_before(string: str, label: str):
 
 def get_str_after(string, label):
     """
-    Return the substring of 'string' after the first occurence of 'label'.
+    :return: the substring of 'string' after the first occurence of 'label'.
+
     If 'label' doesn't exist in 'string', raise error.
     """
     index = string.find(label)
@@ -23,10 +25,11 @@ def get_str_after(string, label):
 class Node:
     """
     A instance of a Xml Template.
-    name        str: the name of the instance
-    temp_name   str: the name of the template
-    sig_in      list: a list of names of signals enter the node
-    sig_out     list: a list of names of signals sent by the node
+
+    :param strname: the name of the instance
+    :param str temp_name: the name of the template
+    :param list sig_in: a list of names of signals enter the node
+    :param list sig_out: a list of names of signals sent by the node
     """
 
     def __init__(self, name, temp_name, sig_in, sig_out):
@@ -40,10 +43,10 @@ class XmlTemplate:
     """
     Used to define a template in the xml.
     Input is the corresponding code in the xml.
-    name        str: name of the template
-    sig_in      list: a list of signals enter the template
-    sig_out     list: a list of signals sent by the template
-    params      dict: relate input signal variable with its index in the input arguments
+    :param str name: name of the template
+    :param list sig_in: a list of signals enter the template
+    :param list sig_out: a list of signals sent by the template
+    :param dict params: relate input signal variable with its index in the input arguments
     """
 
     def __init__(self, code):
@@ -86,8 +89,8 @@ class XmlTemplate:
     def get_param(self):
         """
         Find the signal variables that come in through input.
-        And store the name of them with their index in the input arguments,
-        which can be used to find the actual signal variable when give input argument.
+
+        And store the name of them with their index in the input arguments, which can be used to find the actual signal variable when give input argument.
         """
         self.paras = {}
         if self.code.find("</parameter>") != -1:
@@ -102,8 +105,9 @@ class XmlTemplate:
     def get_instance(self, name, para_string):
         """
         Return and initialize an instance of the template using the input argument.
-        name        str: name of the new instance
-        para_string-str: code of the input argument
+
+        :param str name: name of the new instance
+        :param str para_string: code of the input argument
         """
         sig_in = []
         sig_out = []
@@ -167,7 +171,7 @@ class XmlReader:
     def get_notes(self):
         """
         By reading the 'system' part in the xml to init all time-automata instances.
-        Return a list fo 'Node'.
+        :return: a list fo 'Node'.
         """
         self.nodes = {}
         system_code = get_str_after(self.code, '<system>')

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyuppaal.iTools package &mdash; pyuppaal v0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="pyuppaal package" href="pyuppaal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> pyuppaal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyuppaal.html">pyuppaal package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pyuppaal.html#pyuppaal-itools-package">pyuppaal.iTools Package</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pyuppaal.iTools package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyuppaal.html#module-pyuppaal.tracer">pyuppaal.tracer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyuppaal.html#module-pyuppaal.umodel">pyuppaal.umodel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyuppaal.html#module-pyuppaal.verifyta">pyuppaal.verifyta module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyuppaal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">src</a> &raquo;</li>
+          <li><a href="pyuppaal.html">pyuppaal package</a> &raquo;</li>
+      <li>pyuppaal.iTools package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pyuppaal.iTools.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyuppaal-itools-package">
+<h1>pyuppaal.iTools package<a class="headerlink" href="#pyuppaal-itools-package" title="Permalink to this heading"></a></h1>
+<section id="module-pyuppaal.iTools.buildCG">
+<span id="pyuppaal-itools-buildcg-module"></span><h2>pyuppaal.iTools.buildCG module<a class="headerlink" href="#module-pyuppaal.iTools.buildCG" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.get_str_before">
+<span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">get_str_before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.get_str_before" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the substring of ‘string’ before the first occurrence of ‘label’.</p>
+</dd>
+</dl>
+<p>If ‘label’ doesn’t exist in ‘string’, raise error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.get_str_after">
+<span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">get_str_after</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.get_str_after" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the substring of ‘string’ after the first occurence of ‘label’.</p>
+</dd>
+</dl>
+<p>If ‘label’ doesn’t exist in ‘string’, raise error.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.Node">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.Node" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A instance of a Xml Template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strname</strong> – the name of the instance</p></li>
+<li><p><strong>temp_name</strong> (<em>str</em>) – the name of the template</p></li>
+<li><p><strong>sig_in</strong> (<em>list</em>) – a list of names of signals enter the node</p></li>
+<li><p><strong>sig_out</strong> (<em>list</em>) – a list of names of signals sent by the node</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlTemplate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">XmlTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlTemplate" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Used to define a template in the xml.
+Input is the corresponding code in the xml.
+:param str name: name of the template
+:param list sig_in: a list of signals enter the template
+:param list sig_out: a list of signals sent by the template
+:param dict params: relate input signal variable with its index in the input arguments</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlTemplate.init_name">
+<span class="sig-name descname"><span class="pre">init_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlTemplate.init_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get the name from self.code</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlTemplate.get_all_sync">
+<span class="sig-name descname"><span class="pre">get_all_sync</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlTemplate.get_all_sync" title="Permalink to this definition"></a></dt>
+<dd><p>Using label “synchronisation” to find all signal names used in the template.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlTemplate.get_param">
+<span class="sig-name descname"><span class="pre">get_param</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlTemplate.get_param" title="Permalink to this definition"></a></dt>
+<dd><p>Find the signal variables that come in through input.</p>
+<p>And store the name of them with their index in the input arguments, which can be used to find the actual signal variable when give input argument.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlTemplate.get_instance">
+<span class="sig-name descname"><span class="pre">get_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">para_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlTemplate.get_instance" title="Permalink to this definition"></a></dt>
+<dd><p>Return and initialize an instance of the template using the input argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – name of the new instance</p></li>
+<li><p><strong>para_string</strong> (<em>str</em>) – code of the input argument</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">XmlReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlReader" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Used to read the xml file and take advantage of classes defined above.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlReader.init_template">
+<span class="sig-name descname"><span class="pre">init_template</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlReader.init_template" title="Permalink to this definition"></a></dt>
+<dd><p>Find all templates in the code and init a ‘XmlTemplate’ for each of them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.XmlReader.get_notes">
+<span class="sig-name descname"><span class="pre">get_notes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.XmlReader.get_notes" title="Permalink to this definition"></a></dt>
+<dd><p>By reading the ‘system’ part in the xml to init all time-automata instances.
+:return: a list fo ‘Node’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.add_edge">
+<span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.add_edge" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.build_cg_code">
+<span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">build_cg_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.build_cg_code" title="Permalink to this definition"></a></dt>
+<dd><p>Given a list of ‘Node’, build the CG graph and print the markdown code.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyuppaal.iTools.buildCG.build_cg">
+<span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.buildCG.</span></span><span class="sig-name descname"><span class="pre">build_cg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.buildCG.build_cg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pyuppaal.iTools.ufactory">
+<span id="pyuppaal-itools-ufactory-module"></span><h2>pyuppaal.iTools.ufactory module<a class="headerlink" href="#module-pyuppaal.iTools.ufactory" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyuppaal.iTools.ufactory.</span></span><span class="sig-name descname"><span class="pre">UFactory</span></span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate xml elements of Uppaal, like declaration, query, queries, location, transition, template and so on.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">UFactory</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">queryTest</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.queries">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">queries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.queries" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – verification statements</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;</span><span class="n">queries</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">query</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="o">&lt;</span><span class="n">formula</span><span class="o">&gt;</span><span class="n">E</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Output</span><span class="o">.</span><span class="k">pass</span><span class="o">&lt;/</span><span class="n">formula</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="o">&lt;</span><span class="n">comment</span> <span class="o">/&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;/</span><span class="n">query</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">query</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="o">&lt;</span><span class="n">formula</span><span class="o">&gt;</span><span class="n">E</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Output2</span><span class="o">.</span><span class="k">pass</span><span class="o">&lt;/</span><span class="n">formula</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="o">&lt;</span><span class="n">comment</span> <span class="o">/&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;/</span><span class="n">query</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;/</span><span class="n">queries</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.declaration">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">declaration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">declaration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Element</span></span></span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.declaration" title="Permalink to this definition"></a></dt>
+<dd><p>Generate the declararion of UPPAAL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>declaration</strong> (<em>str</em>) – all contents of declaration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.location">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_committed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.location" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – the <cite>id</cite> of location</p></li>
+<li><p><strong>pos_x</strong><strong>,</strong><strong>pos_y</strong> (<em>int</em>) – the position of location</p></li>
+<li><p><strong>inv</strong> (<em>str</em>) – theinvariant of location, e.g., <cite>gclk&lt;=10</cite> and <cite>gclk&lt;100</cite>.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – the name of location</p></li>
+<li><p><strong>is_committed</strong> (<em>bool</em>) – determine whether it is committed or not</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;</span><span class="n">location</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id37&quot;</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;-169&quot;</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;-59&quot;</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">name</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;90&quot;</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;166&quot;</span><span class="o">&gt;</span><span class="k">pass</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">label</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;invariant&quot;</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;-212&quot;</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;-42&quot;</span><span class="o">&gt;</span><span class="n">gclk</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">=</span><span class="mi">122</span><span class="o">&lt;/</span><span class="n">label</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">committed</span><span class="o">/&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;/</span><span class="n">location</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.transition">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sourceID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guard</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock_reset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.transition" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sourceID</strong> (<em>int</em>) – the id of start</p></li>
+<li><p><strong>targetID</strong> (<em>int</em>) – the id of end</p></li>
+<li><p><strong>post_x</strong><strong>,</strong><strong>post_y</strong> (<em>int</em>) – the position of sign</p></li>
+<li><p><strong>guard</strong> (<em>str</em>) – the guard of the edge, e.g., <cite>t&gt;=10</cite>, <cite>t&gt;100</cite></p></li>
+<li><p><strong>sync</strong> (<em>str</em>) – the signal of synchronisation, e.g., <cite>!</cite> and <cite>?</cite></p></li>
+<li><p><strong>clock_reset</strong> (<em>str</em>) – e.g., <cite>t=0</cite></p></li>
+<li><p><strong>nail</strong> (<em>bool</em>) – determine whether the edge is curved, which will be applied when multiple paths exist at the same start or finish point??????</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; &lt;transition&gt;
+&gt;&gt;&gt;     &lt;source ref=&quot;id7&quot;/&gt;
+&gt;&gt;&gt;     &lt;target ref=&quot;id6&quot;/&gt;
+&gt;&gt;&gt;     &lt;label kind=&quot;guard&quot; x=&quot;139&quot; y=&quot;90&quot;&gt;t&amp;gt;=tERPMin&lt;/label&gt;
+&gt;&gt;&gt;     &lt;label kind=&quot;synchronisation&quot; x=&quot;123&quot; y=&quot;90&quot;&gt;sync?&lt;/label&gt;
+&gt;&gt;&gt;     &lt;label kind=&quot;assignment&quot; x=&quot;156&quot; y=&quot;107&quot;&gt;t=0&lt;/label&gt;
+&gt;&gt;&gt; &lt;/transition&gt;
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.template">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Element</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Element</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">declaration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.template" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the name of template</p></li>
+<li><p><strong>locations</strong> (<em>List</em><em>[</em><em>ET.Element</em><em>]</em>) – series of locations generated by UFactory.construct_location()</p></li>
+<li><p><strong>init_id</strong> (<em>int</em>) – the id of initial location</p></li>
+<li><p><strong>transitions</strong> (<em>List</em><em>[</em><em>ET.Element</em><em>]</em>) – series of transitions generated by UFactory.construct_location()</p></li>
+<li><p><strong>parameter</strong> (<em>str</em>) – parameter instruction, e.g., &lt;parameter&gt;broadcast chan &amp;amp;actNode, actPath,int tERPMin, int tERPMax&lt;/parameter&gt;</p></li>
+<li><p><strong>declaration</strong> (<em>str</em>) – declaration instruction, e.g., &lt;declaration&gt;clock t;&lt;/declaration&gt;</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;</span><span class="n">template</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">NodeN</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">parameter</span><span class="o">&gt;</span><span class="n">broadcast</span> <span class="n">chan</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">actNode</span><span class="p">,</span> <span class="nb">int</span> <span class="n">tERPMin</span><span class="p">,</span> <span class="nb">int</span> <span class="n">tERPMax</span><span class="o">&lt;/</span><span class="n">parameter</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">declaration</span><span class="o">&gt;</span><span class="n">clock</span> <span class="n">t</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">declaration</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">location</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">location</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">location</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">location</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">location</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">location</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">init</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;id47&quot;</span><span class="o">/&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">transition</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">transition</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">transition</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">transition</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">transition</span><span class="o">&gt;&lt;/</span><span class="n">transition</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;/</span><span class="n">template</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.input">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.input" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a linear model of input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_name</strong> (<em>str</em>) – the name of input</p></li>
+<li><p><strong>init_id</strong> (<em>int</em>) – int, set the minimum <cite>&lt;init ref=’xxx’/&gt;</cite> of monitor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parama List[Tuple[str, int, int]] signals</dt>
+<dd class="field-even"><p>this data type is updated in <cite>umodel.TymedActions</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyuppaal.iTools.ufactory.UFactory.monitor">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitor_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observe_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allpattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.iTools.ufactory.UFactory.monitor" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a new linear model of.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>monitor_name</strong> (<em>str</em>) – the name of monitor</p></li>
+<li><p><strong>signals</strong> (<em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – this data type is updated in <cite>umodel.TymedActions</cite></p></li>
+<li><p><strong>init_id</strong> (<em>int</em>) – set the minimum <cite>&lt;init ref=’xxx’/&gt;</cite> of monitor</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – determine whethe the observation is strict, which indicates other observations will be forbidden</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;</span><span class="n">template</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">Monitor</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">location</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">location</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">location</span><span class="o">&gt;</span><span class="n">init</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;id47&quot;</span><span class="o">/&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">&lt;</span><span class="n">transition</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">transition</span><span class="o">&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">&lt;/</span><span class="n">template</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyuppaal.html" class="btn btn-neutral float-left" title="pyuppaal package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, DuckyTester.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

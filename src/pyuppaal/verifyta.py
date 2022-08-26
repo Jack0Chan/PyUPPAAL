@@ -167,9 +167,6 @@ class Verifyta:
                 error_info += f' Currently trace_path = {trace_i}'
                 raise ValueError(error_info)
 
-        # debug
-        # print(cmds)
-
         # select parallel method
         if parallel == None:
             return self.cmds_loop(cmds=cmds)
@@ -186,8 +183,9 @@ class Verifyta:
     @check_is_verifyta_path_empty
     def cmd(self, cmd: str):
         """
-        run common command with cmd, you can easily ignore the verifyta path.
-        return the running cmd and the command result
+        Run common command with cmd, you can easily ignore the verifyta path.
+
+        :return: the running cmd and the command result
         """
         if self.__verifyta_path not in cmd:
             cmd = f'{self.__verifyta_path} {cmd}'
@@ -203,11 +201,15 @@ class Verifyta:
     @check_is_verifyta_path_empty
     def cmds_process(self, cmds: List[str], num_process: int = None):
         """
-        Warning: multiprocess may be slower than single-process or multi-threads
-        run a list of commands and return results
-        if num_process is not given, it will run with num cpu cores
-        if num_process is 1, it's better run with self.cmd
-        return running cmds and associated result
+        Warning: multiprocess may be slower than single-process or multi-threads.
+
+        run a list of commands and return results.
+
+        if num_process is not given, it will run with num cpu cores.
+
+        if num_process is 1, it's better run with `self.cmd`.
+
+        :return: running cmds and associated result
         """
         if num_process == None:
             num_process = self.__num_cpu
@@ -225,10 +227,13 @@ class Verifyta:
     @check_is_verifyta_path_empty
     def cmds_threads(self, cmds: List[str], num_threads: int = None):
         """
-        run a list of commands and return results
-        if num_threads is not given, it will run with num cpu cores * 2
-        if num_threads is 1, it's better run with self.cmd
-        return running cmds and associated result
+        Run a list of commands and return results.
+
+        if num_threads is not given, it will run with num cpu cores * 2.
+
+        if num_threads is 1, it's better run with `self.cmd`.
+
+        :return: running cmds and associated result
         """
         if num_threads == None:
             num_threads = self.__num_cpu * 2
@@ -247,12 +252,10 @@ class Verifyta:
     def compile_to_if(self, model_path: str):
         """Compile model_path(model.xml) to generate a intermediate format file (model.if). 
 
-        Args:
-            model_path (str): str or str list, Model path to be verified
+        :param strmodel_path: Model path to be verified
 
-        Raises:
-            FileNotFoundError: model_path not found.
-            ValueError: model_path is not a xml format file.
+        :raises FileNotFoundError: model_path not found.
+        :raises ValueError: model_path is not a xml format file.
         """
         if not os.path.exists(model_path):
             error_info = f'model_path {model_path} not found.'
