@@ -99,10 +99,10 @@ class UModel:
 
     def get_communication_graph(self, save_path=None) -> None:
         """
-        Get the communication graph of the uppaal model and save it to a `.md` file.
+        Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png>` file.
 
-        :param str save_path: the path to save graph file
-        :return: mermaid string????????????
+        :param str save_path: `<.md | .svg | .png>` the path to save graph file
+        :return: None
         """
         mermaid = build_cg(self.model_path)
         if save_path is None:
@@ -116,10 +116,10 @@ class UModel:
 
     def verify(self, trace_path: str) -> str:
         """
-        Verify the model, and save the result in `trace_path`.
+        Verify the model, and save the result in `trace_path`, `< .xtr | .xml>`.
 
-        :param str trace_path: the path of trace file
-        :return: the path saving the result of verification?????????
+        :param str trace_path: the path of trace file, `< .xtr | .xml>`
+        :return: the path of verification result
         """
         # 取出文件名../AVNRT_Initial_straight.xml
         idx = self.model_path.rfind('/')
@@ -133,7 +133,7 @@ class UModel:
 # templates
     def get_templates(self) -> List[str]:
         """
-        :return: the element of template in `list` type ????????
+        :return: the element of template in `List[str]` type
         """
         return self.__element_tree.iter("template")
 
@@ -143,7 +143,7 @@ class UModel:
         Get the element according to the input name.
 
         :param str template_name : the name of template
-        :return: the element of template in `list` type ????????
+        :return: the element of template in `str` type
         """
         for template in self.__element_tree.iter("template"):
             if template.find('name').text == template_name:
@@ -270,9 +270,9 @@ class UModel:
 
     def get_broadcast_chan(self) -> List[str]:
         """
-        What?????????.
+        @yhc get broadcast channels in Declarations
 
-        :return: what????
+        :return: `List[str]`, List of broadcast channels.
         """
         declarations = self.get_declaration()
         systems = self.get_system()
@@ -304,12 +304,12 @@ class UModel:
     def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, 
                     strict: bool = False, allpattern: bool = False):
         """
-        Add new linear monitor in front of tag `<system></system>`, it will also be embedded in `system`??????????.
+        Add new linear monitor template, it will also be embedded in `system declarations`.
         When conflicting, the original monitor will be overwritten.
 
         :param str monitor_name : the name of monitor
         :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
-        :param List[str] observe_actions: observe actions?????????
+        :param List[str] observe_actions: observe actions @yhc Timed Actions里面是否包括了observe_actions?
         :param bool strict: determine whether monitor is strict or not
         :param bool allpattern: determine whether allpattern is enabled
         """
@@ -342,7 +342,7 @@ class UModel:
 
     def add_input(self, input_template_name: str, signals: TimedActions):
         """
-        monitor_name not exists?????????
+        Add new linear input template, it will also be embedded in `system declarations`.
         """
         start_id = self.get_max_location_id() + 1
         # 删除相同名字的monitor
@@ -368,15 +368,15 @@ class UModel:
 
 
     def find_a_pattern(self, inputs: TimedActions, observes: TimedActions,
-                       observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options = None):
+                       observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
         """
         :param TimedActions inputs: TimedActions of input signal model
         :param TimedActions observes: TimedActions of observe signal model
         :param List[str] input_actions: list of input signal
         :param List[str] observe_actions: list of observe signal
-        :param bool hold: whether???
-        :param bool options: whether???
-        :return: query, pattern_seq.actions????????
+        :param bool hold: whether save history files
+        :param str options: verifyta options
+        :return: query, pattern_seq.actions @yhc SimTrace？
         """
         # 设置路径
         # 新模型路径，不覆盖原模型
@@ -423,6 +423,14 @@ class UModel:
         基本思路：
         Monitor0: observable events
         Monitor1: 基于Monitor0返回的trace
+
+        :param TimedActions inputs: TimedActions of input signal model
+        :param TimedActions observes: TimedActions of observe signal model
+        :param List[str] input_actions: list of input signal
+        :param List[str] observe_actions: list of observe signal
+        :param bool hold: whether save history files
+        :param str options: verifyta options
+        :return: query, pattern_seq.actions @yhc SimTrace？
         """
         # 首先
         monitor_pass_str, new_patterns = self.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold=True)
@@ -472,7 +480,7 @@ class UModel:
     def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
         :param str query: input query
-        :param List[str] focused_actions: ???
+        :param List[str] focused_actions: actions you are interested in
         """
         # 设置路径
         # 新模型路径，不覆盖原模型

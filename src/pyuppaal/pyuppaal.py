@@ -5,8 +5,7 @@ from .verifyta import Verifyta
 
 
 def set_verifyta_path(verifyta_path: str):
-    v = Verifyta()
-    v.set_verifyta_path(verifyta_path)
+    Verifyta().set_verifyta_path(verifyta_path)
 
 # def simple_verify(model_path: str | List[str], 
 #                   trace_path: str | List[str], 
