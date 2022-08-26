@@ -1,8 +1,8 @@
 pyuppaal.iTools package
 =======================
 
-Submodules
-----------
+.. Submodules
+.. ----------
 
 pyuppaal.iTools.buildCG module
 ------------------------------
@@ -20,10 +20,10 @@ pyuppaal.iTools.ufactory module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+.. Module contents
+.. ---------------
 
-.. automodule:: pyuppaal.iTools
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: pyuppaal.iTools
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:

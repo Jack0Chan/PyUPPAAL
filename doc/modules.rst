@@ -1,5 +1,5 @@
-pyuppaal
-========
+src
+===
 
 .. toctree::
    :maxdepth: 4

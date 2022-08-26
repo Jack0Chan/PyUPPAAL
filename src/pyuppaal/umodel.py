@@ -28,6 +28,7 @@ class TimedActions:
     def is_patterns(self):
         return all(self.lb) == -1 and all(self.ub) == -1
 
+
     def convert_to_list_tuple(self, clk_name='monitor_clk'):
         self.clk_name = clk_name
         res = []
@@ -35,13 +36,16 @@ class TimedActions:
             res.append((self.actions[i], f'{clk_name}>={self.lb[i]}', f'{clk_name}<={self.ub[i]}'))
         return res
     
+
     def convert_to_patterns(self):
         return self.actions
 
 
 class UModel:
     """
-    载入UPPAAL模型，进行分析、编辑、验证、保存等操作
+    Load UPPAAL model for analysis, editing, verification and storage operations.
+
+    :param str model_path: the path of model file
     """
     def __init__(self, model_path: str):
         # 模型路径，如 '../AVNRT_Initial_straight.xml'
@@ -51,14 +55,21 @@ class UModel:
         # if not Verifyta().verifyta_path:
         #     raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path(xxx).')
 
+
     @property
     def model_path(self) -> str:
+        """
+        :return: the path of model file
+        """
         return self.__model_path
+
 
     def save_as(self, new_model_path: str) -> UModel:
         """
-        save as会把原来的UModel的model_path修改掉
-        copy as不会修改原来的UModel的model_path
+        Store the model file to a new path with the original `model_path` changed.
+
+        :param str new_model_path: a new path to store
+        :return: the saved Umodel
         """
         with open(new_model_path, 'w') as f:
             self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
@@ -67,27 +78,31 @@ class UModel:
 
     def copy_as(self, new_model_path: str) -> UModel:
         """
-        save as会把原来的UModel的model_path修改掉
-        copy as不会修改原来的UModel的model_path
+        store the model file to a new path with the original `model_path` unchanged.
+
+        :param str new_model_path: a new path to store
+        :return: the copied Umodel
         """
         with open(new_model_path, 'w') as f:
             self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_model_path)
 
     def save(self) -> UModel:
+        """
+        Store the model file to the original path
+
+        :return: the original Umodel
+        """
         new_model_path = self.model_path
         return self.save_as(new_model_path)
-    
+
+
     def get_communication_graph(self, save_path=None) -> None:
         """
-        这个函数功能要升级，save_path可以提供svg、png等格式
-        思路
-        1. 一个是通过 github 源码：https://github.com/mermaid-js
-        2. 通过 this link 爬下来：https://mermaid.live/edit
+        Get the communication graph of the uppaal model and save it to a `.md` file.
 
-        get the communication graph of the uppaal model and save it to a `.md` file
-        save_path: string, the path of aiming file
-        return mermaid string
+        :param str save_path: the path to save graph file
+        :return: mermaid string????????????
         """
         mermaid = build_cg(self.model_path)
         if save_path is None:
@@ -98,9 +113,13 @@ class UModel:
         with open(save_path, "w") as f:
             f.write(mermaid)
 
+
     def verify(self, trace_path: str) -> str:
         """
-        验证模型，并将验证结果保存到trace_path中
+        Verify the model, and save the result in `trace_path`.
+
+        :param str trace_path: the path of trace file
+        :return: the path saving the result of verification?????????
         """
         # 取出文件名../AVNRT_Initial_straight.xml
         idx = self.model_path.rfind('/')
@@ -110,30 +129,34 @@ class UModel:
         # print(tmp_model_path)
         return Verifyta().simple_verify(tmp_model_path, trace_path)[0]
 
+
 # templates
     def get_templates(self) -> List[str]:
         """
-        根据名字获取相应template的Element
-        template_name: string, template的名字
+        :return: the element of template in `list` type ????????
         """
         return self.__element_tree.iter("template")
 
+
     def get_template(self, template_name: str) -> str:
         """
-        根据名字获取相应template的Element
-        template_name: string, template的名字
+        Get the element according to the input name.
+
+        :param str template_name : the name of template
+        :return: the element of template in `list` type ????????
         """
         for template in self.__element_tree.iter("template"):
             if template.find('name').text == template_name:
                 return template
         return None
 
+
     def remove_template(self, template_name: str) -> bool:
         """
-        删除指定的template
-        template_name: string
-        if template is not found, return False.
-        if template is successfully removed, return True.
+        Delete the template according to the input name.
+
+        :param str template_name: the name of template
+        :return: `True` when succeed, `False` when fail
         """
         template_elem = self.get_template(template_name)
         if template_elem is None:
@@ -141,19 +164,20 @@ class UModel:
         self.__root_elem.remove(template_elem)
         return True
 
+
 # queries
     def get_queries(self) -> List[str]:
         """
-        返回queries的字符串
+        :return: the str list of queries
         """
         query_formula_elems = self.__element_tree.findall('./queries/query/formula')
         queries = ''.join([query_elem.text for query_elem in query_formula_elems])
         return queries
 
+
     def clear_queries(self) -> bool:
         """
-        删除queries_elem
-        主要被set_queries调用
+        Delete `queries_elem`, mainly called by `set_queries`
         """
         root = self.__root_elem
         queries_elem = root.find('queries')
@@ -162,11 +186,11 @@ class UModel:
         root.remove(queries_elem)
         return True
 
+
     def set_queries(self, queries: List[str]) -> None:
         """
-        设置query
-        queries: List[str], query组成的list
-        返回修改queries后的self.get_queries()
+        :param List[str] queries: list of queries
+        :return: `self.get_queries()` after setting queries
         """
         # 首先删除所有的queries
         self.clear_queries()
@@ -174,17 +198,21 @@ class UModel:
         queries_elem = UFactory.queries(queries)
         self.__root_elem.append(queries_elem)
 
+
 # system
     def get_system(self) -> str:
         """
-        返回system的字符串
+        :return: the str of system
         """
         system_elem = self.__element_tree.find('system')
         return system_elem.text
 
+
     def set_system(self, system_str: str) -> None:
         """
-        修改system的字符串为system_str
+        set the str of system to `system_str`
+
+        :param str system_str: aiming str
         """
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
@@ -202,14 +230,17 @@ class UModel:
 # declaration
     def get_declaration(self) -> str:
         """
-        返回declaration的字符串
+        :return: str of declararion
         """
         declaration_elem = self.__element_tree.find('declaration')
         return declaration_elem.text
 
+
     def set_declaration(self, declaration_str: str) -> None:
         """
-        设置整个declarations
+        set the str of declaration to `declaration_str`
+
+        :param str declaration_str: aiming str
         """
         declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
@@ -225,7 +256,9 @@ class UModel:
 # other
     def get_max_location_id(self) -> int:
         """
-        获取当前模型最大的location_id，方便制造新的模板
+        Get the maximum location_id so as to make it easier to create new template
+
+        :return: the maximum location_id
         """
         location_elems = self.__element_tree.findall('./template/location')
         # <location id="id0" x="-187" y="-76">
@@ -234,7 +267,13 @@ class UModel:
         ids = [int(location_elem.attrib['id'][2:]) for location_elem in location_elems]
         return max(ids)
 
+
     def get_broadcast_chan(self) -> List[str]:
+        """
+        What?????????.
+
+        :return: what????
+        """
         declarations = self.get_declaration()
         systems = self.get_system()
         start_index = 0
@@ -260,23 +299,19 @@ class UModel:
         #     start_index = end_index
         return list(set(broadcast_chan))
 
-# all patterns      
+
+# all patterns
     def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, 
                     strict: bool = False, allpattern: bool = False):
         """
-        在<system></system>前添加新的线性monitor，并且自动添加到system中
-        如果name有冲突，会自动替换原template
-        monitor_name: string
-                 signals: List[Tuple[str, str, str]],
-                 每个Tuple分别对应[signal, guard, inv]
-                 example: ['act_path!', 'gclk>=10', 'gclk<=10']
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称
-                 guard: int
-                 inv: int
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        startID: int, 用来设置Monitor中最小的startID, 防止id冲突
-        strict: bool, 判断是否构建strict monitor，正常来说是false
+        Add new linear monitor in front of tag `<system></system>`, it will also be embedded in `system`??????????.
+        When conflicting, the original monitor will be overwritten.
+
+        :param str monitor_name : the name of monitor
+        :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
+        :param List[str] observe_actions: observe actions?????????
+        :param bool strict: determine whether monitor is strict or not
+        :param bool allpattern: determine whether allpattern is enabled
         """
         # 处理observe_actions is None的情况
         if observe_actions is None:
@@ -297,27 +332,17 @@ class UModel:
                 tmpl = [y.strip() for y in tmpl]
                 tmpl = [y.strip(';') for y in tmpl]
                 if monitor_name not in tmpl:
-                    tmpl.insert(0,monitor_name)
+                    tmpl.insert(0, monitor_name)
                 cur_system[i] = 'system ' + ','.join(tmpl) + ';'
                 break
         cur_system = '\n'.join(cur_system)
         self.set_system(cur_system)
         return None
 
+
     def add_input(self, input_template_name: str, signals: TimedActions):
-        """在<system></system>前添加新的线性monitor，并且自动添加到system中
-        如果name有冲突，会自动替换原template
-        
-        monitor_name: string
-               signals: List[Tuple[str, int, int]],
-                 每个Tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称
-                 guard: int
-                 inv: int
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        startID: int, 用来设置Monitor中最小的startID, 防止id冲突
-        strict: bool, 判断是否构建strict monitor，正常来说是false
+        """
+        monitor_name not exists?????????
         """
         start_id = self.get_max_location_id() + 1
         # 删除相同名字的monitor
@@ -341,13 +366,17 @@ class UModel:
         self.set_system(cur_system)
         return None
 
-    def find_a_pattern(self, inputs: TimedActions, observes: TimedActions, 
+
+    def find_a_pattern(self, inputs: TimedActions, observes: TimedActions,
                        observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options = None):
         """
-        inputs: 输入信号模块的TimedActions
-        observers: 观测信号模块的TimedActions
-        input_actions: 输入信号列表
-        observe_actions
+        :param TimedActions inputs: TimedActions of input signal model
+        :param TimedActions observes: TimedActions of observe signal model
+        :param List[str] input_actions: list of input signal
+        :param List[str] observe_actions: list of observe signal
+        :param bool hold: whether???
+        :param bool options: whether???
+        :return: query, pattern_seq.actions????????
         """
         # 设置路径
         # 新模型路径，不覆盖原模型
@@ -383,7 +412,8 @@ class UModel:
             os.remove(trace_path)
         return query, pattern_seq.actions
 
-    def find_all_patterns(self, inputs: TimedActions, observes: TimedActions, 
+
+    def find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
                           observe_actions: List[str]=None, focused_actions: List[str]=None, hold: bool=False, max_patterns: int=None):
         """
         注意这里的input已经在模型中，并且原模型不包含任何Monitor
@@ -438,10 +468,11 @@ class UModel:
 
         return all_patterns
 
+
     def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
-        input_actions: 输入信号列表
-        observe_actions
+        :param str query: input query
+        :param List[str] focused_actions: ???
         """
         # 设置路径
         # 新模型路径，不覆盖原模型
@@ -468,7 +499,8 @@ class UModel:
             os.remove(trace_path)
 
         return new_umodel.get_queries(), pattern_seq.actions
-    
+
+
     def find_all_patterns_with_query(self, query: str=None, focused_actions: List[str]=None, hold: bool=False, max_patterns: int=None):
         """
         注意这里的input已经在模型中，并且原模型不包含任何Monitor
