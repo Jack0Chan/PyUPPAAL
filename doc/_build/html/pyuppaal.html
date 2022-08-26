@@ -402,13 +402,13 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.get_communication_graph">
 <span class="sig-name descname"><span class="pre">get_communication_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyuppaal.umodel.UModel.get_communication_graph" title="Permalink to this definition"></a></dt>
-<dd><p>Get the communication graph of the uppaal model and save it to a <cite>.md</cite> file.</p>
+<dd><p>Get the communication graph of the uppaal model and save it to a <cite>&lt;.md | .svg | .png&gt;</cite> file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>save_path</strong> (<em>str</em>) – the path to save graph file</p>
+<dd class="field-odd"><p><strong>save_path</strong> (<em>str</em>) – <cite>&lt;.md | .svg | .png&gt;</cite> the path to save graph file</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>mermaid string????????????</p>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -416,13 +416,13 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.verify">
 <span class="sig-name descname"><span class="pre">verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyuppaal.umodel.UModel.verify" title="Permalink to this definition"></a></dt>
-<dd><p>Verify the model, and save the result in <cite>trace_path</cite>.</p>
+<dd><p>Verify the model, and save the result in <cite>trace_path</cite>, <cite>&lt; .xtr | .xml&gt;</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trace_path</strong> (<em>str</em>) – the path of trace file</p>
+<dd class="field-odd"><p><strong>trace_path</strong> (<em>str</em>) – the path of trace file, <cite>&lt; .xtr | .xml&gt;</cite></p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the path saving the result of verification?????????</p>
+<dd class="field-even"><p>the path of verification result</p>
 </dd>
 </dl>
 </dd></dl>
@@ -432,7 +432,7 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <span class="sig-name descname"><span class="pre">get_templates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyuppaal.umodel.UModel.get_templates" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the element of template in <cite>list</cite> type ????????</p>
+<dd class="field-odd"><p>the element of template in <cite>List[str]</cite> type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -442,7 +442,7 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <span class="sig-name descname"><span class="pre">get_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyuppaal.umodel.UModel.get_template" title="Permalink to this definition"></a></dt>
 <dd><p>Get the element according to the input name.</p>
 <p>:param str template_name : the name of template
-:return: the element of template in <cite>list</cite> type ????????</p>
+:return: the element of template in <cite>str</cite> type</p>
 </dd></dl>
 
 <dl class="py method">
@@ -544,10 +544,10 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.get_broadcast_chan">
 <span class="sig-name descname"><span class="pre">get_broadcast_chan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyuppaal.umodel.UModel.get_broadcast_chan" title="Permalink to this definition"></a></dt>
-<dd><p>What?????????.</p>
+<dd><p>&#64;yhc get broadcast channels in Declarations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>what????</p>
+<dd class="field-odd"><p><cite>List[str]</cite>, List of broadcast channels.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -555,11 +555,11 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.add_monitor">
 <span class="sig-name descname"><span class="pre">add_monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitor_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><span class="pre">TimedActions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observe_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allpattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.umodel.UModel.add_monitor" title="Permalink to this definition"></a></dt>
-<dd><p>Add new linear monitor in front of tag <cite>&lt;system&gt;&lt;/system&gt;</cite>, it will also be embedded in <cite>system</cite>??????????.
+<dd><p>Add new linear monitor template, it will also be embedded in <cite>system declarations</cite>.
 When conflicting, the original monitor will be overwritten.</p>
 <p>:param str monitor_name : the name of monitor
 :param TimedActions signals: specific data type <cite>List[Tuple[signal, guard, inv]]</cite>, <cite>signal</cite>, <cite>guard</cite> and <cite>inv</cite> are <cite>str</cite> type and can be <cite>None</cite>
-:param List[str] observe_actions: observe actions?????????
+:param List[str] observe_actions: observe actions &#64;yhc Timed Actions里面是否包括了observe_actions?
 :param bool strict: determine whether monitor is strict or not
 :param bool allpattern: determine whether allpattern is enabled</p>
 </dd></dl>
@@ -567,12 +567,12 @@ When conflicting, the original monitor will be overwritten.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.add_input">
 <span class="sig-name descname"><span class="pre">add_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_template_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><span class="pre">TimedActions</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.umodel.UModel.add_input" title="Permalink to this definition"></a></dt>
-<dd><p>monitor_name not exists?????????</p>
+<dd><p>Add new linear input template, it will also be embedded in <cite>system declarations</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.find_a_pattern">
-<span class="sig-name descname"><span class="pre">find_a_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><span class="pre">TimedActions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><span class="pre">TimedActions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observe_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focused_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.umodel.UModel.find_a_pattern" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_a_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><span class="pre">TimedActions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><span class="pre">TimedActions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observe_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focused_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.umodel.UModel.find_a_pattern" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -580,12 +580,12 @@ When conflicting, the original monitor will be overwritten.</p>
 <li><p><strong>observes</strong> (<a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><em>TimedActions</em></a>) – TimedActions of observe signal model</p></li>
 <li><p><strong>input_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of input signal</p></li>
 <li><p><strong>observe_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of observe signal</p></li>
-<li><p><strong>hold</strong> (<em>bool</em>) – whether???</p></li>
-<li><p><strong>options</strong> (<em>bool</em>) – whether???</p></li>
+<li><p><strong>hold</strong> (<em>bool</em>) – whether save history files</p></li>
+<li><p><strong>options</strong> (<em>str</em>) – verifyta options</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>query, pattern_seq.actions????????</p>
+<dd class="field-even"><p>query, pattern_seq.actions &#64;yhc SimTrace？</p>
 </dd>
 </dl>
 </dd></dl>
@@ -599,6 +599,21 @@ When conflicting, the original monitor will be overwritten.</p>
 基本思路：
 Monitor0: observable events
 Monitor1: 基于Monitor0返回的trace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><em>TimedActions</em></a>) – TimedActions of input signal model</p></li>
+<li><p><strong>observes</strong> (<a class="reference internal" href="#pyuppaal.umodel.TimedActions" title="pyuppaal.umodel.TimedActions"><em>TimedActions</em></a>) – TimedActions of observe signal model</p></li>
+<li><p><strong>input_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of input signal</p></li>
+<li><p><strong>observe_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of observe signal</p></li>
+<li><p><strong>hold</strong> (<em>bool</em>) – whether save history files</p></li>
+<li><p><strong>options</strong> (<em>str</em>) – verifyta options</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>query, pattern_seq.actions &#64;yhc SimTrace？</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -608,8 +623,7 @@ Monitor1: 基于Monitor0返回的trace</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>query</strong> (<em>str</em>) – input query</p></li>
-<li><p><strong>focused_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – <p>???</p>
-</p></li>
+<li><p><strong>focused_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – actions you are interested in</p></li>
 </ul>
 </dd>
 </dl>
@@ -634,14 +648,14 @@ Monitor1: 基于Monitor0返回的trace</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyuppaal.verifyta.check_is_verifyta_path_empty">
 <span class="sig-prename descclassname"><span class="pre">pyuppaal.verifyta.</span></span><span class="sig-name descname"><span class="pre">check_is_verifyta_path_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.verifyta.check_is_verifyta_path_empty" title="Permalink to this definition"></a></dt>
-<dd><p>A decorator used to check whether a path is set before running verifyta.</p>
+<dd><p>装饰器，用来在verifyta运行前检测路径是否被设置。</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyuppaal.verifyta.Verifyta">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyuppaal.verifyta.</span></span><span class="sig-name descname"><span class="pre">Verifyta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.verifyta.Verifyta" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Uppaal command line tools</p>
+<p>uppaal commandline tools</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyuppaal.verifyta.Verifyta.operating_system">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operating_system</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pyuppaal.verifyta.Verifyta.operating_system" title="Permalink to this definition"></a></dt>
@@ -660,15 +674,13 @@ Monitor1: 基于Monitor0返回的trace</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.verifyta.Verifyta.set_verifyta_path">
 <span class="sig-name descname"><span class="pre">set_verifyta_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verifyta_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.verifyta.Verifyta.set_verifyta_path" title="Permalink to this definition"></a></dt>
-<dd><p>Set verifyta path, and you will get tips if <cite>verifyta_path</cite> is invalid.</p>
-<p>This function will check whether <cite>verifyta_path</cite> is valid by following steps:</p>
-<ol class="arabic simple">
-<li><p>run ‘{verifyta_path} -h’ with cmd</p></li>
-<li><p>check whether ‘-h [ –help ]’ is in the result</p></li>
-</ol>
+<dd><p>Set verifyta path, and you will get tips if <cite>verifyta_path</cite> is invalid.
+This function will check whether <cite>verifyta_path</cite> is valid by following steps:
+1. run ‘{verifyta_path} -h’ with cmd
+2. check whether ‘-h [ –help ]’ is in the result</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>verifyta_path</strong> (<em>str</em>) – absolute path to <cite>verifyta</cite></p>
+<dt class="field-odd">Verifyta_path</dt>
+<dd class="field-odd"><p>str, absolute path to <cite>verifyta</cite></p>
 </dd>
 </dl>
 </dd></dl>
@@ -681,16 +693,21 @@ Monitor1: 基于Monitor0返回的trace</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.verifyta.Verifyta.simple_verify">
 <span class="sig-name descname"><span class="pre">simple_verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyuppaal.verifyta.Verifyta.simple_verify" title="Permalink to this definition"></a></dt>
-<dd><p>Simple verification with default options, return to the shortest diagnostic path.</p>
-<p>Verify the model in model_path and save the verification results to trace_path.</p>
+<dd><p>Simple verification with default options, return to the shortest diagnostic path. 
+Verify the model in model_path and save the verification results to trace_path.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_path</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>]</em>) – model paths to be verified.</p></li>
-<li><p><strong>trace_path</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>]</em>) – trace paths to be saved. Both <cite>.xtr</cite> and <cite>.xml</cite> formats are supported.</p></li>
-<li><p><strong>parallel</strong> (<em>str</em>) – &lt;’process’|’threads’&gt;, select parallel method for accelerate verification, 
-None(default): run in sequence, ‘process’:use multiprocessing, ‘threads’: use multithreads.</p></li>
-</ul>
+<dt class="field-odd">Model_path</dt>
+<dd class="field-odd"><p>str or List[str], model paths to be verified.</p>
+</dd>
+<dt class="field-even">Trace_path</dt>
+<dd class="field-even"><p>str or List[str], trace paths to be saved. Both <cite>.xtr</cite> and <cite>.xml</cite> formats are supported.</p>
+</dd>
+<dt class="field-odd">Parallel</dt>
+<dd class="field-odd"><p>str, &lt;’process’|’threads’&gt;, select parallel method for accelerate verification, 
+None(default): run in sequence, ‘process’:use multiprocessing, ‘threads’: use multithreads.</p>
+</dd>
+<dt class="field-even">Options</dt>
+<dd class="field-even"><p>想办法把这个参数去掉，注意修改demo.ipynb以及UModel里的内容。</p>
 </dd>
 </dl>
 </dd></dl>
