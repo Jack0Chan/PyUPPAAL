@@ -113,7 +113,7 @@ class UFactory:
         :param str guard: the guard of the edge, e.g., `t>=10`, `t>100`
         :param str sync: the signal of synchronisation, e.g., `!` and `?`
         :param str clock_reset: e.g., `t=0`
-        :param bool nail: determine whether the edge is curved, which will be applied when multiple paths exist at the same start or finish point??????
+        :param bool nail: determine whether the edge is curved
 
         >>> <transition>
         >>>     <source ref="id7"/>

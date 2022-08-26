@@ -60,26 +60,26 @@ clock t;</declaration>
 	</template>
 	<template>
 		<name>Input</name>
-		<location id="id4" x="-196" y="0">
-			<name x="-206" y="-34">Idle</name>
+		<location id="id4" x="-229" y="0">
+			<name x="-239" y="-34">Idle</name>
 		</location>
-		<location id="id5" x="-51" y="0">
+		<location id="id5" x="-84" y="0">
 		</location>
-		<location id="id6" x="93" y="0">
-			<name x="76" y="-34">Finish</name>
+		<location id="id6" x="60" y="0">
+			<name x="43" y="-34">Finish</name>
 		</location>
 		<init ref="id4"/>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id6"/>
-			<label kind="guard" x="-18" y="-17">gclk==20</label>
-			<label kind="synchronisation" x="-18" y="0">input_ball!</label>
+			<label kind="guard" x="-51" y="-17">gclk==20</label>
+			<label kind="synchronisation" x="-51" y="0">input_ball!</label>
 		</transition>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id5"/>
-			<label kind="guard" x="-162" y="-17">gclk==10</label>
-			<label kind="synchronisation" x="-162" y="0">input_ball!</label>
+			<label kind="guard" x="-195" y="-17">gclk==10</label>
+			<label kind="synchronisation" x="-195" y="0">input_ball!</label>
 		</transition>
 	</template>
 	<template>
