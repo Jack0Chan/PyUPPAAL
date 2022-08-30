@@ -238,5 +238,6 @@ def build_cg(filename):
     reader = XmlReader(filename)
     nodes = reader.get_notes()
     code = build_cg_code(nodes)
-    mermaid = """```mermaid\n{}""".format(code)
+    mermaid = """```mermaid\n{}```""".format(code)
     return mermaid
+

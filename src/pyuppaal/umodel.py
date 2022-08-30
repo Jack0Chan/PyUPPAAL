@@ -1,6 +1,9 @@
 # support return typing UModel
 from __future__ import annotations
 
+# system powershell
+from subprocess import run
+
 # coding=utf-8
 from ast import Raise
 import sys
@@ -14,6 +17,8 @@ from .tracer import SimTrace, Tracer
 import os
 
 # verifyta_ins = Verifyta()
+
+
 class TimedActions:
     def __init__(self, actions: List[str], lb: List[int] = None, ub: List[str] = None):
         self.actions = actions
@@ -23,19 +28,18 @@ class TimedActions:
             self.lb = [-1 for i in range(len(self.actions))]
         if self.ub is None:
             self.ub = [-1 for i in range(len(self.actions))]
-    
+
     @property
     def is_patterns(self):
         return all(self.lb) == -1 and all(self.ub) == -1
-
 
     def convert_to_list_tuple(self, clk_name='monitor_clk'):
         self.clk_name = clk_name
         res = []
         for i in range(len(self.actions)):
-            res.append((self.actions[i], f'{clk_name}>={self.lb[i]}', f'{clk_name}<={self.ub[i]}'))
+            res.append(
+                (self.actions[i], f'{clk_name}>={self.lb[i]}', f'{clk_name}<={self.ub[i]}'))
         return res
-    
 
     def convert_to_patterns(self):
         return self.actions
@@ -47,14 +51,15 @@ class UModel:
 
     :param str model_path: the path of model file
     """
+
     def __init__(self, model_path: str):
         # 模型路径，如 '../AVNRT_Initial_straight.xml'
         self.__model_path: str = model_path
-        self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
+        self.__element_tree: ET.ElementTree = ET.ElementTree(
+            file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
         # if not Verifyta().verifyta_path:
         #     raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path(xxx).')
-
 
     @property
     def model_path(self) -> str:
@@ -62,7 +67,6 @@ class UModel:
         :return: the path of model file
         """
         return self.__model_path
-
 
     def save_as(self, new_model_path: str) -> UModel:
         """
@@ -72,7 +76,8 @@ class UModel:
         :return: the saved Umodel
         """
         with open(new_model_path, 'w') as f:
-            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+            self.__element_tree.write(
+                new_model_path, encoding="utf-8", xml_declaration=True)
         self.__model_path = new_model_path
         return UModel(new_model_path)
 
@@ -84,7 +89,8 @@ class UModel:
         :return: the copied Umodel
         """
         with open(new_model_path, 'w') as f:
-            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+            self.__element_tree.write(
+                new_model_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_model_path)
 
     def save(self) -> UModel:
@@ -96,23 +102,30 @@ class UModel:
         new_model_path = self.model_path
         return self.save_as(new_model_path)
 
-
     def get_communication_graph(self, save_path=None) -> None:
         """
-        Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png>` file.
+        Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png | .pdf>` file.
 
-        :param str save_path: `<.md | .svg | .png>` the path to save graph file
+        :param str save_path: `<.md | .svg | .png | .pdf>` the path to save graph file
         :return: None
         """
+        # if save_path is None:
+        # rfind: 找到最右边的index
+        # 如果直接从左find，那么下面这个路径就找不到
+        # ../AVNRT_Initial_straight.md
+        
         mermaid = build_cg(self.model_path)
-        if save_path is None:
-            # rfind: 找到最右边的index
-            # 如果直接从左find，那么下面这个路径就找不到
-            # ../AVNRT_Initial_straight.md
-            save_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
-        with open(save_path, "w") as f:
+        temp_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
+        with open(temp_path, "w") as f:
             f.write(mermaid)
-
+        if save_path==None:
+            return None
+        if save_path.endswith(".svg") or save_path.endswith(".png") or save_path.endswith(".pdf"):
+            cmd='mmdc -i ' + temp_path + ' -o ' + save_path
+            # cmd = 'mmdc -i ' + temp_path + ' -o ' + save_path +' -t dark -b transparent'
+            # run('Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass',shell=True)
+            run(cmd, shell=True)
+            os.remove(temp_path)
 
     def verify(self, trace_path: str) -> str:
         """
@@ -131,12 +144,13 @@ class UModel:
 
 
 # templates
+
+
     def get_templates(self) -> List[str]:
         """
         :return: the element of template in `List[str]` type
         """
         return self.__element_tree.iter("template")
-
 
     def get_template(self, template_name: str) -> str:
         """
@@ -149,7 +163,6 @@ class UModel:
             if template.find('name').text == template_name:
                 return template
         return None
-
 
     def remove_template(self, template_name: str) -> bool:
         """
@@ -166,14 +179,17 @@ class UModel:
 
 
 # queries
+
+
     def get_queries(self) -> List[str]:
         """
         :return: the str list of queries
         """
-        query_formula_elems = self.__element_tree.findall('./queries/query/formula')
-        queries = ''.join([query_elem.text for query_elem in query_formula_elems])
+        query_formula_elems = self.__element_tree.findall(
+            './queries/query/formula')
+        queries = ''.join(
+            [query_elem.text for query_elem in query_formula_elems])
         return queries
-
 
     def clear_queries(self) -> bool:
         """
@@ -185,7 +201,6 @@ class UModel:
             return False
         root.remove(queries_elem)
         return True
-
 
     def set_queries(self, queries: List[str]) -> None:
         """
@@ -200,13 +215,14 @@ class UModel:
 
 
 # system
+
+
     def get_system(self) -> str:
         """
         :return: the str of system
         """
         system_elem = self.__element_tree.find('system')
         return system_elem.text
-
 
     def set_system(self, system_str: str) -> None:
         """
@@ -234,7 +250,6 @@ class UModel:
         """
         declaration_elem = self.__element_tree.find('declaration')
         return declaration_elem.text
-
 
     def set_declaration(self, declaration_str: str) -> None:
         """
@@ -264,9 +279,9 @@ class UModel:
         # <location id="id0" x="-187" y="-76">
         # <location id="id1" x="25" y="-76">
         # <location id="id2" x="-51" y="-119">
-        ids = [int(location_elem.attrib['id'][2:]) for location_elem in location_elems]
+        ids = [int(location_elem.attrib['id'][2:])
+               for location_elem in location_elems]
         return max(ids)
-
 
     def get_broadcast_chan(self) -> List[str]:
         """
@@ -283,7 +298,8 @@ class UModel:
             if start_index == -1:
                 break
             end_index = declarations.find(';', start_index, -1)
-            tmp_actions = declarations[start_index+15:end_index].strip().split(',')
+            tmp_actions = declarations[start_index +
+                                       15:end_index].strip().split(',')
             tmp_actions = [x.strip() for x in tmp_actions]
             broadcast_chan += tmp_actions
             start_index = end_index
@@ -301,7 +317,8 @@ class UModel:
 
 
 # all patterns
-    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, 
+
+    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None,
                     strict: bool = False, allpattern: bool = False):
         """
         Add new linear monitor template, it will also be embedded in `system declarations`.
@@ -320,7 +337,8 @@ class UModel:
         start_id = self.get_max_location_id() + 1
         # 删除相同名字的monitor
         self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), observe_actions, start_id, strict, allpattern)
+        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(
+        ), observe_actions, start_id, strict, allpattern)
         self.__root_elem.insert(-2, monitor)
         # 将新到monitor加入到system中
         cur_system = self.get_system()
@@ -339,7 +357,6 @@ class UModel:
         self.set_system(cur_system)
         return None
 
-
     def add_input(self, input_template_name: str, signals: TimedActions):
         """
         Add new linear input template, it will also be embedded in `system declarations`.
@@ -347,7 +364,8 @@ class UModel:
         start_id = self.get_max_location_id() + 1
         # 删除相同名字的monitor
         self.remove_template(input_template_name)
-        input_model = UFactory.input(input_template_name, signals.convert_to_list_tuple(), start_id)
+        input_model = UFactory.input(
+            input_template_name, signals.convert_to_list_tuple(), start_id)
         self.__root_elem.insert(-2, input_model)
         # 将新到monitor加入到system中
         cur_system = self.get_system()
@@ -359,13 +377,12 @@ class UModel:
                 tmpl = [y.strip() for y in tmpl]
                 tmpl = [y.strip(';') for y in tmpl]
                 if input_template_name not in tmpl or input_template_name+';' not in tmpl:
-                    tmpl.insert(0,input_template_name)
+                    tmpl.insert(0, input_template_name)
                 cur_system[i] = 'system ' + ','.join(tmpl) + ';'
                 break
         cur_system = '\n'.join(cur_system)
         self.set_system(cur_system)
         return None
-
 
     def find_a_pattern(self, inputs: TimedActions, observes: TimedActions,
                        observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
@@ -389,7 +406,8 @@ class UModel:
         # 构建Monitor0
 
         new_umodel.add_input('input0', inputs)
-        new_umodel.add_monitor('Monitor0', observes, observe_actions=observe_actions, strict=True)
+        new_umodel.add_monitor('Monitor0', observes,
+                               observe_actions=observe_actions, strict=True)
         # 设置验证语句
         query = 'E<> Monitor0.pass'
         new_umodel.set_queries([query])
@@ -412,9 +430,8 @@ class UModel:
             os.remove(trace_path)
         return query, pattern_seq.actions
 
-
     def find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
-                          observe_actions: List[str]=None, focused_actions: List[str]=None, hold: bool=False, max_patterns: int=None):
+                          observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
         """
         注意这里的input已经在模型中，并且原模型不包含任何Monitor
 
@@ -433,10 +450,11 @@ class UModel:
         :return: query, pattern_seq.actions @yhc SimTrace？
         """
         # 首先
-        monitor_pass_str, new_patterns = self.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold=True)
+        monitor_pass_str, new_patterns = self.find_a_pattern(
+            inputs, observes, observe_actions, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         new_umodel = UModel(new_model_path)
-        
+
         # 根据初始的pattern构建monitor并循环, 初始Moniter为0
         all_patterns = []
         monitor_id = 0
@@ -446,12 +464,14 @@ class UModel:
             all_patterns.append((monitor_pass_str, new_patterns))
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
-            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
+            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes,
+                                   observe_actions=focused_actions, strict=True, allpattern=True)
 
             # 构造验证语句
             # 构造monitor.pass
             # !Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            monitor_pass_str = ' && '.join(
+                [f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'E<> Monitor0.pass && {monitor_pass_str}'
 
@@ -459,15 +479,16 @@ class UModel:
             new_umodel.set_queries([monitor_pass_str])
             # 保存构建好的模型
             new_umodel.save()
-            
+
             Verifyta().simple_verify(new_umodel.model_path)
-            
+
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
             if not os.path.exists(trace_path):
                 return []
-            
+
             # 通过Trace 得到 Simtrace对象
-            simtrace = Tracer.get_timed_trace(new_umodel.model_path, trace_path)
+            simtrace = Tracer.get_timed_trace(
+                new_umodel.model_path, trace_path)
             new_patterns = simtrace.filter_by_actions(focused_actions).actions
             iter = iter + 1
         if not hold:
@@ -475,7 +496,6 @@ class UModel:
             os.remove(trace_path)
 
         return all_patterns
-
 
     def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
@@ -487,15 +507,15 @@ class UModel:
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         self.copy_as(new_model_path=new_model_path)
         new_umodel = UModel(new_model_path)
-        
+
         if query is not None:
             new_umodel.set_queries(queries=query)
 
-        Verifyta().simple_verify(new_model_path,options=options)
+        Verifyta().simple_verify(new_model_path, options=options)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []
-        
+
         # 通过Trace 得到 Simtrace对象
         simtrace = Tracer.get_timed_trace(self.model_path, trace_path)
         # focused_actions = list(set(input_actions + hidden_actions + observe_actions))
@@ -508,8 +528,7 @@ class UModel:
 
         return new_umodel.get_queries(), pattern_seq.actions
 
-
-    def find_all_patterns_with_query(self, query: str=None, focused_actions: List[str]=None, hold: bool=False, max_patterns: int=None):
+    def find_all_patterns_with_query(self, query: str = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
         """
         注意这里的input已经在模型中，并且原模型不包含任何Monitor
 
@@ -523,7 +542,7 @@ class UModel:
         query = query.strip()
         if not (query.startswith('A[]') or query.startswith('E<>')):
             raise NotImplementedError('Only support E<> and A[] query!')
-        
+
         if query.startswith('A[]'):
             default_query = query[3:].strip()
             if default_query[0] == '!':
@@ -534,7 +553,8 @@ class UModel:
                 default_query = "E<> ! " + default_query.strip()
         else:
             default_query = query
-        default_query, new_patterns = self.find_a_pattern_with_query(default_query, focused_actions, hold=True)
+        default_query, new_patterns = self.find_a_pattern_with_query(
+            default_query, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         new_umodel = UModel(new_model_path)
         monitor_pass_str = default_query
@@ -549,29 +569,31 @@ class UModel:
             monitor_id += 1
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
-            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
+            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes,
+                                   observe_actions=focused_actions, strict=True, allpattern=True)
 
             # 构造验证语句
             # 构造monitor.pass
-                # E<> Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            # E<> Monitor0.pass & !Monitor1.pass
+            monitor_pass_str = ' && '.join(
+                [f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
-                
-            
+
             # 设置验证语句
             new_umodel.set_queries([monitor_pass_str])
             # 保存构建好的模型
             new_umodel.save()
-            
+
             Verifyta().simple_verify(new_umodel.model_path)
-            
+
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
             if not os.path.exists(trace_path):
                 return []
-            
+
             # 通过Trace 得到 Simtrace对象
-            simtrace = Tracer.get_timed_trace(new_umodel.model_path, trace_path)
+            simtrace = Tracer.get_timed_trace(
+                new_umodel.model_path, trace_path)
             new_patterns = simtrace.filter_by_actions(focused_actions).actions
             iter = iter + 1
         if not hold:
