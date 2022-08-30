@@ -80,7 +80,7 @@ class Verifyta:
         1. run '{verifyta_path} -h' with cmd
         2. check whether '-h [ --help ]' is in the result
 
-        :verifyta_path: str, absolute path to `verifyta`
+        :param str verifyta_path: absolute path to `verifyta`
         """
         if self.__is_valid_verifyta_path(verifyta_path):
             self.__verifyta_path = verifyta_path
@@ -104,11 +104,10 @@ class Verifyta:
         Simple verification with default options, return to the shortest diagnostic path. 
         Verify the model in model_path and save the verification results to trace_path.
         
-        :model_path: str or List[str], model paths to be verified.
-        :trace_path: str or List[str], trace paths to be saved. Both `.xtr` and `.xml` formats are supported.
-        :parallel: str, <'process'|'threads'>, select parallel method for accelerate verification, 
+        :param str or List[str] model_path: model paths to be verified.
+        :param  str or List[str] trace_path: trace paths to be saved. Both `.xtr` and `.xml` formats are supported.
+        :param str parallel: <'process'|'threads'>, select parallel method for accelerate verification, 
             None(default): run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
-        :options: 想办法把这个参数去掉，注意修改demo.ipynb以及UModel里的内容。
         """
         # check whether trace_path is None
         if trace_path is None:
@@ -250,9 +249,10 @@ class Verifyta:
 
     @check_is_verifyta_path_empty
     def compile_to_if(self, model_path: str):
-        """Compile model_path(model.xml) to generate a intermediate format file (model.if). 
+        """
+        Compile model_path(model.xml) to generate a intermediate format file (model.if). 
 
-        :param strmodel_path: Model path to be verified
+        :param str strmodel_path: Model path to be verified
 
         :raises FileNotFoundError: model_path not found.
         :raises ValueError: model_path is not a xml format file.

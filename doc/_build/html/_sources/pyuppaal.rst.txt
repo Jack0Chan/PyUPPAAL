@@ -12,6 +12,14 @@ pyuppaal.iTools Package
 .. Submodules
 .. ----------
 
+pyuppaal.pyuppaal module
+------------------------
+
+.. automodule:: pyuppaal.pyuppaal
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyuppaal.tracer module
 ----------------------
 
