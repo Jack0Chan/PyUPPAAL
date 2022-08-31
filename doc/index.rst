@@ -3,14 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Pyuppaal documentation!
-=============================
+Pyuppaal documentation
+======================
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+   :maxdepth: 4
+   :caption: Pyuppaal:
 
-   modules
+   Introduction.md
+   Quickstart.md
+   Advanced Usage
+   Devloper Interface
+   Release history
+   Contributions Guide
 
 
 Indices and tables

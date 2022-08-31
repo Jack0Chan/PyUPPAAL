@@ -2,7 +2,7 @@ from __future__ import annotations
 from .verifyta import Verifyta
 from .tracer import Tracer
 from .umodel import UModel
-from .umodel import TimedActions
+from .datastruct import TimedActions
 from typing import List
 
 
@@ -22,9 +22,9 @@ def simple_verify(model_path: str | List[str], trace_path: str | List[str], para
     """
     Simple verification with default options, return to the shortest diagnostic path. 
     Verify the model in model_path and save the verification results to trace_path.
-    
+
     :param str or List[str] model_path: model paths to be verified.
-    :param  str or List[str] trace_path: trace paths to be saved. Both `.xtr` and `.xml` formats are supported.
+    :param str or List[str] trace_path: trace paths to be saved. Both `.xtr` and `.xml` formats are supported.
     :param str parallel: <'process'|'threads'>, select parallel method for accelerate verification, 
         None(default): run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
     """
@@ -42,6 +42,7 @@ def get_timed_trace(model_path: str, trace_path: str, hold: bool = False):
     :return: a `SimTrace`
     """
     return Tracer.get_timed_trace(model_path, trace_path, hold)
+
 
 def cmd(cmd: str):
     """
@@ -100,7 +101,7 @@ def get_communication_graph(model_path: str, save_path=None):
 
 
 def find_a_pattern(model_path: str, inputs: TimedActions, observes: TimedActions,
-                    observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
+                   observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
     """
     :param str model_path: path to the model file
     :param TimedActions inputs: TimedActions of input signal model
@@ -110,20 +111,21 @@ def find_a_pattern(model_path: str, inputs: TimedActions, observes: TimedActions
     :param bool hold: whether save history files
     :param str options: verifyta options
     :return: query, pattern_seq.actions @yhc SimTrace？
-    """    
+    """
     u = UModel(model_path)
     return u.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold, options)
 
 
-def find_all_patterns(model_path:str, inputs: TimedActions, observes: TimedActions, observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
+def find_all_patterns(model_path: str, inputs: TimedActions, observes: TimedActions, observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
     u = UModel(model_path)
     return u.find_all_patterns(inputs, observes, observe_actions, focused_actions, hold, max_patterns)
 
 
-def find_a_pattern_with_query(model_path:str, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
+def find_a_pattern_with_query(model_path: str, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
     u = UModel(model_path)
     return u.find_a_pattern_with_query(query, focused_actions, hold, options)
-    
-def find_all_patterns_with_query(model_path, query, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None): 
+
+
+def find_all_patterns_with_query(model_path, query, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
     u = UModel(model_path)
     return u.find_all_patterns_with_query(query, focused_actions, hold, max_patterns)

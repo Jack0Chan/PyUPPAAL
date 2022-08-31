@@ -1,19 +1,20 @@
-pyuppaal.iTools package
-=======================
+.. toctree::
+   :maxdepth: 3
+   :caption: Pyuppaal:
 
 .. Submodules
 .. ----------
 
-pyuppaal.iTools.buildCG module
-------------------------------
+pyuppaal.iTools.buildCG
+-----------------------
 
 .. automodule:: pyuppaal.iTools.buildCG
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyuppaal.iTools.ufactory module
--------------------------------
+pyuppaal.iTools.ufactory
+------------------------
 
 .. automodule:: pyuppaal.iTools.ufactory
    :members:

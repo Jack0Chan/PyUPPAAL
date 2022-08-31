@@ -11,4 +11,4 @@ p1_model_path =r'C:\Users\22215\OneDrive\Coding\PlayGround\Github\pyuppaal\src\t
 
 # method2
 m = pyu.UModel(p1_model_path)
-m.get_communication_graph(r'C:\Users\22215\OneDrive\Coding\PlayGround\Github\pyuppaal\src\tests\Pedestrian.pdf')
+m.get_communication_graph(r'C:\Users\22215\OneDrive\Coding\PlayGround\Github\pyuppaal\src\tests\Pedestrian.md')
