@@ -290,15 +290,13 @@ class UModel:
 
 # all patterns
 
-    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None,
-                    strict: bool = False, allpattern: bool = False):
+    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = False, allpattern: bool = False):
         """
-        Add new linear monitor template, it will also be embedded in `system declarations`.
-        When conflicting, the original monitor will be overwritten.
+        Add new linear monitor template, it will also be embedded in `system declarations`. When conflicting, the original monitor will be overwritten.
 
-        :param str monitor_name : the name of monitor
+        :param str monitor_name: the name of monitor
         :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
-        :param List[str] observe_actions: observe actions @yhc Timed Actions里面是否包括了observe_actions?
+        :param List[str] observe_actions: observe actions @yhc is there any observe_actions in Timed actions?
         :param bool strict: determine whether monitor is strict or not
         :param bool allpattern: determine whether allpattern is enabled
         """
