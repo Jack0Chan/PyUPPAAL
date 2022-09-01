@@ -708,13 +708,18 @@ To emphasize, due to the limitation of verification return of <cite>UPPAAL</cite
 <dl class="py method">
 <dt class="sig sig-object py" id="pyuppaal.umodel.UModel.add_monitor">
 <span class="sig-name descname"><span class="pre">add_monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitor_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyuppaal.datastruct.TimedActions" title="pyuppaal.datastruct.TimedActions"><span class="pre">TimedActions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observe_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allpattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyuppaal.umodel.UModel.add_monitor" title="Permalink to this definition"></a></dt>
-<dd><p>Add new linear monitor template, it will also be embedded in <cite>system declarations</cite>.
-When conflicting, the original monitor will be overwritten.</p>
-<p>:param str monitor_name : the name of monitor
-:param TimedActions signals: specific data type <cite>List[Tuple[signal, guard, inv]]</cite>, <cite>signal</cite>, <cite>guard</cite> and <cite>inv</cite> are <cite>str</cite> type and can be <cite>None</cite>
-:param List[str] observe_actions: observe actions &#64;yhc Timed Actions里面是否包括了observe_actions?
-:param bool strict: determine whether monitor is strict or not
-:param bool allpattern: determine whether allpattern is enabled</p>
+<dd><p>Add new linear monitor template, it will also be embedded in <cite>system declarations</cite>. When conflicting, the original monitor will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>monitor_name</strong> (<em>str</em>) – the name of monitor</p></li>
+<li><p><strong>signals</strong> (<a class="reference internal" href="#pyuppaal.datastruct.TimedActions" title="pyuppaal.datastruct.TimedActions"><em>TimedActions</em></a>) – specific data type <cite>List[Tuple[signal, guard, inv]]</cite>, <cite>signal</cite>, <cite>guard</cite> and <cite>inv</cite> are <cite>str</cite> type and can be <cite>None</cite></p></li>
+<li><p><strong>observe_actions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – observe actions &#64;yhc is there any observe_actions in Timed actions?</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – determine whether monitor is strict or not</p></li>
+<li><p><strong>allpattern</strong> (<em>bool</em>) – determine whether allpattern is enabled</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
