@@ -1,0 +1,775 @@
+layout
+#index:const:value
+#index:clock:nr:name
+#index:var:min:max:init:nr:name
+#index:meta:min:max:init:nr:name
+#index:cost
+#index:location:flags:name
+#index:meta:min:max:name
+0:clock:0:t(0)
+1:const:1
+2:const:2
+3:const:3
+4:const:4
+5:const:5
+6:const:6
+7:const:7
+8:const:8
+9:const:9
+10:const:10
+11:const:11
+12:clock:1:gclk
+13:const:200
+14:const:300
+15:const:200
+16:const:300
+17:const:200
+18:const:300
+19:const:200
+20:const:300
+21:const:200
+22:const:300
+23:const:200
+24:const:300
+25:const:0
+26:clock:2:PipeNet.t
+27:location::Idle
+28:location::Cross1
+29:location::Cross2
+30:location::Cross3
+31:location:committed:Exit1
+32:location:committed:Exit2
+33:location::Exit3
+34:location:committed:Reset
+35:const:1
+36:location::Idle
+37:location::Input1
+38:location::Input2
+39:const:2
+40:location::Start
+41:location::Obs1
+42:location::Obs2
+43:location::Fail1
+44:location::Fail2
+
+instructions
+#address: opcode
+0: 0 1 			push 1
+2: 44 			halt
+3: 0 0 			push 0
+5: 44 			halt
+6: 0 1 			push 1
+8: 44 			halt
+9: 0 1 			push 1
+11: 44 			halt
+12: 0 0 		push 0
+14: 44 			halt
+15: 0 1 		push 1
+17: 44 			halt
+18: 0 1 		push 1
+20: 44 			halt
+21: 0 0 		push 0
+23: 44 			halt
+24: 0 1 		push 1
+26: 44 			halt
+27: 0 1 		push 1
+29: 44 			halt
+30: 0 0 		push 0
+32: 44 			halt
+33: 0 1 		push 1
+35: 44 			halt
+36: 0 1 		push 1
+38: 44 			halt
+39: 0 0 		push 0
+41: 44 			halt
+42: 0 1 		push 1
+44: 44 			halt
+45: 0 1 		push 1
+47: 44 			halt
+48: 0 0 		push 0
+50: 44 			halt
+51: 0 1 		push 1
+53: 44 			halt
+54: 0 1 		push 1
+56: 44 			halt
+57: 0 0 		push 0
+59: 44 			halt
+60: 0 1 		push 1
+62: 44 			halt
+63: 0 1 		push 1
+65: 44 			halt
+66: 0 0 		push 0
+68: 44 			halt
+69: 0 1 		push 1
+71: 44 			halt
+72: 0 1 		push 1
+74: 44 			halt
+75: 0 1 		push 1
+77: 44 			halt
+78: 0 1 		push 1
+80: 44 			halt
+81: 0 1 		push 1
+83: 44 			halt
+84: 0 0 		push 0
+86: 44 			halt
+87: 0 1 		push 1
+89: 44 			halt
+90: 0 1 		push 1
+92: 44 			halt
+93: 0 1 		push 1
+95: 44 			halt
+96: 0 1 		push 1
+98: 44 			halt
+99: 0 11 		push 11
+101: 44 		halt
+102: 0 1 		push 1
+104: 44 		halt
+105: 0 1 		push 1
+107: 44 		halt
+108: 0 1 		push 1
+110: 44 		halt
+111: 0 1 		push 1
+113: 44 		halt
+114: 0 10 		push 10
+116: 44 		halt
+117: 0 1 		push 1
+119: 44 		halt
+120: 0 1 		push 1
+122: 44 		halt
+123: 0 1 		push 1
+125: 44 		halt
+126: 0 1 		push 1
+128: 44 		halt
+129: 0 9 		push 9
+131: 44 		halt
+132: 0 1 		push 1
+134: 44 		halt
+135: 40 0 2 -399 	cexpri 0 2 -399
+139: 30 		copy
+140: 43 147 		jmpz 147
+142: 40 2 0 601 	cexpri 2 0 601
+146: 14 		and
+147: 44 		halt
+148: 0 2 		push 2
+150: 44 		halt
+151: 0 0 		push 0
+153: 44 		halt
+154: 0 300 		push 300
+156: 44 		halt
+157: 0 0 		push 0
+159: 44 		halt
+160: 0 2 		push 2
+162: 44 		halt
+163: 0 -200 		push -200
+165: 44 		halt
+166: 0 1 		push 1
+168: 44 		halt
+169: 0 8 		push 8
+171: 44 		halt
+172: 0 1 		push 1
+174: 44 		halt
+175: 40 0 2 -399 	cexpri 0 2 -399
+179: 30 		copy
+180: 43 187 		jmpz 187
+182: 40 2 0 601 	cexpri 2 0 601
+186: 14 		and
+187: 44 		halt
+188: 0 2 		push 2
+190: 44 		halt
+191: 0 0 		push 0
+193: 44 		halt
+194: 0 300 		push 300
+196: 44 		halt
+197: 0 0 		push 0
+199: 44 		halt
+200: 0 2 		push 2
+202: 44 		halt
+203: 0 -200 		push -200
+205: 44 		halt
+206: 0 1 		push 1
+208: 44 		halt
+209: 0 7 		push 7
+211: 44 		halt
+212: 0 1 		push 1
+214: 44 		halt
+215: 40 0 2 -399 	cexpri 0 2 -399
+219: 30 		copy
+220: 43 227 		jmpz 227
+222: 40 2 0 601 	cexpri 2 0 601
+226: 14 		and
+227: 44 		halt
+228: 0 2 		push 2
+230: 44 		halt
+231: 0 0 		push 0
+233: 44 		halt
+234: 0 300 		push 300
+236: 44 		halt
+237: 0 0 		push 0
+239: 44 		halt
+240: 0 2 		push 2
+242: 44 		halt
+243: 0 -200 		push -200
+245: 44 		halt
+246: 23 26 0 		storeI 26 0
+249: 44 		halt
+250: 0 4 		push 4
+252: 44 		halt
+253: 0 1 		push 1
+255: 44 		halt
+256: 40 0 2 -399 	cexpri 0 2 -399
+260: 30 		copy
+261: 43 268 		jmpz 268
+263: 40 2 0 601 	cexpri 2 0 601
+267: 14 		and
+268: 44 		halt
+269: 0 2 		push 2
+271: 44 		halt
+272: 0 0 		push 0
+274: 44 		halt
+275: 0 300 		push 300
+277: 44 		halt
+278: 0 0 		push 0
+280: 44 		halt
+281: 0 2 		push 2
+283: 44 		halt
+284: 0 -200 		push -200
+286: 44 		halt
+287: 0 1 		push 1
+289: 44 		halt
+290: 0 6 		push 6
+292: 44 		halt
+293: 0 1 		push 1
+295: 44 		halt
+296: 40 0 2 -399 	cexpri 0 2 -399
+300: 30 		copy
+301: 43 308 		jmpz 308
+303: 40 2 0 601 	cexpri 2 0 601
+307: 14 		and
+308: 44 		halt
+309: 0 2 		push 2
+311: 44 		halt
+312: 0 0 		push 0
+314: 44 		halt
+315: 0 300 		push 300
+317: 44 		halt
+318: 0 0 		push 0
+320: 44 		halt
+321: 0 2 		push 2
+323: 44 		halt
+324: 0 -200 		push -200
+326: 44 		halt
+327: 0 1 		push 1
+329: 44 		halt
+330: 0 5 		push 5
+332: 44 		halt
+333: 0 1 		push 1
+335: 44 		halt
+336: 40 0 2 -399 	cexpri 0 2 -399
+340: 30 		copy
+341: 43 348 		jmpz 348
+343: 40 2 0 601 	cexpri 2 0 601
+347: 14 		and
+348: 44 		halt
+349: 0 2 		push 2
+351: 44 		halt
+352: 0 0 		push 0
+354: 44 		halt
+355: 0 300 		push 300
+357: 44 		halt
+358: 0 0 		push 0
+360: 44 		halt
+361: 0 2 		push 2
+363: 44 		halt
+364: 0 -200 		push -200
+366: 44 		halt
+367: 23 26 0 		storeI 26 0
+370: 44 		halt
+371: 0 3 		push 3
+373: 44 		halt
+374: 0 1 		push 1
+376: 44 		halt
+377: 0 1 		push 1
+379: 44 		halt
+380: 0 1 		push 1
+382: 44 		halt
+383: 23 26 0 		storeI 26 0
+386: 44 		halt
+387: 0 -1 		push -1
+389: 44 		halt
+390: 0 1 		push 1
+392: 44 		halt
+393: 0 0 		push 0
+395: 44 		halt
+396: 0 1 		push 1
+398: 44 		halt
+399: 0 1 		push 1
+401: 44 		halt
+402: 0 0 		push 0
+404: 44 		halt
+405: 0 1 		push 1
+407: 44 		halt
+408: 0 1 		push 1
+410: 44 		halt
+411: 0 0 		push 0
+413: 44 		halt
+414: 0 1 		push 1
+416: 44 		halt
+417: 0 1 		push 1
+419: 44 		halt
+420: 40 1 0 2001 	cexpri 1 0 2001
+424: 40 0 1 -1999 	cexpri 0 1 -1999
+428: 14 		and
+429: 44 		halt
+430: 0 0 		push 0
+432: 44 		halt
+433: 0 1 		push 1
+435: 44 		halt
+436: 0 -1000 		push -1000
+438: 44 		halt
+439: 0 1 		push 1
+441: 44 		halt
+442: 0 0 		push 0
+444: 44 		halt
+445: 0 1000 		push 1000
+447: 44 		halt
+448: 0 1 		push 1
+450: 44 		halt
+451: 0 1 		push 1
+453: 44 		halt
+454: 0 1 		push 1
+456: 44 		halt
+457: 40 1 0 1 		cexpri 1 0 1
+461: 40 0 1 1 		cexpri 0 1 1
+465: 14 		and
+466: 44 		halt
+467: 0 0 		push 0
+469: 44 		halt
+470: 0 1 		push 1
+472: 44 		halt
+473: 0 0 		push 0
+475: 44 		halt
+476: 0 1 		push 1
+478: 44 		halt
+479: 0 0 		push 0
+481: 44 		halt
+482: 0 0 		push 0
+484: 44 		halt
+485: 0 1 		push 1
+487: 44 		halt
+488: 0 1 		push 1
+490: 44 		halt
+491: 0 1 		push 1
+493: 44 		halt
+494: 0 0 		push 0
+496: 44 		halt
+497: 0 1 		push 1
+499: 44 		halt
+500: 0 1 		push 1
+502: 44 		halt
+503: 0 0 		push 0
+505: 44 		halt
+506: 0 1 		push 1
+508: 44 		halt
+509: 0 1 		push 1
+511: 44 		halt
+512: 0 0 		push 0
+514: 44 		halt
+515: 0 1 		push 1
+517: 44 		halt
+518: 0 1 		push 1
+520: 44 		halt
+521: 0 0 		push 0
+523: 44 		halt
+524: 0 500 		push 500
+526: 44 		halt
+527: 0 1 		push 1
+529: 44 		halt
+530: 0 0 		push 0
+532: 44 		halt
+533: 0 1 		push 1
+535: 44 		halt
+536: 0 0 		push 0
+538: 44 		halt
+539: 0 500 		push 500
+541: 44 		halt
+542: 0 1 		push 1
+544: 44 		halt
+545: 0 1 		push 1
+547: 44 		halt
+548: 0 0 		push 0
+550: 44 		halt
+551: 0 1550 		push 1550
+553: 44 		halt
+554: 0 1 		push 1
+556: 44 		halt
+557: 0 0 		push 0
+559: 44 		halt
+560: 0 1 		push 1
+562: 44 		halt
+563: 0 0 		push 0
+565: 44 		halt
+566: 0 1550 		push 1550
+568: 44 		halt
+569: 0 1 		push 1
+571: 44 		halt
+572: 0 1 		push 1
+574: 44 		halt
+575: 40 0 1 -999 	cexpri 0 1 -999
+579: 44 		halt
+580: 0 0 		push 0
+582: 44 		halt
+583: 0 1 		push 1
+585: 44 		halt
+586: 0 -500 		push -500
+588: 44 		halt
+589: 0 1 		push 1
+591: 44 		halt
+592: 0 -11 		push -11
+594: 44 		halt
+595: 0 1 		push 1
+597: 44 		halt
+598: 40 0 1 -999 	cexpri 0 1 -999
+602: 44 		halt
+603: 0 0 		push 0
+605: 44 		halt
+606: 0 1 		push 1
+608: 44 		halt
+609: 0 -500 		push -500
+611: 44 		halt
+612: 0 1 		push 1
+614: 44 		halt
+615: 0 -9 		push -9
+617: 44 		halt
+618: 0 1 		push 1
+620: 44 		halt
+621: 40 0 1 1 		cexpri 0 1 1
+625: 44 		halt
+626: 0 0 		push 0
+628: 44 		halt
+629: 0 1 		push 1
+631: 44 		halt
+632: 0 0 		push 0
+634: 44 		halt
+635: 0 1 		push 1
+637: 44 		halt
+638: 0 -11 		push -11
+640: 44 		halt
+641: 0 1 		push 1
+643: 44 		halt
+644: 40 0 1 1 		cexpri 0 1 1
+648: 44 		halt
+649: 0 0 		push 0
+651: 44 		halt
+652: 0 1 		push 1
+654: 44 		halt
+655: 0 0 		push 0
+657: 44 		halt
+658: 0 1 		push 1
+660: 44 		halt
+661: 0 -10 		push -10
+663: 44 		halt
+664: 0 1 		push 1
+666: 44 		halt
+667: 40 0 1 -999 	cexpri 0 1 -999
+671: 44 		halt
+672: 0 0 		push 0
+674: 44 		halt
+675: 0 1 		push 1
+677: 44 		halt
+678: 0 -500 		push -500
+680: 44 		halt
+681: 0 1 		push 1
+683: 44 		halt
+684: 0 -10 		push -10
+686: 44 		halt
+687: 0 1 		push 1
+689: 44 		halt
+690: 40 0 1 1 		cexpri 0 1 1
+694: 44 		halt
+695: 0 0 		push 0
+697: 44 		halt
+698: 0 1 		push 1
+700: 44 		halt
+701: 0 0 		push 0
+703: 44 		halt
+704: 0 1 		push 1
+706: 44 		halt
+707: 0 -9 		push -9
+709: 44 		halt
+710: 0 1 		push 1
+712: 44 		halt
+713: 40 1 0 3101 	cexpri 1 0 3101
+717: 40 0 1 -3099 	cexpri 0 1 -3099
+721: 14 		and
+722: 44 		halt
+723: 0 0 		push 0
+725: 44 		halt
+726: 0 1 		push 1
+728: 44 		halt
+729: 0 -1550 		push -1550
+731: 44 		halt
+732: 0 1 		push 1
+734: 44 		halt
+735: 0 0 		push 0
+737: 44 		halt
+738: 0 1550 		push 1550
+740: 44 		halt
+741: 0 1 		push 1
+743: 44 		halt
+744: 0 -10 		push -10
+746: 44 		halt
+747: 0 1 		push 1
+749: 44 		halt
+750: 40 1 0 1001 	cexpri 1 0 1001
+754: 40 0 1 -999 	cexpri 0 1 -999
+758: 14 		and
+759: 44 		halt
+760: 0 0 		push 0
+762: 44 		halt
+763: 0 1 		push 1
+765: 44 		halt
+766: 0 -500 		push -500
+768: 44 		halt
+769: 0 1 		push 1
+771: 44 		halt
+772: 0 0 		push 0
+774: 44 		halt
+775: 0 500 		push 500
+777: 44 		halt
+778: 0 1 		push 1
+780: 44 		halt
+781: 0 -9 		push -9
+783: 44 		halt
+
+processes
+#index:initial:name
+0:27:PipeNet
+1:36:Input
+2:40:Monitor0
+
+locations
+#index:process:invariant
+27:0:6
+28:0:15
+29:0:24
+30:0:33
+31:0:42
+32:0:51
+33:0:60
+34:0:69
+36:1:396
+37:1:405
+38:1:414
+40:2:497
+41:2:506
+42:2:515
+43:2:533
+44:2:560
+
+edges
+#process:source:target:guard:sync:update
+0:34:27:75:84:81
+0:33:34:90:99:96
+0:32:34:105:114:111
+0:31:34:120:129:126
+0:30:33:135:169:166
+0:30:32:175:209:206
+0:28:30:215:250:246
+0:29:32:256:290:287
+0:29:31:296:330:327
+0:28:29:336:371:367
+0:27:28:377:387:383
+1:37:38:420:451:448
+1:36:37:457:488:485
+2:41:44:575:592:589
+2:41:44:598:615:612
+2:40:43:621:638:635
+2:40:43:644:661:658
+2:41:44:667:684:681
+2:40:43:690:707:704
+2:41:42:713:744:741
+2:40:41:750:781:778
+
+expressions
+#address:reads:writes:text
+0:::1
+6:::1
+9:::1
+15:::1
+18:::1
+24:::1
+27:::1
+33:::1
+36:::1
+42:::1
+45:::1
+51:::1
+54:::1
+60:::1
+63:::1
+69:::1
+72:::1
+75:::1
+78:::1
+81:::1
+84:::0
+87:::1
+90:::1
+93:::1
+96:::1
+99:::exit3!
+102:::1
+105:::1
+108:::1
+111:::1
+114:::exit2!
+117:::1
+120:::1
+123:::1
+126:::1
+129:::exit1!
+132:::1
+135:23,24,26::t >= T6_Min && t <= T6_Max
+148:26::t
+154:24::T6_Max
+160:26::t
+163:23::-T6_Min
+166:::1
+169:::hidden_path6!
+172:::1
+175:21,22,26::t >= T5_Min && t <= T5_Max
+188:26::t
+194:22::T5_Max
+200:26::t
+203:21::-T5_Min
+206:::1
+209:::hidden_path5!
+212:::1
+215:15,16,26::t >= T2_Min && t <= T2_Max
+228:26::t
+234:16::T2_Max
+240:26::t
+243:15::-T2_Min
+246::26:t = 0
+250:::hidden_path2!
+253:::1
+256:19,20,26::t >= T4_Min && t <= T4_Max
+269:26::t
+275:20::T4_Max
+281:26::t
+284:19::-T4_Min
+287:::1
+290:::hidden_path4!
+293:::1
+296:17,18,26::t >= T3_Min && t <= T3_Max
+309:26::t
+315:18::T3_Max
+321:26::t
+324:17::-T3_Min
+327:::1
+330:::hidden_path3!
+333:::1
+336:13,14,26::t >= T1_Min && t <= T1_Max
+349:26::t
+355:14::T1_Max
+361:26::t
+364:13::-T1_Min
+367::26:t = 0
+371:::hidden_path1!
+374:::1
+377:::1
+380:::1
+383::26:t = 0
+387:::input_ball?
+390:::1
+396:::1
+399:::1
+405:::1
+408:::1
+414:::1
+417:::1
+420:12::gclk == 1000
+433:12::gclk
+436:::-1000
+439:12::gclk
+445:::1000
+448:::1
+451:::input_ball!
+454:::1
+457:12::gclk == 0
+470:12::gclk
+473:::-0
+476:12::gclk
+482:::0
+485:::1
+488:::input_ball!
+491:::1
+497:::1
+500:::1
+506:::1
+509:::1
+515:::1
+518:12::gclk
+524:::500
+527:::1
+533:12::gclk
+539:::500
+542:::1
+545:12::gclk
+551:::1550
+554:::1
+560:12::gclk
+566:::1550
+569:::1
+572:::1
+575:12::gclk >= 500
+583:12::gclk
+586:::-500
+589:::1
+592:::exit3?
+595:::1
+598:12::gclk >= 500
+606:12::gclk
+609:::-500
+612:::1
+615:::exit1?
+618:::1
+621:12::gclk >= 0
+629:12::gclk
+632:::-0
+635:::1
+638:::exit3?
+641:::1
+644:12::gclk >= 0
+652:12::gclk
+655:::-0
+658:::1
+661:::exit2?
+664:::1
+667:12::gclk >= 500
+675:12::gclk
+678:::-500
+681:::1
+684:::exit2?
+687:::1
+690:12::gclk >= 0
+698:12::gclk
+701:::-0
+704:::1
+707:::exit1?
+710:::1
+713:12::gclk == 1550
+726:12::gclk
+729:::-1550
+732:12::gclk
+738:::1550
+741:::1
+744:::exit2?
+747:::1
+750:12::gclk == 500
+763:12::gclk
+766:::-500
+769:12::gclk
+775:::500
+778:::1
+781:::exit1?
