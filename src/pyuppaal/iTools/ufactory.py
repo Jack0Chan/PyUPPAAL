@@ -1,39 +1,22 @@
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 
+
 class UFactory:
     """
-    usage: UFactory.function(xxx)
-    用户一般不直接调用这个class
-    用来生产UPPAAL里的xml element组件，主要包含
-    declaration, (简单字符串)
-    query, (简单字符串)
-    queries, (多个queries)
-    location,
-    transition,
-    template,
+    Generate xml elements of Uppaal, like declaration, query, queries, location, transition, template and so on.
+
+    >>> UFactory.function(queryTest)
     """
-
     @staticmethod
-    def declaration(declaration: str):
+    def __query(query: str) -> ET.Element:
         """
-        构造UPPAAL的declaration
-        declaration: str, declaration里的全部内容
-        """
-        dec_elem = ET.Element('declaration')
-        dec_elem.text = declaration
-        return dec_elem
+        :param str query: verification statement
 
-    @staticmethod
-    def __query(query: str):
-        """
-        query: str, 验证语句
-        构造一个query
-        query示例：
-            <query>
-                <formula>E&lt;&gt; Output.pass</formula>
-                <comment />
-            </query>
+        >>> <query>
+        >>>     <formula>E&lt;&gt; Output.pass</formula>
+        >>>     <comment />
+        >>> </query>
         """
         query_elem = ET.Element('query')
 
@@ -49,18 +32,18 @@ class UFactory:
     @staticmethod
     def queries(queries: List[str]):
         """
-        queries: List[str], 多条验证语句
-        完整queries示例
-        <queries>
-            <query>
-                <formula>E&lt;&gt; Output.pass</formula>
-                <comment />
-            </query>
-            <query>
-                <formula>E&lt;&gt; Output2.pass</formula>
-                <comment />
-            </query>
-        </queries>
+        :param List[str] query: verification statements
+
+        >>> <queries>
+        >>>     <query>
+        >>>         <formula>E&lt;&gt; Output.pass</formula>
+        >>>         <comment />
+        >>>     </query>
+        >>>     <query>
+        >>>         <formula>E&lt;&gt; Output2.pass</formula>
+        >>>         <comment />
+        >>>     </query>
+        >>> </queries>
         """
         queries_elem = ET.Element('queries')
         # 构建并加入多个queries element
@@ -69,22 +52,34 @@ class UFactory:
         return queries_elem
 
     @staticmethod
+    def declaration(declaration: str) -> ET.Element:
+        """
+        Generate the declararion of UPPAAL.
+
+        :param str declaration: all contents of declaration
+        """
+        dec_elem = ET.Element('declaration')
+        dec_elem.text = declaration
+        return dec_elem
+
+    @staticmethod
     def location(location_id: int, pos_x: int, pos_y: int,
                  inv: str = None, name: str = None, is_committed: bool = False):
         """
-        构造一个location
-        id: int, location的id，注意不要和以前的location的id重复
-        pos_x, pos_y: int, location的位置
-        inv: str, location的invariant，比如'gclk<=10'或者'gclk<100'
-        name: str, location的名字，默认是None
-        is_committed: bool, 是否为committed，默认不是committed
+        Generate a location
 
-        完整location示例：
-            <location id="id37" x="-169" y="-59">
-                <name x="90" y="166">pass</name>
-                <label kind="invariant" x="-212" y="-42">gclk&lt;=122</label>
-                <committed/>
-            </location>
+        :param int id: the `id` of location
+        :param int pos_x,pos_y: the position of location
+        :param str inv: theinvariant of location, e.g., `gclk<=10` and `gclk<100`.
+        :param str name: the name of location
+        :param bool is_committed: determine whether it is committed or not
+
+
+        >>> <location id="id37" x="-169" y="-59">
+        >>>     <name x="90" y="166">pass</name>
+        >>>     <label kind="invariant" x="-212" y="-42">gclk&lt;=122</label>
+        >>>     <committed/>
+        >>> </location>
         """
         location = ET.Element('location', {'id': f'id{location_id}',
                                            'x': str(pos_x),
@@ -112,21 +107,21 @@ class UFactory:
                    guard: str = None, sync: str = None, clock_reset: str = None, 
                    nail: bool = False):
         """
-        sourceID: int, 起点id
-        targetID: int, 终点id
-        post_x, post_y: int, 符号的位置
-        guard: str, edge的guard，如't>=10', 't>100'
-        sync: str, synchronisation信号，需要注明!或者？
-        clock_reset: str, 如't=0'
-        nail: bool, False: 表示是否让边弯曲，适用于同起点终点存在多条路径的情况。
-        完整transition示例：
-        <transition>
-            <source ref="id7"/>
-            <target ref="id6"/>
-            <label kind="guard" x="139" y="90">t&gt;=tERPMin</label>
-            <label kind="synchronisation" x="123" y="90">sync?</label>
-            <label kind="assignment" x="156" y="107">t=0</label>
-        </transition>
+        :param int sourceID: the id of start
+        :param int targetID: the id of end
+        :param int post_x,post_y: the position of sign
+        :param str guard: the guard of the edge, e.g., `t>=10`, `t>100`
+        :param str sync: the signal of synchronisation, e.g., `!` and `?`
+        :param str clock_reset: e.g., `t=0`
+        :param bool nail: determine whether the edge is curved
+
+        >>> <transition>
+        >>>     <source ref="id7"/>
+        >>>     <target ref="id6"/>
+        >>>     <label kind="guard" x="139" y="90">t&gt;=tERPMin</label>
+        >>>     <label kind="synchronisation" x="123" y="90">sync?</label>
+        >>>     <label kind="assignment" x="156" y="107">t=0</label>
+        >>> </transition>
         """
         transition = ET.Element('transition')
         # 构建并添加source
@@ -167,29 +162,25 @@ class UFactory:
     def template(name: str, locations: List[ET.Element], init_id: int, transitions: List[ET.Element],
                  parameter: str = None, declaration: str = None):
         """
-        name: str, template的名字
-        locations: List[ET.Element], 由UFactory.construct_location()构造出的一系列locations
-        init_id: int, initial location的id，比如47
-        transitions: List[ET.Element], 由UFactory.construct_transition()构造出的一系列transitions
-        parameter: str,
-            比如：<parameter>broadcast chan &amp;actNode, actPath,int tERPMin, int tERPMax</parameter>
-        declaration: str,
-            比如: <declaration>clock t;</declaration>
-        构建一个新的template
-        一个template的基本框架为：
-            <template>
-                <name>NodeN</name>
-                可以没有<parameter>broadcast chan &amp;actNode, int tERPMin, int tERPMax</parameter>
-                可以没有<declaration>clock t;</declaration>
+        :param str name: the name of template
+        :param List[ET.Element] locations: series of locations generated by UFactory.construct_location()
+        :param int init_id: the id of initial location
+        :param List[ET.Element] transitions: series of transitions generated by UFactory.construct_location()
+        :param str parameter: parameter instruction, e.g., <parameter>broadcast chan &amp;actNode, actPath,int tERPMin, int tERPMax</parameter>
+        :param str declaration: declaration instruction, e.g., <declaration>clock t;</declaration>
 
-                <location> </location>
-                <location> </location>
-                <location> </location>
-                <init ref="id47"/>
-                <transition> </transition>
-                <transition> </transition>
-                <transition> </transition>
-            </template>
+        >>> <template>
+        >>>     <name>NodeN</name>
+        >>>     <parameter>broadcast chan &amp;actNode, int tERPMin, int tERPMax</parameter>
+        >>>     <declaration>clock t;</declaration>
+        >>>     <location> </location>
+        >>>     <location> </location>
+        >>>     <location> </location>
+        >>>     <init ref="id47"/>
+        >>>     <transition> </transition>
+        >>>     <transition> </transition>
+        >>>     <transition></transition>
+        >>> </template>
         """
         template = ET.Element('template')
         # 创建并加入name
@@ -225,18 +216,13 @@ class UFactory:
     @staticmethod
     def input(input_name: str, signals: List[Tuple[str, str, str]], init_id: int):
         """
-        构建输入的线性模型，类似monitor
-        input_name: string
-        signals: List[Tuple[str, int, int]],
-                 每个tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称
-                 guard: str, 比如gclk>=10
-                 inv: str, 比如gclk<=5
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        init_id: int, 用来设置Monitor中最小的<init ref='xxx'/>
+        Generate a linear model of input.
+
+        :param str input_name: the name of input
+        :parama List[Tuple[str, int, int]] signals: this data type is updated in `umodel.TymedActions`
+        :param int init_id: int, set the minimum `<init ref='xxx'/>` of monitor
         """
-         # 创建locations
+        # 创建locations
         locations = []
         for i in range(len(signals)):
             # [signal, guard, inv, name]
@@ -262,24 +248,19 @@ class UFactory:
     def monitor(monitor_name: str, signals: List[Tuple[str, str, str]], observe_action: List[str], 
                 init_id: int, strict: bool = False, allpattern: bool=False):
         """
-        构建新的线性monitor
-        monitor_name: string
-        signals: List[Tuple[str, int, int]],
-                 每个tuple分别对应[signal, guard, inv]
-                 signal, guard, inv, name 都可以是None
-                 signal: 信号名称
-                 guard: str, 比如gclk>=10
-                 inv: str, 比如gclk<=5
-                 注意：在连接的时候是按照信号在list出现的顺序连接的
-        init_id: int, 用来设置Monitor中最小的<init ref='xxx'/>
-        strict: bool, 是否是严格观测。如果strict是True，则要求在给定观测之外禁止有其他观测。
-        附：一个Monitor的基本框架为：
-            <template>
-                <name>Monitor</name>
-                <location> </location>
-                <init ref="id47"/>
-                <transition> </transition>
-            </template>
+        Generate a new linear model of.
+
+        :param str monitor_name: the name of monitor
+        :param List[Tuple[str, int, int]] signals: this data type is updated in `umodel.TymedActions`
+        :param int init_id: set the minimum `<init ref='xxx'/>` of monitor
+        :param bool strict: determine whethe the observation is strict, which indicates other observations will be forbidden
+
+        >>> <template>
+        >>>     <name>Monitor</name>
+        >>>     <location> </location>
+        >>>     <location>init ref="id47"/>
+        >>>     <transition> </transition>
+        >>> </template>
         """
         # 创建locations
         locations = []
@@ -332,18 +313,3 @@ class UFactory:
         declaration = None if allpattern else f'clock {clk_name};'
         monitor_elem = UFactory.template(monitor_name, locations, init_id, transitions, declaration=declaration)
         return monitor_elem
-
-    @staticmethod
-    def signal_converter(signal_dict: Dict[str, str], init_id: int, converter_name: str = 'SignalConverter'):
-        """
-        将某些可观测信号转化成另一些信号
-        signal_dict: Dict[str, str]，信号对应的字典
-        init_id: int, location最小的id，防止location的冲突
-
-        比如：signal_dict = {'actPathHisA': 'sigOut',
-                            'actPathHisH': 'sigOut',
-                            'actPathHisV': 'sigOut',
-                            'sigIn': 'actNodeSA'}
-        会构造出如xx图片的自动机
-        """
-        pass
