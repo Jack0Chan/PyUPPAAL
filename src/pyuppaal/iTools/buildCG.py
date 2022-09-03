@@ -138,7 +138,7 @@ class XmlReader:
         self.nodes = None
         self.filename = filename
         # print("Open file:", filename)
-        f = open(filename)
+        f = open(filename,'rt',encoding='utf-8')
         self.code = f.read()
 
         # print("Initiate all templates:")
