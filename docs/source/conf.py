@@ -8,7 +8,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../../src'))
 
 project = 'pyuppaal'
 copyright = '2022, DuckyTester'
@@ -38,7 +38,9 @@ language = 'en'
 
 # html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+
+
+# html_static_path = ['_static']
 
 
 autodoc_member_order = 'bysource'

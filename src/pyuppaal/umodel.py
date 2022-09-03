@@ -79,6 +79,7 @@ class UModel:
         :param str save_path: `<.md | .svg | .png | .pdf>` the path to save graph file
         :return: None
         """
+        
         # if save_path is None:
         # rfind: 找到最右边的index
         # 如果直接从左find，那么下面这个路径就找不到
@@ -104,21 +105,23 @@ class UModel:
         """
         Transform from mermaid to List[source, edge_name, target]
 
-        FROM:
-        mermaid_str = ```mermaid
-        graph TD
-        TrafficLights
-        LV1Pedestrian2
-        Cars
-        TrafficLights--cGreen-->Cars
-        TrafficLights--cYellow-->Cars
-        LV1Pedestrian2--pCrss-->Cars```
+        # FROM:
+        # mermaid_str = mermaid
+        # graph TD
+        # TrafficLights
+        # LV1Pedestrian2
+        # Cars
+        # TrafficLights--cGreen-->Cars
+        # TrafficLights--cYellow-->Cars
+        # LV1Pedestrian2--pCrss-->Cars
 
-        TO:
-        [[TrafficLights, cGreen, Cars],
-         [TrafficLights, cYellow, Cars],
-         [LV1Pedestrian2, pCrss, Cars]]
+        # TO:
+        # [[TrafficLights, cGreen, Cars],
+        #  [TrafficLights, cYellow, Cars],
+        #  [LV1Pedestrian2, pCrss, Cars]]
+         
         """
+        
         # 去掉开头和结尾的冗余
         mermaid_list = mermaid_str.replace('```', '').split('\n')
         res = []
@@ -133,15 +136,16 @@ class UModel:
         """
         Transform from List[source, edge_name, target] to dict
 
-        FROM:
-        [[TrafficLights, cGreen, Cars],
-        [TrafficLights, cYellow, Cars],
-        [LV1Pedestrian2, pCrss, Cars]]
+        # FROM:
+        # [[TrafficLights, cGreen, Cars],
+        # [TrafficLights, cYellow, Cars],
+        # [LV1Pedestrian2, pCrss, Cars]]
 
-        TO:
-        {"[TrafficLights, Cars]": [cGreen, cYellow]
-        "[LV1Pedestrian2, Cars]" : [pCrss]}
+        # TO:
+        # {"[TrafficLights, Cars]": [cGreen, cYellow]
+        # "[LV1Pedestrian2, Cars]" : [pCrss]}
         """
+        
         edges_dict = {}
         for i in mermaid_list:
             key = str([i[0], i[2]])
@@ -160,15 +164,15 @@ class UModel:
         """
         Transform from dict to mermaid
 
-        FROM:
-        {"[TrafficLights, Cars]": [cGreen, cYellow]
-        "[LV1Pedestrian2, Cars]" : [pCrss]}
+        # FROM:
+        # {"[TrafficLights, Cars]": [cGreen, cYellow]
+        # "[LV1Pedestrian2, Cars]" : [pCrss]}
 
-        TO:
-        ```mermaid
-        graph TD
-        TrafficLights--cGreen,cYellow-->Cars
-        LV1Pedestrian2--pCrss-->Cars```
+        # TO:
+        # mermaid
+        # graph TD
+        # TrafficLights--cGreen,cYellow-->Cars
+        # LV1Pedestrian2--pCrss-->Cars
         """
         edges_str = ''
         for key in edges_dict:
