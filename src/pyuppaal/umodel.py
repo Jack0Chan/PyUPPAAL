@@ -86,6 +86,7 @@ class UModel:
         
         mermaid = build_cg(self.model_path)
         # do something with mermaid
+        mermaid = merge_mermaid(mermaid)
         
         temp_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
         with open(temp_path, "w") as f:
@@ -98,6 +99,100 @@ class UModel:
             # run('Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass',shell=True)
             run(cmd, shell=True)
             os.remove(temp_path)
+
+    def cg_mermaid_to_list(mermaid_str: str) -> List[List[str]]:
+        """
+        Transform from mermaid to List[source, edge_name, target]
+
+        FROM:
+        mermaid_str = ```mermaid
+        graph TD
+        TrafficLights
+        LV1Pedestrian2
+        Cars
+        TrafficLights--cGreen-->Cars
+        TrafficLights--cYellow-->Cars
+        LV1Pedestrian2--pCrss-->Cars```
+
+        TO:
+        [[TrafficLights, cGreen, Cars],
+         [TrafficLights, cYellow, Cars],
+         [LV1Pedestrian2, pCrss, Cars]]
+        """
+        # 去掉开头和结尾的冗余
+        mermaid_list = mermaid_str.replace('```', '').split('\n')
+        res = []
+        for i in mermaid_list:
+            if '--' in i:
+                # i TrafficLights--cYellow-->Cars 变成 [TrafficLights, cYellow, Cars]
+                res.append(i.replace('>', '').split('--'))
+
+        return res
+
+    def merge_edges(mermaid_list: List[List[str]]) -> Dict:
+        """
+        Transform from List[source, edge_name, target] to dict
+
+        FROM:
+        [[TrafficLights, cGreen, Cars],
+        [TrafficLights, cYellow, Cars],
+        [LV1Pedestrian2, pCrss, Cars]]
+
+        TO:
+        {"[TrafficLights, Cars]": [cGreen, cYellow]
+        "[LV1Pedestrian2, Cars]" : [pCrss]}
+        """
+        edges_dict = {}
+        for i in mermaid_list:
+            key = str([i[0], i[2]])
+            value = i[1]
+            if key in edges_dict:
+                edges_dict[key].append(value)
+            else:
+                edges_dict[key] = [value]
+        # remove duplicate
+        for key in edges_dict:
+            edges_dict[key] = sorted(list(set(edges_dict[key])))
+        return edges_dict
+
+
+    def dict_to_mermaid(edges_dict: Dict, join_str: str = ',') -> str:
+        """
+        Transform from dict to mermaid
+
+        FROM:
+        {"[TrafficLights, Cars]": [cGreen, cYellow]
+        "[LV1Pedestrian2, Cars]" : [pCrss]}
+
+        TO:
+        ```mermaid
+        graph TD
+        TrafficLights--cGreen,cYellow-->Cars
+        LV1Pedestrian2--pCrss-->Cars```
+        """
+        edges_str = ''
+        for key in edges_dict:
+            # str转list获取边的两端
+            [source, target] = eval(key)
+            edge_name = join_str.join(edges_dict[key])
+            edges_str += f"{source}--{edge_name}-->{target}\n"
+        res = f'''```mermaid\ngraph TD\n{edges_str}```'''
+        return res
+
+    def merge_mermaid(mermaid_str: str) -> str:
+        mermaid_list = cg_mermaid_to_list(mermaid_str)
+        edges_dict = merge_edges(mermaid_list)
+        res = dict_to_mermaid(edges_dict)
+        return res
+
+    def filter_mermaid(mermaid_str: str, excluded_component: List[str]) -> str:
+        res = ''
+        for i in mermaid_str.split('\n'):
+            for j in excluded_component:
+                if j not in i:
+                    res += f'{i}\n'
+        return res
+
 
     def verify(self, trace_path: str) -> str:
         """
@@ -290,7 +385,7 @@ class UModel:
 
 # all patterns
 
-    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = False, allpattern: bool = False):
+    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = False, allpattern: bool = False,is_auto_save: bool = True):
         """
         Add new linear monitor template, it will also be embedded in `system declarations`. When conflicting, the original monitor will be overwritten.
 
@@ -325,6 +420,9 @@ class UModel:
                 break
         cur_system = '\n'.join(cur_system)
         self.set_system(cur_system)
+        if is_auto_save== True:
+            self.save()
+        
         return None
 
     def add_input(self, input_template_name: str, signals: TimedActions):
