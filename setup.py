@@ -14,7 +14,7 @@ setuptools.setup(
     version = get_property('__version__', 'pyuppaal'),
     author="Jack0Chan",
     author_email="",
-    description="First public beta version: 0.1.3. A research tool that can simulate, verify or modify UPPAAL models with python. It can also help to analyze counter-examples in .xml format",
+    description="A research tool that can simulate, verify or modify UPPAAL models with python. It can also help to analyze counter-examples in .xml format",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Jack0Chan/pyuppaal",
