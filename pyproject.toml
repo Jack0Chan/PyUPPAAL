@@ -1,0 +1,9 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pyuppaal"
+authors = [{name = "Test", email = "Test@test}]
+dynamic = ["0.1.5", "description"]
