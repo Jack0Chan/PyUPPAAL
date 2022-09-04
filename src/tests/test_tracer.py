@@ -11,3 +11,28 @@ if __name__ == '__main__':
     p1_trace_path = 'verifyta_demo2_trace-1.xtr'
     simtracer = tracer.SimulationTrace()
     simtracer.load_trace(p1_model_path, p1_trace_path, v)
+
+# s
+
+## [('E<> Monitor0.pass',
+##   ['input_ball',
+##    'input_ball',
+##    'hidden_path1',
+##    'hidden_path3',
+##    'exit1',
+##    'input_ball',
+##    'input_ball',
+##    'hidden_path1',
+##    'hidden_path4',
+##    'exit2']),
+##  ('E<> Monitor0.pass && !Monitor1.pass',
+##   ['input_ball',
+##    'input_ball',
+##    'hidden_path1',
+##    'hidden_path3',
+##    'exit1',
+##    'input_ball',
+##    'input_ball',
+##    'hidden_path2',
+##    'hidden_path5',
+##    'exit2'])]

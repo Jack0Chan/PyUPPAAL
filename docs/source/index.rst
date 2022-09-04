@@ -7,12 +7,11 @@ Pyuppaal documentation
 ======================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Pyuppaal:
 
-   Introduction.md
    Quickstart.md
-   Advanced Usage
+   Advanced Usage.md
    Devloper Interface
    Release history
    Contributions Guide

@@ -10,31 +10,28 @@ import xml.etree.cElementTree as ET
 
 from .datastruct import TimedActions
 from .verifyta import Verifyta
-from .iTools import UFactory, build_cg
+from .iTools import UFactory, build_cg ,mermaid
 from .tracer import SimTrace, Tracer
 import os
 
 
 class UModel:
     """
-    Load UPPAAL model for analysis, editing, verification and storage operations.
+    Load UPPAAL model for analysis, editing, verification storage and other operations.
 
-    :param str model_path: the path of model file
+    :param str model_path: file path of Uppaal model
     """
 
     def __init__(self, model_path: str):
-        # 模型路径，如 '../AVNRT_Initial_straight.xml'
         self.__model_path: str = model_path
         self.__element_tree: ET.ElementTree = ET.ElementTree(
             file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
-        # if not Verifyta().verifyta_path:
-        #     raise ValueError('Path of verifyta is not set. Please do Verifyta().set_verifyta_path(xxx).')
 
     @property
     def model_path(self) -> str:
         """
-        :return: the path of model file
+        :return: file path of Uppaal model
         """
         return self.__model_path
 
@@ -74,9 +71,9 @@ class UModel:
 
     def get_communication_graph(self, save_path=None) -> None:
         """
-        Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png | .pdf>` file.
+        Get the communication graph of the Uppaal model with `.md`, `.svg`, `.png` or `.pdf` file.
 
-        :param str save_path: `<.md | .svg | .png | .pdf>` the path to save graph file
+        :param str save_path: the absolute path to save the file
         :return: None
         """
         
@@ -85,13 +82,14 @@ class UModel:
         # 如果直接从左find，那么下面这个路径就找不到
         # ../AVNRT_Initial_straight.md
         
-        mermaid = build_cg(self.model_path)
-        # do something with mermaid
-        mermaid = merge_mermaid(mermaid)
+        mermaid_cg = build_cg(self.model_path)
+        # do something with mermaid_cg
+        m=mermaid.Mermaid()
+        mermaid_cg = m.merge_mermaid(mermaid_cg)
         
         temp_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
         with open(temp_path, "w") as f:
-            f.write(mermaid)
+            f.write(mermaid_cg)
         if save_path==None:
             return None
         if save_path.endswith(".svg") or save_path.endswith(".png") or save_path.endswith(".pdf"):
@@ -101,106 +99,9 @@ class UModel:
             run(cmd, shell=True)
             os.remove(temp_path)
 
-    def cg_mermaid_to_list(mermaid_str: str) -> List[List[str]]:
-        """
-        Transform from mermaid to List[source, edge_name, target]
-
-        # FROM:
-        # mermaid_str = mermaid
-        # graph TD
-        # TrafficLights
-        # LV1Pedestrian2
-        # Cars
-        # TrafficLights--cGreen-->Cars
-        # TrafficLights--cYellow-->Cars
-        # LV1Pedestrian2--pCrss-->Cars
-
-        # TO:
-        # [[TrafficLights, cGreen, Cars],
-        #  [TrafficLights, cYellow, Cars],
-        #  [LV1Pedestrian2, pCrss, Cars]]
-         
-        """
-        
-        # 去掉开头和结尾的冗余
-        mermaid_list = mermaid_str.replace('```', '').split('\n')
-        res = []
-        for i in mermaid_list:
-            if '--' in i:
-                # i TrafficLights--cYellow-->Cars 变成 [TrafficLights, cYellow, Cars]
-                res.append(i.replace('>', '').split('--'))
-
-        return res
-
-    def merge_edges(mermaid_list: List[List[str]]) -> Dict:
-        """
-        Transform from List[source, edge_name, target] to dict
-
-        # FROM:
-        # [[TrafficLights, cGreen, Cars],
-        # [TrafficLights, cYellow, Cars],
-        # [LV1Pedestrian2, pCrss, Cars]]
-
-        # TO:
-        # {"[TrafficLights, Cars]": [cGreen, cYellow]
-        # "[LV1Pedestrian2, Cars]" : [pCrss]}
-        """
-        
-        edges_dict = {}
-        for i in mermaid_list:
-            key = str([i[0], i[2]])
-            value = i[1]
-            if key in edges_dict:
-                edges_dict[key].append(value)
-            else:
-                edges_dict[key] = [value]
-        # remove duplicate
-        for key in edges_dict:
-            edges_dict[key] = sorted(list(set(edges_dict[key])))
-        return edges_dict
-
-
-    def dict_to_mermaid(edges_dict: Dict, join_str: str = ',') -> str:
-        """
-        Transform from dict to mermaid
-
-        # FROM:
-        # {"[TrafficLights, Cars]": [cGreen, cYellow]
-        # "[LV1Pedestrian2, Cars]" : [pCrss]}
-
-        # TO:
-        # mermaid
-        # graph TD
-        # TrafficLights--cGreen,cYellow-->Cars
-        # LV1Pedestrian2--pCrss-->Cars
-        """
-        edges_str = ''
-        for key in edges_dict:
-            # str转list获取边的两端
-            [source, target] = eval(key)
-            edge_name = join_str.join(edges_dict[key])
-            edges_str += f"{source}--{edge_name}-->{target}\n"
-        res = f'''```mermaid\ngraph TD\n{edges_str}```'''
-        return res
-
-    def merge_mermaid(mermaid_str: str) -> str:
-        mermaid_list = cg_mermaid_to_list(mermaid_str)
-        edges_dict = merge_edges(mermaid_list)
-        res = dict_to_mermaid(edges_dict)
-        return res
-
-    def filter_mermaid(mermaid_str: str, excluded_component: List[str]) -> str:
-        res = ''
-        for i in mermaid_str.split('\n'):
-            for j in excluded_component:
-                if j not in i:
-                    res += f'{i}\n'
-        return res
-
-
     def verify(self, trace_path: str) -> str:
         """
-        Verify the model, and save the result in `trace_path`, `< .xtr | .xml>`.
+        Verify the model, and save the result in `trace_path`.
 
         :param str trace_path: the path of trace file, `< .xtr | .xml>`
         :return: the path of verification result
@@ -536,8 +437,7 @@ class UModel:
             all_patterns.append((monitor_pass_str, new_patterns))
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
-            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes,
-                                   observe_actions=focused_actions, strict=True, allpattern=True)
+            new_umodel.mermaid
 
             # 构造验证语句
             # 构造monitor.pass
