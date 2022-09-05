@@ -11,7 +11,7 @@ Pyuppaal documentation
    :caption: Pyuppaal:
 
    Quickstart.md
-   Advanced Usage.md
+   AdvancedUsage.md
    Devloper Interface
    Release history
    Contributions Guide
