@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyuppaal"
+version = "0.1.12"
+description = "A short description of the package."
+authors = [
+  {email = "dyy2221503927@163.com"},
+  {name = "DuckyDuck"}
+]
+readme = "README.md"
+
+[project.urls]
+repository = "https://github.com/Jack0Chan/pyuppaal"
+documentation = "https://pyuppaal.readthedocs.io/en/latest/"
