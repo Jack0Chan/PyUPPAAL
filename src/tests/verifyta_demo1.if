@@ -1,0 +1,142 @@
+layout
+#index:const:value
+#index:clock:nr:name
+#index:var:min:max:init:nr:name
+#index:meta:min:max:init:nr:name
+#index:cost
+#index:location:flags:name
+#index:meta:min:max:name
+0:clock:0:t(0)
+1:const:0
+2:clock:1:P1.t
+3:location::A
+4:location::C
+5:location:committed:B
+
+instructions
+#address: opcode
+0: 0 1 			push 1
+2: 44 			halt
+3: 0 0 			push 0
+5: 44 			halt
+6: 0 10 		push 10
+8: 44 			halt
+9: 0 1 			push 1
+11: 44 			halt
+12: 0 0 		push 0
+14: 44 			halt
+15: 0 1 		push 1
+17: 44 			halt
+18: 0 0 		push 0
+20: 44 			halt
+21: 0 10 		push 10
+23: 44 			halt
+24: 0 1 		push 1
+26: 44 			halt
+27: 0 1 		push 1
+29: 44 			halt
+30: 0 0 		push 0
+32: 44 			halt
+33: 0 20 		push 20
+35: 44 			halt
+36: 0 1 		push 1
+38: 44 			halt
+39: 0 0 		push 0
+41: 44 			halt
+42: 0 1 		push 1
+44: 44 			halt
+45: 0 0 		push 0
+47: 44 			halt
+48: 0 20 		push 20
+50: 44 			halt
+51: 0 1 		push 1
+53: 44 			halt
+54: 0 1 		push 1
+56: 44 			halt
+57: 0 0 		push 0
+59: 44 			halt
+60: 0 1 		push 1
+62: 44 			halt
+63: 0 1 		push 1
+65: 44 			halt
+66: 0 1 		push 1
+68: 44 			halt
+69: 0 1 		push 1
+71: 44 			halt
+72: 23 2 0 		storeI 2 0
+75: 44 			halt
+76: 0 0 		push 0
+78: 44 			halt
+79: 0 1 		push 1
+81: 44 			halt
+82: 40 0 1 -19 		cexpri 0 1 -19
+86: 44 			halt
+87: 0 0 		push 0
+89: 44 			halt
+90: 0 1 		push 1
+92: 44 			halt
+93: 0 -10 		push -10
+95: 44 			halt
+96: 0 1 		push 1
+98: 44 			halt
+99: 0 0 		push 0
+101: 44 		halt
+102: 0 1 		push 1
+104: 44 		halt
+105: 0 1 		push 1
+107: 44 		halt
+108: 0 1 		push 1
+110: 44 		halt
+111: 23 2 0 		storeI 2 0
+114: 44 		halt
+115: 0 0 		push 0
+117: 44 		halt
+
+processes
+#index:initial:name
+0:3:P1
+
+locations
+#index:process:invariant
+3:0:15
+4:0:42
+5:0:60
+
+edges
+#process:source:target:guard:sync:update
+0:5:4:66:76:72
+0:3:5:82:99:96
+0:3:4:105:115:111
+
+expressions
+#address:reads:writes:text
+0:2::t
+6:::10
+9:::1
+15:2::t
+21:::10
+24:::1
+27:2::t
+33:::20
+36:::1
+42:2::t
+48:::20
+51:::1
+54:::1
+60:::1
+63:::1
+66:::1
+69:::1
+72::2:t = 0
+76:::0
+79:::1
+82:2::t >= 10
+90:2::t
+93:::-10
+96:::1
+99:::0
+102:::1
+105:::1
+108:::1
+111::2:t = 0
+115:::0

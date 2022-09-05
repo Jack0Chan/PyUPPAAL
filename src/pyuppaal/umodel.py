@@ -437,8 +437,8 @@ class UModel:
             all_patterns.append((monitor_pass_str, new_patterns))
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
-            new_umodel.mermaid
-
+            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
+            
             # 构造验证语句
             # 构造monitor.pass
             # !Monitor0.pass & !Monitor1.pass
