@@ -90,14 +90,15 @@ class UModel:
         temp_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
         with open(temp_path, "w") as f:
             f.write(mermaid_cg)
-        if save_path==None:
-            return None
-        if save_path.endswith(".svg") or save_path.endswith(".png") or save_path.endswith(".pdf"):
-            cmd='mmdc -i ' + temp_path + ' -o ' + save_path
-            # cmd = 'mmdc -i ' + temp_path + ' -o ' + save_path +' -t dark -b transparent'
-            # run('Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass',shell=True)
-            run(cmd, shell=True)
-            os.remove(temp_path)
+            
+        print("Communication Graph has been created successfully, you can covert .md to .png/ .svg/ .pdf on https://mermaid.live/edit")
+            
+        # if save_path==None:
+        #     return None
+        # if save_path.endswith(".svg") or save_path.endswith(".png") or save_path.endswith(".pdf"):
+        #     cmd='mmdc -i ' + temp_path + ' -o ' + save_path
+        #     run(cmd, shell=True)
+        #     os.remove(temp_path)
 
     def verify(self, trace_path: str) -> str:
         """

@@ -1,5 +1,8 @@
 # Introduction
 
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)   
+
+
 pyUPPAAL is a research tool that can simulate, verify and modify UPPAAL models with python. It can also help to analyze counter-examples in .xml format. Note that the implementations are based on verifyta and the built-in xml package.
 With this package, you can do
 
