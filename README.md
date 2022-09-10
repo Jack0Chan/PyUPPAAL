@@ -1,18 +1,14 @@
 # Introduction
 
+[doc](https://pyuppaal.readthedocs.io/en/latest/index.html)
+
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)   
 
+`pyuppaal` is a research tool that can simulate, verify and modify UPPAAL models with python. With this package, you can do
 
-pyUPPAAL is a research tool that can simulate, verify and modify UPPAAL models with python. It can also help to analyze counter-examples in .xml format. Note that the implementations are based on verifyta and the built-in xml package.
-With this package, you can do
-
-1. run any UPPAAL commands with multi-process that is valid with verifyta.
-
-2. modify a .xml model, including templates, declarations, system declarations, and queries. It has a powerful method find_all_patterns that can get all different untimed traces that can explain current inputs-obs.
-
-3. analyze a counter-example file, and return input-observation-based analysis.
-
-4. analyze the *SMC* simulation results.
+1. run any UPPAAL commands with multi-process that is valid with verifyta, and return the proof trace (or counter-example).
+2. modify a `.xml`  model, including templates, declarations, system declarations, and queries. It has a powerful method `find_all_patterns`  that can get all different untimed traces that can explain current property.
+4. (todo) analyze the *SMC* simulation results.
 
 
 
@@ -34,13 +30,7 @@ Begin by importing the `pyuppaal` module:
 
 ```python
 import pyuppaal as pyu
-```
-
-### Set verifyta path first!
-
-You **MUST** set the verifyta path firstly before verification!
-
-```python
+# verifyta path is required before any other operations
 pyu.set_verifyta_path(r'C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe')
 ```
 
