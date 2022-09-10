@@ -1,6 +1,6 @@
 # Introduction
 
-[![](https://img.shields.io/badge/docs-passing-brightgreen)](https://pyuppaal.readthedocs.io/en/latest/index.html)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan/pyuppaal)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
+[![](https://img.shields.io/badge/docs-passing-brightgreen)](https://pyuppaal.readthedocs.io/en/latest/index.html)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
 
 `pyuppaal` is a research tool that can simulate, verify and modify UPPAAL models with python. With this package, you can do
 
