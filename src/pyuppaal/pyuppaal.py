@@ -37,7 +37,7 @@ def get_timed_trace(model_path: str, trace_path: str, hold: bool = False):
     To emphasize, due to the limitation of verification return of `UPPAAL`, the trace is no longer a specific time, but a constraints of `gclk`, which makes it easier to generate a verification monitor, but is poor at dividing parameters.
 
     :param str model_path: the path of model file
-    :param str trace_path: the path of trace file
+    :param str trace_path: target trace file
     :param bool hold: determine whether retain intermediate file, e.g., `.if` and `.txt` file
     :return: a `SimTrace`
     """
