@@ -1,3 +1,5 @@
+"""umodel
+"""
 # support return typing UModel
 from __future__ import annotations
 
@@ -10,85 +12,78 @@ import xml.etree.cElementTree as ET
 
 from .datastruct import TimedActions
 from .verifyta import Verifyta
-from .iTools import UFactory, build_cg ,mermaid
+from .iTools import UFactory, build_cg ,Mermaid
 from .tracer import SimTrace, Tracer
 import os
 
-
 class UModel:
-    """
-    Load UPPAAL model for analysis, editing, verification storage and other operations.
-
-    :param str model_path: file path of Uppaal model
+    """Load UPPAAL model for analysis, editing, verification and other operations.
     """
 
     def __init__(self, model_path: str):
         self.__model_path: str = model_path
-        self.__element_tree: ET.ElementTree = ET.ElementTree(
-            file=self.model_path)
+        self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
 
     @property
     def model_path(self) -> str:
-        """
-        :return: file path of Uppaal model
+        """Current model path.
+
+        Returns:
+            str: Current model path.
         """
         return self.__model_path
 
     def save_as(self, new_model_path: str) -> UModel:
-        """
-        Store the model file to a new path with the original `model_path` changed.
+        """Save the model to a new path with `self.model_path` changed to `new_model_path`.
 
-        :param str new_model_path: a new path to store
-        :return: the saved Umodel
+        Args:
+            new_model_path (str): target model path.
+
+        Returns:
+            UModel: self.
         """
-        with open(new_model_path, 'w') as f:
-            self.__element_tree.write(
-                new_model_path, encoding="utf-8", xml_declaration=True)
+        with open(new_model_path, 'w', encoding='utf-8') as f:
+            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
         self.__model_path = new_model_path
-        return UModel(new_model_path)
-
-    def copy_as(self, new_model_path: str) -> UModel:
-        """
-        store the model file to a new path with the original `model_path` unchanged.
-
-        :param str new_model_path: a new path to store
-        :return: the copied Umodel
-        """
-        with open(new_model_path, 'w') as f:
-            self.__element_tree.write(
-                new_model_path, encoding="utf-8", xml_declaration=True)
-        return UModel(new_model_path)
+        return self
 
     def save(self) -> UModel:
-        """
-        Store the model file to the original path
+        """Save the current model.
 
-        :return: the original Umodel
+        Returns:
+            UModel: self.
         """
-        new_model_path = self.model_path
-        return self.save_as(new_model_path)
+        return self.save_as(self.model_path)
 
-    def get_communication_graph(self, save_path=None) -> None:
+    def copy_as(self, new_model_path: str) -> UModel:
+        """Make a copy of the current model and return the copied instance.
+
+        Args:
+            new_model_path (str): target copy file path.
+
+        Returns:
+            UModel: copied instance.
+        """
+        with open(new_model_path, 'w', encoding='utf-8') as f:
+            self.__element_tree.write(
+                new_model_path, encoding="utf-8", xml_declaration=True)
+        return UModel(new_model_path)
+
+    def get_communication_graph(self, save_path=None) -> Mermaid:
         """
         Get the communication graph of the Uppaal model with `.md`, `.svg`, `.png` or `.pdf` file.
 
         :param str save_path: the absolute path to save the file
         :return: None
-        """
-        
-        # if save_path is None:
-        # rfind: 找到最右边的index
-        # 如果直接从左find，那么下面这个路径就找不到
-        # ../AVNRT_Initial_straight.md
-        
+        """        
         mermaid_cg = build_cg(self.model_path)
         # do something with mermaid_cg
-        m=mermaid.Mermaid()
+        m=Mermaid()
         mermaid_cg = m.merge_mermaid(mermaid_cg)
         
         temp_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
-        with open(temp_path, "w") as f:
+        with open(temp_path, "w", encoding='utf-8') as f:
             f.write(mermaid_cg)
             
         print("Communication Graph has been created successfully, you can covert .md to .png/ .svg/ .pdf on https://mermaid.live/edit")
