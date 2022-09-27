@@ -1,3 +1,5 @@
+"""verifyta
+"""
 # support typing str | List[str]
 # https://github.com/microsoft/pylance-release/issues/513
 from __future__ import annotations
@@ -32,7 +34,7 @@ class Verifyta:
     __instance = None
     __is_first_init = True
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         if cls.__instance is None:
             cls.__instance = object.__new__(cls)
         return cls.__instance
@@ -49,6 +51,11 @@ class Verifyta:
 
     @property
     def verifyta_path(self) -> str:
+        """Get current verifyta path.
+
+        Returns:
+            str: current verifyta path.
+        """
         return self.__verifyta_path
 
     def __is_valid_verifyta_path(self, verifyta_path: str) -> bool:
@@ -134,8 +141,7 @@ class Verifyta:
         num_threads = int(num_threads)
         if num_threads < 1:
             raise ValueError("Number of threads should ≥ 1.")
-        
-        if num_threads == 1:
+        elif num_threads == 1:
             return [self.cmd(tmp_cmd) for tmp_cmd in cmds]
         else:
             p = ThreadPool(num_threads)
@@ -161,7 +167,7 @@ class Verifyta:
             raise FileNotFoundError(error_info)
         file_path, file_ext = os.path.splitext(model_path)
         if_path = file_path + '.if'
-        
+
         if file_ext != '.xml':
             error_info = f'model_path {model_path} should be xml format file.'
             raise ValueError(error_info)
@@ -170,7 +176,7 @@ class Verifyta:
         cmd_env = 'set UPPAAL_COMPILE_ONLY=1'
         cmd = cmd_env+"&&"+f'{self.__verifyta_path} {model_path} > {if_path}'
         self.cmd(cmd=cmd)
-        
+
         if not os.path.exists(if_path):
             error_info = f'if file {if_path} has not generated.'
             raise FileNotFoundError(error_info)
@@ -218,12 +224,12 @@ class Verifyta:
             raise ValueError(f"Number of threads should ≥ 1. Current value: {num_threads}.")
 
         # check model_path is only one model
-        if type(model_path) == str:
+        if isinstance(model_path, str):
             model_path = [model_path]
         len_model_path = len(model_path)
 
         # check verify_options is only one
-        if type(verify_options) == str:
+        if isinstance(verify_options, str):
             verify_options = [verify_options for _ in range(len_model_path)]
         len_verify_options = len(verify_options)
 
@@ -235,7 +241,7 @@ class Verifyta:
 
         # set uppaal environment variables
         cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self.__is_windows else "UPPAAL_COMPILE_ONLY="
-        
+
         cmds = []
         for i in range(len_model_path):
             model_i = model_path[i]
@@ -295,7 +301,7 @@ class Verifyta:
 
         # check whether trace_path is None
         if trace_path is None:
-            if type(model_path) == str:
+            if isinstance(model_path, str):
                 trace_path = os.path.splitext(model_path)[0] + '.xtr'
             else:
                 trace_path = [os.path.splitext(x)[0]+'.xtr' for x in model_path]
@@ -306,9 +312,9 @@ class Verifyta:
                          f'model_path: {type(model_path)}, trace_path:{type(trace_path)}.'
             raise TypeError(error_info)
         # check model_path is only one model, set parallel loop
-        elif type(model_path) == str:
+        elif isinstance(model_path, str):
             model_path, trace_path = [model_path], [trace_path]
-        
+
         len_model_path = len(model_path)
         len_trace_path = len(trace_path)
         # check model_path and trace_path len is same
@@ -316,14 +322,13 @@ class Verifyta:
             error_info = f'Length of model_path and trace_path are inconsistent\n' \
                          f'model_path: {len_model_path}, trace_path: {len_trace_path}'
             raise ValueError(error_info)
-        
-        if type(verify_options) == str:
+
+        if isinstance(verify_options, str):
             verify_options = [verify_options for _ in range(len_model_path)]
 
         options = []
         # 构造options然后让self.verify()处理任务
         for i in range(len_model_path):
-            model_i = model_path[i]
             trace_i = trace_path[i]
             verify_options_i = verify_options[i]
             if '-t ' not in verify_options_i:
