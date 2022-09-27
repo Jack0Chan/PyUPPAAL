@@ -173,10 +173,10 @@ class Verifyta:
             raise ValueError(error_info)
 
         # set uppaal environment variables
-        cmd_env = 'set UPPAAL_COMPILE_ONLY=1'
+        # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
+        cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
         cmd = cmd_env+"&&"+f'{self.__verifyta_path} {model_path} > {if_path}'
         self.cmd(cmd=cmd)
-
         if not os.path.exists(if_path):
             error_info = f'if file {if_path} has not generated.'
             raise FileNotFoundError(error_info)
@@ -229,8 +229,12 @@ class Verifyta:
         len_model_path = len(model_path)
 
         # check verify_options is only one
-        if isinstance(verify_options, str):
+        if verify_options is None:
+            verify_options = ['' for _ in range(len_model_path)]
+        elif isinstance(verify_options, str):
             verify_options = [verify_options for _ in range(len_model_path)]
+        else:
+            pass
         len_verify_options = len(verify_options)
 
         # check consistency
@@ -240,7 +244,7 @@ class Verifyta:
             raise ValueError(error_info)
 
         # set uppaal environment variables
-        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self.__is_windows else "UPPAAL_COMPILE_ONLY="
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=0' if self.__is_windows else "UPPAAL_COMPILE_ONLY=0"
 
         cmds = []
         for i in range(len_model_path):

@@ -60,21 +60,6 @@ def cmds_loop(cmds: List[str]):
     return Verifyta().cmds_loop(cmds)
 
 
-def cmds_process(cmds: List[str], num_process: int = None):
-    """
-    Warning: multiprocess may be slower than single-process or multi-threads.
-
-    run a list of commands and return results.
-
-    if num_process is not given, it will run with num cpu cores.
-
-    if num_process is 1, it's better run with `self.cmd`.
-
-    :return: running cmds and associated result
-    """
-    return Verifyta().cmd_process(cmds, num_process)
-
-
 def cmds_threads(cmds: List[str], num_threads: int = None):
     """
     Run a list of commands and return results.
