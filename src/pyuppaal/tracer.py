@@ -1,16 +1,22 @@
 """tracer example:
-State: P2.A t(0)-P2.t<=0 P2.t-t(0)<=10
-
-Transition: P2.A -> P2.B {t >= 10; 0; 1;}
-
-State: P2.B t(0)-P2.t<=-10 P2.t-t(0)<=10
-
-Transition: P2.B -> P2.C {1; 0; 1;}
-
-State: P2.C t(0)-P2.t<=-10 P2.t-t(0)<=20
+State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Idle Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
+State: Cars.Idle TrafficLights._id8 LV1Pedestrian2.CheckTL Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+Transition: TrafficLights._id8 -> TrafficLights.cRed_pGreen {1; pGreen!; 1;} LV1Pedestrian2.CheckTL -> LV1Pedestrian2._id27 {1; pGreen?; 1;}
+State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2._id27 Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+Transition: LV1Pedestrian2._id27 -> LV1Pedestrian2.Crossing {1; pCrss!; tp = 0;} Cars.Idle -> Cars.Idle {1; pCrss?; 1;}
+State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tp-tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+Transition: TrafficLights.cRed_pGreen -> TrafficLights.cRed_pYellow {tTL >= 55; 0; tTL = 0;}
+State: Cars.Idle TrafficLights.cRed_pYellow LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=-55 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=60 tTL-Cars.tc<=0 tTL-LV1Pedestrian2.tp<=55 Cars.tc-TrafficLights.tTL<=55 TrafficLights.tTL-LV1Pedestrian2.tTL<=-55 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0
+Transition: TrafficLights.cRed_pYellow -> TrafficLights.cGreen_pRed {tTL >= 5; 0; tTL = 0;}
+State: Cars.Idle TrafficLights.cGreen_pRed LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=-60 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-Cars.tc<=0 tTL-LV1Pedestrian2.tp<=55 Cars.tc-TrafficLights.tTL<=60 TrafficLights.tTL-LV1Pedestrian2.tTL<=-60 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0
+Transition: Cars.Idle -> Cars.CheckTL {tc >= 1; cWantCrss!; 1;} TrafficLights.cGreen_pRed -> TrafficLights._id5 {1; cWantCrss?; 1;}
+State: Cars.CheckTL TrafficLights._id5 LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=-60 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-Cars.tc<=0 tTL-LV1Pedestrian2.tp<=55 Cars.tc-TrafficLights.tTL<=60 TrafficLights.tTL-LV1Pedestrian2.tTL<=-60 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0
+Transition: TrafficLights._id5 -> TrafficLights.cGreen_pRed {1; cGreen!; 1;} Cars.CheckTL -> Cars.Crossing {1; cGreen?; tc = 0;}
+State: Cars.Crossing TrafficLights.cGreen_pRed LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-TrafficLights.tTL<=60 tTL-LV1Pedestrian2.tp<=55 Cars.tc-t(0)<=1 Cars.tc-tTL<=-60 TrafficLights.tTL-LV1Pedestrian2.tTL<=-60 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0 
 
 使用方法 ./trace_custom.exe xxx.if xxx.xtr your_output.txt
-注意输入要是LF行尾，不能是CRLF，否则会报错unknown section
+注意输入要是LF行尾, 不能是CRLF, 否则会报错unknown section
 """
 # 这一行的import能够指定class的method返回自身类
 # 参考链接：https://www.nuomiphp.com/eplan/11188.html
@@ -98,14 +104,11 @@ class ClockZone:
 
     def __str__(self):
         if self.clockzones:
-            tmp = '; '.join(self.__clockzones)
-        return f'[{tmp}]'
-        # if len(self.clockzones) > 0:
-        #     res = '['
-        #     for i in range(len(self.clockzones)):
-        #         res += f'{self.clockzones[i].__str__()}; '
-        #     res += ']'
-        # return res
+            res = '['
+            for clock_zone in self.clockzones:
+                res += f'{clock_zone.__str__()}; '
+            res += ']'
+            return res
 
     def __repr__(self):
         return self.__str__()
@@ -121,7 +124,13 @@ class ClockZone:
 
 
 class Edges:
-    """process.start_location -> process.end_location: {guard, sync, update}.
+    """`Edges` are components of `Transition`. One Transition contains at least one Edge. 
+    If more than 1 Edges are contained, it means that there is sync occurred. On this condition, Edges[0] is the sender(!) and others are reveivers(?).
+
+    An Edge looks like this: 
+    process.start_location -> process.end_location: {guard, sync, update}.
+    A Transition looks like this:
+    Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
     """
     def __init__(self, start_location: str, end_location: str, guard: str, sync: str, update: str):
         """process.start_location -> process.end_location: {guard, sync, update}
@@ -138,12 +147,16 @@ class Edges:
         self.__guard: str = guard
         self.__sync: str = sync
         self.__update: str = update
+        # one edge has only one process
         self.__process: str = self.start_location.split('.')[0]
 
     def __str__(self):
         res = f'{self.process}.{self.start_location} -> {self.process}.{self.end_location}:'
         res = res + f'{{{self.guard};{self.sync};{self.update}}}'
         return res
+
+    def __repr__(self):
+        return self.__str__()
 
     @property
     def start_location(self) -> str:
@@ -165,12 +178,23 @@ class Edges:
 
     @property
     def guard(self) -> str:
-        """_summary_
+        """If `guard == '1'`, it means the edge does not have a guard.
 
         Returns:
             str: _description_
         """
         return self.__guard
+
+    @property
+    def has_guard(self) -> bool:
+        """Whether the edge has a gurad.
+        
+        If `guard == '1'`, it means the edge does not have a guard.
+
+        Returns:
+            bool: _description_
+        """
+        return self.guard == '1'
 
     @property
     def sync(self) -> str:
@@ -192,7 +216,7 @@ class Edges:
 
     @property
     def process(self) -> str:
-        """_summary_
+        """One edge has only one process.
 
         Returns:
             str: _description_
@@ -200,34 +224,13 @@ class Edges:
         return self.__process
 
     @property
-    def is_sync(self) -> str:
+    def is_sync(self) -> bool:
         """_summary_
 
         Returns:
-            str: _description_
+            bool: _description_
         """
         return self.sync[-1] == '!' or self.sync[-1] == '?'
-
-    @property
-    def sync_symbol(self) -> str:
-        """_summary_
-
-        Returns:
-            str: _description_
-        """
-        if self.is_sync:
-            return self.sync[:-1]
-        else:
-            return None
-
-    @property
-    def is_guard(self) -> str:
-        """_summary_
-
-        Returns:
-            str: _description_
-        """
-        return self.guard != '1'
 
     @property
     def sync_type(self) -> str:
@@ -241,9 +244,27 @@ class Edges:
         else:
             return None
 
+    @property
+    def sync_symbol(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        if self.is_sync:
+            return self.sync[:-1]
+        else:
+            return None
+
 
 class Transition:
-    """_summary_
+    """One `Transition` contains at least one `Edge`. 
+    If more than 1 Edges are contained, it means that there is sync occurred. On this condition, Edges[0] is the sender(!) and others are reveivers(?).
+
+    An Edge looks like this: 
+    process.start_location -> process.end_location: {guard, sync, update}.
+    A Transition looks like this:
+    Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
     """
     def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[Edges] = None):
         """_summary_
@@ -266,6 +287,9 @@ class Transition:
         else:
             res = f'{self.sync}: {self.start_process} -> {self.end_process}'
         return res
+
+    def __repr__(self):
+        return self.__str__()
 
     @property
     def sync(self) -> str:
@@ -300,41 +324,94 @@ class GlobalVar:
         self.variables_value: List[float] = variables_value
 
     def __str__(self):
-        res = f'[]'
-        if len(self.variables_name) > 0:
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        if self.variables_name:
             res = '['
             for i in range(len(self.variables_name)):
                 res += f'{self.variables_name[i]}={self.variables_value[i]}; '
             res += ']'
-        return res
+            return res
+    
+    def __repr__(self):
+        return self.__str__()
 
 
 class SimTrace:
-    def __init__(self, states: List[List[str]] = [],
-                 clock_constraints: List[ClockZone] = [],
-                 transitions: List[Transition] = [],
-                 global_variables: List[GlobalVar] = []):
-        """
-        第i个state和第i个transition有相同的clock constraints
+    """_summary_
+    """
+    def __init__(self, trace_string: str, parse_raw: bool = True):
+        """第i个state和第i个transition有相同的clock constraints
+       
         第i个transition前面跟第i个state, 详情看__str__()
-        """
-        self.__states: List[List[str]] = states
-        self.__global_variables: List[GlobalVar] = global_variables
-        self.__clock_constraints: List[ClockZone] = clock_constraints
-        self.__transitions: List[Transition] = transitions
-        self.__raw: str = ''
 
-        # check length correct
-        # is_equal_conlen = len(self.__states) == len(self.__clock_constraints)
-        # is_equal_tralen = len(self.__states) == len(
-        #     self.__transitions) + 1 or (len(self.__states) == len(self.__transitions) == 0)
-        # if not (is_equal_conlen and is_equal_tralen):
-        #     raise ValueError(f'length should satisfy: len(states) == len(clock_constraints) == len(transitions) + 1\n'
-        #                      f'current length: len(states) = {len(self.__states)}, '
-        #                      f'len(clock_constraints) = {len(self.__clock_constraints)}, '
-        #                      f'len(transitions) + 1 = {len(self.__transitions)+1}.')
+        Args:
+            trace_string (str): _description_
+            parse_raw (bool, optional): whether parse the raw trace string to components. Defaults to True.
+        """
+        self.__raw: str = trace_string
+        self.__states: List[List[str]] = None
+        self.__global_variables: List[GlobalVar] = None
+        self.__clock_constraints: List[ClockZone] = None
+        self.__transitions: List[Transition] = None
+        self.__is_parse_raw = parse_raw
+        if self.__is_parse_raw:
+            self.__parse_raw()
 
     def __str__(self):
+        """_summary_
+
+            State [0]: ['Cars.Idle', 'TrafficLights.cRed_pGreen', 'LV1Pedestrian2.Idle']
+            global_variables [0]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [0]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tp ≤ 0; LV1Pedestrian2.tp - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [0]: pWantCrss: LV1Pedestrian2 -> ['TrafficLights']
+            -----------------------------------
+            State [1]: ['Cars.Idle', 'TrafficLights._id8', 'LV1Pedestrian2.CheckTL']
+            global_variables [1]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [1]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tp ≤ 0; LV1Pedestrian2.tp - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [1]: pGreen: TrafficLights -> ['LV1Pedestrian2']
+            -----------------------------------
+            State [2]: ['Cars.Idle', 'TrafficLights.cRed_pGreen', 'LV1Pedestrian2._id27']
+            global_variables [2]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [2]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tp ≤ 0; LV1Pedestrian2.tp - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [2]: pCrss: LV1Pedestrian2 -> ['Cars']
+            -----------------------------------
+            State [3]: ['Cars.Idle', 'TrafficLights.cRed_pGreen', 'LV1Pedestrian2.Crossing']
+            global_variables [3]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [3]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tp - tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [3]: None: TrafficLights.cRed_pGreen -> TrafficLights.cRed_pYellow
+            -----------------------------------
+            State [4]: ['Cars.Idle', 'TrafficLights.cRed_pYellow', 'LV1Pedestrian2.Crossing']
+            global_variables [4]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [4]: [t(0) - tTL ≤ -55; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 60; tTL - Cars.tc ≤ 0; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - TrafficLights.tTL ≤ 55; TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -55; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [4]: None: TrafficLights.cRed_pYellow -> TrafficLights.cGreen_pRed
+            -----------------------------------
+            State [5]: ['Cars.Idle', 'TrafficLights.cGreen_pRed', 'LV1Pedestrian2.Crossing']
+            global_variables [5]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [5]: [t(0) - tTL ≤ -60; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - Cars.tc ≤ 0; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - TrafficLights.tTL ≤ 60; 
+            TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -60; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [5]: cWantCrss: Cars -> ['TrafficLights']
+            -----------------------------------
+            State [6]: ['Cars.CheckTL', 'TrafficLights._id5', 'LV1Pedestrian2.Crossing']
+            global_variables [6]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [6]: [t(0) - tTL ≤ -60; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - Cars.tc ≤ 0; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - TrafficLights.tTL ≤ 60; 
+            TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -60; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+            transitions [6]: cGreen: TrafficLights -> ['Cars']
+            -----------------------------------
+            State [7]: ['Cars.Crossing', 'TrafficLights.cGreen_pRed', 'LV1Pedestrian2.Crossing']
+            global_variables [7]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
+            Clock_constraints [7]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - TrafficLights.tTL ≤ 60; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - t(0) ≤ 1; Cars.tc - tTL ≤ -60; TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -60; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
+
+        Returns:
+            _type_: _description_
+        """
+        if not self.__is_parse_raw:
+            self.__is_parse_raw = True
+            self.__parse_raw()
+
         res = ''
         for i in range(len(self.__states)):
             res += f'State [{i}]: {self.__states[i].__str__()}\n'
@@ -345,12 +422,78 @@ class SimTrace:
                 res += f'-----------------------------------\n'
         return res
 
+    def __repr__(self):
+        return self.__str__()
+
+    def __parse_raw(self):
+        """Parse raw string to components.
+        """
+        trace_text = self.__raw
+        clock_constraints, states, global_variables, transitions = [], [], [], []
+        for tr_ind in range(len(trace_text)):
+            state_text, globalvar_name, globalvar_val, clockzones_text, transitions_text = [], [], [], [], []
+            if trace_text[tr_ind].startswith('State'):
+                tmp_trace_i = trace_text[tr_ind][7:].strip().split(' ')
+                for tr_sub in range(len(tmp_trace_i)):
+                    if ("=" in tmp_trace_i[tr_sub]) and ('<' not in tmp_trace_i[tr_sub]):
+                        # globalvariables
+                        var_name, var_val = tmp_trace_i[tr_sub].split('=')
+                        globalvar_name.append(var_name.strip())
+                        globalvar_val.append(var_val.strip())
+                    elif ('<' in tmp_trace_i[tr_sub]) and ('-' in tmp_trace_i[tr_sub]):
+                        # clockzones
+                        clocks, clk_bound = [x.strip() for x in tmp_trace_i[tr_sub].split('<')]
+                        clock1, clock2 = [x.strip() for x in clocks.split('-')]
+                        if clk_bound[0] == '=':
+                            clk_bound = clk_bound[1:]
+                            is_equal = True
+                        else:
+                            is_equal = False
+                        clkzone = OneClockZone(clock1=clock1.strip(), clock2=clock2.strip(' '),
+                                            is_equal=is_equal, bound_value=clk_bound.strip(' '))
+                        clockzones_text.append(clkzone)
+                    else:
+                        # state
+                        state_text.append(tmp_trace_i[tr_sub].strip())
+                clock_constraints.append(ClockZone(clockzones_text))
+                states.append(state_text)
+                global_variables.append(GlobalVar(globalvar_name, globalvar_val))
+            elif trace_text[tr_ind].startswith('Transition'):
+                tmp_trace_i = trace_text[tr_ind][12:].strip().split('}')[:-1]
+                edges_list = []
+                end_process = []
+                sync_symbol = None
+                start_process = None
+                for tr_sub in range(len(tmp_trace_i)):
+                    trans_comp, edge_trans = tmp_trace_i[tr_sub].split('{')
+                    start_location, end_location = [x.strip() for x in trans_comp.split('->')]
+                    guard, sync, update = [x.strip() for x in edge_trans.split(';')[:-1]]
+                    # strip
+                    tmp_edge = Edges(start_location, end_location, guard, sync, update)
+                    if tmp_edge.sync_type == 'send':
+                        start_process = tmp_edge.process
+                        sync_symbol = tmp_edge.sync_symbol
+                    elif tmp_edge.sync_type == 'receive':
+                        end_process.append(tmp_edge.process)
+                    else:
+                        start_process = tmp_edge.process
+                        end_process.append(tmp_edge.process)
+                    edges_list.append(tmp_edge)
+                transitions.append(Transition(sync=sync_symbol, start_process=start_process,
+                                              end_process=end_process, edges=edges_list))
+            else:
+                pass
+        self.__states = states
+        self.__clock_constraints = clock_constraints
+        self.__transitions = transitions
+        self.__global_variables = global_variables
+
     @property
     def raw(self) -> str:
-        """Raw data of the trace.
+        """Original raw string of the trace.
 
         Returns:
-            str: Raw data of the trace.
+            str: Original raw string of the trace.
         """
         return self.__raw
 
@@ -374,12 +517,6 @@ class SimTrace:
     def get_untime_pattern(self) -> List[str]:
         return self.actions
 
-    def set_empty(self) -> None:
-        self.__states: List[List[str]] = []
-        self.__global_variables: List[GlobalVar] = []
-        self.__clock_constraints: List[ClockZone] = []
-        self.__transitions: List[Transition] = []
-
     def filter_by_index(self, index_array: List[int]) -> SimTrace:
         # 用__slice__方法改写
         """Filter the corresponding `SimTrace` by index.
@@ -398,7 +535,7 @@ class SimTrace:
         return new_simtrace
 
     def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
-        """Filter the edges by actions
+        """Filter the transitions by actions.
 
         Args:
             focused_actions (List[str], optional): actions that you take cares of.
@@ -448,81 +585,19 @@ class Tracer:
         cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path} {trace_txt}'
         cmd_res = os.popen(cmd_command).read()
         # debug
-        print(cmd_command)
-        print(cmd_res)
+        # print(cmd_command)
+        # print(cmd_res)
         
         # check file exist
         if not os.path.exists(trace_txt):
-            error_info = f'trace txt file {trace_txt} has not generated.'
+            error_info = f'Trace txt file {trace_txt} is not generated.'
             raise FileNotFoundError(error_info)
         # load trace txt file
         f = open(trace_txt, 'r')
         trace_text = f.readlines()
         f.close()
-        # construct SimulationTrace instance
-        clock_constraints, states, global_variables, transitions = [], [], [], []
-        for tr_ind in range(len(trace_text)):
-            state_text, globalvar_name, globalvar_val, clockzones_text, transitions_text = [], [], [], [], []
-            if trace_text[tr_ind].startswith('State'):
-                tmp_trace_i = trace_text[tr_ind][7:].strip().split(' ')
-                # print(trace_text[tr_ind][7:].strip())
-                for tr_sub in range(len(tmp_trace_i)):
-                    if ("=" in tmp_trace_i[tr_sub]) and ('<' not in tmp_trace_i[tr_sub]):
-                        # globalvariables
-                        var_name, var_val = tmp_trace_i[tr_sub].split('=')
-                        globalvar_name.append(var_name.strip())
-                        globalvar_val.append(var_val.strip())
-                    elif ('<' in tmp_trace_i[tr_sub]) and ('-' in tmp_trace_i[tr_sub]):
-                        # clockzones
-                        # print(tmp_trace_i[tr_sub])
-                        clocks, clk_bound = [x.strip() for x in tmp_trace_i[tr_sub].split('<')]
-                        clock1, clock2 = [x.strip() for x in clocks.split('-')]
-                        if clk_bound[0] == '=':
-                            clk_bound = clk_bound[1:]
-                            is_equal = True
-                        else:
-                            is_equal = False
-                        clkzone = OneClockZone(clock1=clock1.strip(), clock2=clock2.strip(' '),
-                                            is_equal=is_equal, bound_value=clk_bound.strip(' '))
-                        clockzones_text.append(clkzone)
-                    else:
-                        # state
-                        state_text.append(tmp_trace_i[tr_sub].strip())
-                clock_constraints.append(ClockZone(clockzones_text))
-                states.append(state_text)
-                global_variables.append(GlobalVar(
-                    globalvar_name, globalvar_val))
-                # print(clockzones_text[0].__str__())
-                # print(state_text)
-                # print(globalvar_name, globalvar_val)
-            elif trace_text[tr_ind].startswith('Transition'):
-                tmp_trace_i = trace_text[tr_ind][12:].strip().split('}')[:-1]
-                edges_list = []
-                end_process = []
-                sync_symbol = None
-                start_process = None
-                for tr_sub in range(len(tmp_trace_i)):
-                    trans_comp, edge_trans = tmp_trace_i[tr_sub].split('{')
-                    start_location, end_location = [x.strip() for x in trans_comp.split('->')]
-                    guard, sync, update = [x.strip() for x in edge_trans.split(';')[:-1]]
-                    # strip
-                    tmp_edge = Edges(
-                        start_location, end_location, guard, sync, update)
-                    if tmp_edge.sync_type == 'send':
-                        start_process = tmp_edge.process
-                        sync_symbol = tmp_edge.sync_symbol
-                    elif tmp_edge.sync_type == 'receive':
-                        end_process.append(tmp_edge.process)
-                    else:
-                        start_process = tmp_edge.process
-                        end_process.append(tmp_edge.process)
-                    edges_list.append(tmp_edge)
-                transitions.append(Transition(sync=sync_symbol, start_process=start_process,
-                                              end_process=end_process, edges=edges_list))
-            else:
-                pass
         # remove if and txt file
         if not hold:
             os.remove(if_file)
             os.remove(trace_txt)
-        return SimTrace(states, clock_constraints, transitions, global_variables)
+        return SimTrace(trace_text)

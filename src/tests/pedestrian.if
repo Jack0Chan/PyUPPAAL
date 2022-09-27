@@ -1,9 +1,0 @@
-Options for the verification:
-  Generating no trace
-  Search order is breadth first
-  Using conservative space optimisation
-  Seed is 1664257751
-  State space representation uses minimal constraint systems
-[2K
-Verifying formula 1 at /nta/queries/query[1]/formula
-[2K -- Formula is NOT satisfied.
