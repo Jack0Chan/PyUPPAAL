@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+chan m1, m3, m4, m2;
+clock x;</declaration>
+	<template>
+		<name x="5" y="5">A</name>
+		<declaration>// Place local declarations here.
+</declaration>
+		<location id="id0" x="16" y="-40">
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="0" y="32">m2?</label>
+			<nail x="56" y="32"/>
+			<nail x="-24" y="32"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="0" y="-136">m4?</label>
+			<nail x="-24" y="-112"/>
+			<nail x="56" y="-112"/>
+		</transition>
+	</template>
+	<template>
+		<name>B</name>
+		<location id="id1" x="0" y="96">
+			<name x="-8" y="128">loc2</name>
+			<label kind="invariant" x="-10" y="111">x&lt;=5</label>
+		</location>
+		<location id="id2" x="0" y="-48">
+			<name x="-16" y="-96">loc1</name>
+			<label kind="invariant" x="-16" y="-80">x&lt;=5</label>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="32" y="0">m2!</label>
+			<nail x="24" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-64" y="0">x&gt;=3</label>
+			<label kind="synchronisation" x="-64" y="15">m1!</label>
+			<nail x="-24" y="24"/>
+		</transition>
+	</template>
+	<template>
+		<name>C</name>
+		<location id="id3" x="96" y="96">
+			<name x="80" y="112">loc5</name>
+			<committed/>
+		</location>
+		<location id="id4" x="0" y="96">
+			<name x="-16" y="112">loc4</name>
+		</location>
+		<location id="id5" x="0" y="0">
+			<name x="-10" y="-30">loc3</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="96" y="24">m4!</label>
+			<nail x="96" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-32" y="40">m1?</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="32" y="96">m3!</label>
+		</transition>
+	</template>
+	<template>
+		<name>D</name>
+		<location id="id6" x="0" y="104">
+		</location>
+		<location id="id7" x="0" y="0">
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<nail x="-32" y="104"/>
+			<nail x="-32" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-8" y="152">m4?</label>
+			<nail x="-16" y="152"/>
+			<nail x="24" y="152"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="8" y="32">m3?</label>
+		</transition>
+	</template>
+	<lsc>
+		<name>LscTemplate</name>
+		<parameter>int a, int b</parameter>
+		<type>Universal</type>
+		<mode>Invariant</mode>
+		<declaration>// Place local declarations here.
+</declaration>
+		<yloccoord number="0" y="0"/>
+		<yloccoord number="1" y="56"/>
+		<yloccoord number="2" y="104"/>
+		<yloccoord number="3" y="144"/>
+		<yloccoord number="4" y="168"/>
+		<yloccoord number="5" y="220"/>
+		<instance id="id8" x="432" y="0">
+			<name x="0" y="0">D</name>
+		</instance>
+		<instance id="id9" x="288" y="0">
+			<name x="0" y="0">C</name>
+		</instance>
+		<instance id="id10" x="144" y="0">
+			<name x="0" y="0">B</name>
+		</instance>
+		<instance id="id11" x="0" y="0">
+			<name x="0" y="0">A</name>
+		</instance>
+		<prechart x="0" y="104">
+			<lsclocation>2</lsclocation>
+		</prechart>
+		<message x="0" y="144">
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<lsclocation>3</lsclocation>
+			<label kind="message" x="61" y="-18">m2</label>
+		</message>
+		<message x="0" y="168">
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<lsclocation>4</lsclocation>
+			<label kind="message" x="357" y="-18">m3</label>
+		</message>
+		<message x="0" y="56">
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<lsclocation>1</lsclocation>
+			<label kind="message" x="205" y="-18">m1</label>
+		</message>
+		<condition x="0" y="56">
+			<anchor instanceid="id9"/>
+			<lsclocation>1</lsclocation>
+			<temperature>cold</temperature>
+			<label kind="condition">x &gt;=b</label>
+		</condition>
+		<condition x="0" y="144">
+			<anchor instanceid="id11"/>
+			<lsclocation>3</lsclocation>
+			<temperature>hot</temperature>
+			<label kind="condition">x &gt;= a</label>
+		</condition>
+	</lsc>
+	<system>// Place template instantiations here.
+Scenario = LscTemplate(2,3);
+
+// List one or more processes to be composed into a system.
+system A, B, C, D;
+</system>
+	<queries>
+		<query>
+			<formula>sat: Scenario
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

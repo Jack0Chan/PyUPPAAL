@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/uppaal-ta">
+    <glob pattern="*.ta" weight="80"/>
+    <sub-class-of type="text/plain"/>
+    <alias type="application/vnd.uppaal-ta"/>
+    <alias type="application/x-uppaal-ta"/>
+    <generic-icon name="uppaal-icon"/>
+  </mime-type>
+</mime-info>

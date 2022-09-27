@@ -1,0 +1,7 @@
+How to Install Uppaal
+=====================
+
+1) Install Java version 11 or higher from https://adoptium.net/
+2) Remove the quarantine attribute:
+   xattr -rd com.apple.quarantine uppaal*
+3) Double click on uppaal script to launch

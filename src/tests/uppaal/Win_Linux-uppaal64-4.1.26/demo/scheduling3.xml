@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>const int N = 4;          // Number of tasks.
+typedef int[0,N-1] pid_t; // Process IDs.
+
+chan	done, ready, run, stop;
+clock 	time;
+
+const int E[pid_t] = { 20, 20, 10, 10 };		// 
+const int L[pid_t] = { 40, 20, 10, 10 };		// [ E[i] , L[i] ] Ready interval
+const int D[pid_t] = { 40, 20, 10, 10 };		// Deadlines
+const int C[pid_t] = {  5,  4,  2,  1 };    	// Computation Times
+const int P[pid_t] = {  1,  2,  3,  4 };		// Priorities
+
+// Task queue
+pid_t queue[pid_t];
+int[0,N] len = N;
+
+void initialize()
+{
+  // Bubble-sort tasks into the queue.
+  bool picked[pid_t];
+  for(i : pid_t)
+  {
+    int max = -1, t = -1;
+    for(j : pid_t)
+    {
+      if (!picked[j] &amp;&amp; P[j] &gt; max)
+      {
+        max = P[j];
+        t = j;
+      }
+    }
+    picked[t] = true;
+    queue[i] = t;
+  }
+}
+
+pid_t head()   { return queue[0]; }
+bool isEmpty() { return len == 0; }
+
+void add(pid_t id)
+{
+  pid_t i, tmp;
+  queue[len] = id;
+  for(i = len ; i &gt; 0 &amp;&amp; P[queue[i]] &gt; P[queue[i-1]]; --i)
+  {
+    tmp = queue[i];
+    queue[i] = queue[i-1];
+    queue[i-1] = tmp;
+  }
+  len++;
+}
+
+void remove()
+{
+  int i;
+  for(i = 0; i+1 &lt; N; ++i) { queue[i] = queue[i+1]; }
+  queue[--len] = 0;
+}
+</declaration>
+	<template>
+		<name x="40" y="16">Task</name>
+		<parameter>const pid_t id</parameter>
+		<declaration>clock ax, t;
+</declaration>
+		<location id="id0" x="32" y="64">
+			<name x="22" y="34">Idle</name>
+			<label kind="invariant" x="48" y="56">t&lt;=L[id]</label>
+		</location>
+		<location id="id1" x="32" y="192">
+			<name x="40" y="152">Ready</name>
+		</location>
+		<location id="id2" x="32" y="320">
+			<name x="8" y="288">Running</name>
+			<label kind="invariant" x="0" y="336">ax&lt;=C[id]</label>
+		</location>
+		<location id="id3" x="32" y="480">
+			<name x="16" y="448">Blocked</name>
+			<label kind="invariant" x="8" y="496">ax'==0</label>
+		</location>
+		<location id="id4" x="192" y="320">
+			<name x="176" y="288">Error</name>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="48" y="80">t&gt;=E[id]</label>
+			<label kind="synchronisation" x="48" y="96">ready!</label>
+			<label kind="assignment" x="48" y="112">t=0,
+add(id)</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="40" y="208">head()==id</label>
+			<label kind="synchronisation" x="40" y="224">run?</label>
+			<label kind="assignment" x="40" y="240">ax=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-24" y="392">stop?</label>
+			<nail x="-32" y="352"/>
+			<nail x="-32" y="448"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="104" y="392">head()==id</label>
+			<label kind="synchronisation" x="104" y="376">run?</label>
+			<nail x="96" y="448"/>
+			<nail x="96" y="352"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-136" y="144">head() == id &amp;&amp;
+ax&gt;=C[id]</label>
+			<label kind="synchronisation" x="-80" y="176">done!</label>
+			<label kind="assignment" x="-104" y="192">remove()</label>
+			<nail x="-32" y="288"/>
+			<nail x="-32" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="112" y="168">t&gt;D[id]</label>
+			<nail x="192" y="192"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="112" y="296">t&gt;D[id]</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="112" y="480">t&gt;D[id]</label>
+			<nail x="192" y="480"/>
+		</transition>
+	</template>
+	<template>
+		<name x="40" y="16">Scheduler</name>
+		<location id="id5" x="32" y="56">
+			<name x="22" y="26">Init</name>
+			<committed/>
+		</location>
+		<location id="id6" x="32" y="144">
+			<name x="40" y="112">Free</name>
+			<committed/>
+		</location>
+		<location id="id7" x="32" y="216">
+		</location>
+		<location id="id8" x="32" y="288">
+			<name x="-16" y="256">Select</name>
+			<committed/>
+		</location>
+		<location id="id9" x="32" y="400">
+			<name x="40" y="368">Occ</name>
+		</location>
+		<location id="id10" x="-40" y="344">
+			<committed/>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="40" y="72">initialize()</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-40" y="168">isEmpty()</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-16" y="232">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-64" y="120">!isEmpty()</label>
+			<nail x="-64" y="144"/>
+			<nail x="-64" y="288"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-48" y="368">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="104" y="240">done?</label>
+			<nail x="96" y="400"/>
+			<nail x="96" y="144"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="40" y="328">run!</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-48" y="304">stop!</label>
+		</transition>
+	</template>
+	<system>system Task, Scheduler;
+
+gantt {
+  Task(i : pid_t): Task(i).Ready -&gt; 16,
+                   Task(i).Running -&gt; 2,
+                   Task(i).Blocked -&gt; 3;
+}
+</system>
+	<queries>
+		<query>
+			<formula>A[] forall(i : pid_t) not Task(i).Error
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

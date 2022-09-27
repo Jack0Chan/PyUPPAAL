@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+broadcast chan user_coin, coin_in, coin_back;
+broadcast chan big_reward, small_reward, zero_reward;
+
+clock gclk;
+
+// CoinPort
+const int tERP_MIN = 900;
+const int tERP_MAX = 1000;
+
+// Bandit
+const int tGood_Min = 200;
+const int tGood_Max = 300;
+
+const int tBad_Min = 200;
+const int tBad_Max = 300;</declaration>
+	<template>
+		<name x="5" y="5">CoinPort</name>
+		<declaration>// Place local declarations here.
+clock t;</declaration>
+		<location id="id0" x="-323" y="-25">
+			<name x="-357" y="-51">Idle</name>
+		</location>
+		<location id="id1" x="-212" y="-25">
+			<committed/>
+		</location>
+		<location id="id2" x="-110" y="-25">
+			<name x="-135" y="-51">ERP</name>
+			<label kind="invariant" x="-153" y="-68">t&lt;=tERP_MAX</label>
+		</location>
+		<location id="id3" x="0" y="-25">
+			<committed/>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-93" y="0">coin_back!</label>
+			<nail x="0" y="17"/>
+			<nail x="-110" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-272" y="-93">t&gt;=tERP_MIN</label>
+			<nail x="-110" y="-76"/>
+			<nail x="-323" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-92" y="-42">user_coin?</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-195" y="-42">coin_in!</label>
+			<label kind="assignment" x="-178" y="-25">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-306" y="-42">user_coin?</label>
+		</transition>
+	</template>
+	<template>
+		<name>Bandit</name>
+		<declaration>clock t;</declaration>
+		<location id="id4" x="-211" y="-68">
+			<name x="-262" y="-76">Good</name>
+			<label kind="invariant" x="-322" y="-102">t&lt;=tGood_Max</label>
+		</location>
+		<location id="id5" x="-212" y="76">
+			<name x="-263" y="67">Bad</name>
+			<label kind="invariant" x="-323" y="50">t&lt;=tBad_Max</label>
+		</location>
+		<location id="id6" x="-102" y="-68">
+			<committed/>
+		</location>
+		<location id="id7" x="-102" y="76">
+			<committed/>
+		</location>
+		<location id="id8" x="69" y="-68">
+			<committed/>
+		</location>
+		<location id="id9" x="68" y="76">
+			<committed/>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-67" y="76">zero_reward!</label>
+			<nail x="-67" y="93"/>
+			<nail x="34" y="93"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="-119" y="-136">t=tGood_Max</label>
+			<nail x="69" y="-119"/>
+			<nail x="-211" y="-119"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-102" y="119">t=tBad_Max</label>
+			<nail x="68" y="118"/>
+			<nail x="-212" y="118"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-67" y="42">small_reward!</label>
+			<nail x="-67" y="59"/>
+			<nail x="35" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-68" y="-68">small_reward!</label>
+			<nail x="-65" y="-51"/>
+			<nail x="36" y="-51"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-58" y="-102">big_reward!</label>
+			<nail x="-66" y="-85"/>
+			<nail x="35" y="-85"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-187" y="59">coin_in?</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-186" y="-85">coin_in?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-187" y="-17">t&gt;=tBad_Min</label>
+			<label kind="assignment" x="-187" y="-1">t=0</label>
+			<nail x="-195" y="42"/>
+			<nail x="-194" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-340" y="-17">t&gt;=tGood_Min</label>
+			<label kind="assignment" x="-263" y="-1">t=0</label>
+			<nail x="-228" y="-34"/>
+			<nail x="-229" y="42"/>
+		</transition>
+	</template>
+	<template>
+		<name>Input</name>
+		<location id="id10" x="-467" y="-136">
+		</location>
+		<location id="id11" x="-331" y="-136">
+		</location>
+		<location id="id12" x="-195" y="-136">
+		</location>
+		<location id="id13" x="-59" y="-136">
+		</location>
+		<init ref="id10"/>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-170" y="-153">gclk==2000</label>
+			<label kind="synchronisation" x="-161" y="-136">user_coin!</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-305" y="-153">gclk==1100</label>
+			<label kind="synchronisation" x="-297" y="-136">user_coin!</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-442" y="-153">gclk == 100</label>
+			<label kind="synchronisation" x="-433" y="-136">user_coin!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Monitor0</name>
+		<location id="id14" x="-586" y="-42">
+		</location>
+		<location id="id15" x="-501" y="-42">
+		</location>
+		<location id="id16" x="-399" y="-42">
+		</location>
+		<init ref="id14"/>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system CoinPort, Bandit, Input, Monitor0;</system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.5//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_5.dtd'>
+<nta>
+	<declaration>chan up;
+chan down;
+
+int MAX = 10;
+
+int __reach__ = 0;
+int __single__ = 0;
+</declaration>
+	<template>
+		<name x="5" y="5">System</name>
+		<declaration>// Place local declarations here.
+
+int val = 0;</declaration>
+		<location id="id0" x="136" y="51">
+			<name x="153" y="25">Max</name>
+			<label kind="comments" x="153" y="51">"expect_max();"</label>
+			<label kind="testcodeEnter">expect_max();</label>
+		</location>
+		<location id="id1" x="136" y="-93">
+			<name x="144" y="-127">On</name>
+			<label kind="comments" x="153" y="-153">"expect_on($(val));"</label>
+			<label kind="testcodeEnter">expect_on($(val));</label>
+		</location>
+		<location id="id2" x="136" y="-246">
+			<name x="153" y="-263">Off</name>
+			<label kind="comments" x="153" y="-237">"expect_off();"</label>
+			<label kind="testcodeEnter">expect_off();</label>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="204" y="-119">val&lt;MAX-1</label>
+			<label kind="synchronisation" x="204" y="-102">up?</label>
+			<label kind="assignment" x="204" y="-85">++val</label>
+			<nail x="195" y="-110"/>
+			<nail x="195" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="25" y="-117">val&gt;1</label>
+			<label kind="synchronisation" x="25" y="-101">down?</label>
+			<label kind="assignment" x="24" y="-83">--val</label>
+			<nail x="76" y="-76"/>
+			<nail x="76" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="51" y="-34">down?</label>
+			<label kind="assignment" x="51" y="-18">--val</label>
+			<nail x="102" y="17"/>
+			<nail x="102" y="-51"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="144" y="-43">val==MAX-1</label>
+			<label kind="synchronisation" x="144" y="-26">up?</label>
+			<label kind="assignment" x="144" y="-9">++val</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="42" y="-204">val==1</label>
+			<label kind="synchronisation" x="42" y="-187">down?</label>
+			<label kind="assignment" x="42" y="-170">--val</label>
+			<nail x="102" y="-144"/>
+			<nail x="102" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="144" y="-204">up?</label>
+			<label kind="assignment" x="144" y="-187">++val</label>
+		</transition>
+	</template>
+	<template>
+		<name>User</name>
+		<location id="id3" x="-17" y="-17">
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-34" y="34">down!</label>
+			<label kind="comments" x="17" y="8">"down();"</label>
+			<label kind="testcode">down();</label>
+			<nail x="-42" y="34"/>
+			<nail x="9" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-26" y="-85">up!</label>
+			<label kind="comments" x="17" y="-59">"up();"</label>
+			<label kind="testcode">up();</label>
+			<nail x="-43" y="-68"/>
+			<nail x="8" y="-68"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system System, User;
+
+
+/** TEST_FILENAME TestCase- */
+/** TEST_FILEEXT .java */
+
+/** TEST_PREFIX
+package app;
+import app.App;
+
+class TestCase extends App 
+{
+    public static void main(String[] args) 
+    {
+        expect_on($(System.val));
+*/
+
+/** TEST_INFIX
+*/
+
+/** TEST_POSTFIX
+        expect_on($(System.val));
+    }
+}
+*/
+</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; System.val==2</formula>
+			<comment>Find a state with value 2</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; System.Max</formula>
+			<comment>Find a state where System in location Max</comment>
+		</query>
+	</queries>
+</nta>

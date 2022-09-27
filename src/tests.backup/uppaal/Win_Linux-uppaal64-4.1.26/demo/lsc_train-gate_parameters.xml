@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>/*
+ * For more details about this example, see 
+ * "Automatic Verification of Real-Time Communicating Systems by Constraint Solving", 
+ * by Wang Yi, Paul Pettersson and Mats Daniels. In Proceedings of the 7th International
+ * Conference on Formal Description Techniques, pages 223-238, North-Holland. 1994.
+ */
+
+const int N = 2;         // # trains
+typedef int[0,N-1] id_t;
+
+chan        appr[N], stop[N], leave[N];
+urgent chan go[N];</declaration>
+	<template>
+		<name x="40" y="16">Train</name>
+		<parameter>const id_t id</parameter>
+		<declaration>clock x;</declaration>
+		<location id="id0" x="96" y="96">
+			<name x="48" y="80">Safe</name>
+		</location>
+		<location id="id1" x="176" y="320">
+			<name x="192" y="328">Stop</name>
+		</location>
+		<location id="id2" x="256" y="96">
+			<name x="272" y="80">Cross</name>
+			<label kind="invariant" x="272" y="96">x&lt;=5</label>
+		</location>
+		<location id="id3" x="96" y="232">
+			<name x="32" y="216">Appr</name>
+			<label kind="invariant" x="32" y="232">x&lt;=20</label>
+		</location>
+		<location id="id4" x="256" y="232">
+			<name x="272" y="216">Start</name>
+			<label kind="invariant" x="272" y="232">x&lt;= 15</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="184" y="160">x&gt;=10</label>
+			<label kind="assignment" x="184" y="176">x=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="guard" x="88" y="280">x&lt;=10</label>
+			<label kind="synchronisation" x="88" y="296">stop[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="184" y="56">x&gt;=3</label>
+			<label kind="synchronisation" x="184" y="72">leave[id]!</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="32" y="128">appr[id]!</label>
+			<label kind="assignment" x="32" y="144">x=0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="guard" x="264" y="160">x&gt;=7</label>
+			<label kind="assignment" x="264" y="176">x=0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="224" y="280">go[id]?</label>
+			<label kind="assignment" x="224" y="296">x=0</label>
+		</transition>
+	</template>
+	<template>
+		<name x="40" y="16">Gate</name>
+		<declaration>id_t list[N+1];
+int[0,N] len;
+
+
+// Put an element at the end of the queue
+void enqueue(id_t element)
+{
+        list[len++] = element;
+}
+
+// Remove the front element of the queue
+void dequeue()
+{
+        int i = 0;
+        len -= 1;
+        while (i &lt; len)
+        {
+                list[i] = list[i + 1];
+                i++;
+        }
+        list[i] = 0;
+}
+
+// Returns the front element of the queue
+id_t front()
+{
+   return list[0];
+}
+
+// Returns the last element of the queue
+id_t tail()
+{
+   return list[len - 1];
+}</declaration>
+		<location id="id5" x="192" y="360">
+			<name x="200" y="368">o_id0</name>
+			<committed/>
+		</location>
+		<location id="id6" x="192" y="264">
+			<name x="208" y="264">Occ</name>
+		</location>
+		<location id="id7" x="192" y="128">
+			<name x="208" y="96">Free</name>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="select" x="104" y="288">e : id_t</label>
+			<label kind="synchronisation" x="104" y="304">appr[e]?</label>
+			<label kind="assignment" x="104" y="320">enqueue(e)</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="select" x="296" y="152">e : id_t</label>
+			<label kind="guard" x="296" y="168">e == front()</label>
+			<label kind="synchronisation" x="296" y="184">leave[e]?</label>
+			<label kind="assignment" x="296" y="200">dequeue()</label>
+			<nail x="288" y="264"/>
+			<nail x="288" y="128"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="224" y="304">stop[tail()]!</label>
+			<nail x="216" y="312"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="guard" x="104" y="168">len &gt; 0</label>
+			<label kind="synchronisation" x="104" y="184">go[front()]!</label>
+			<nail x="96" y="128"/>
+			<nail x="96" y="264"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="select" x="200" y="152">e : id_t</label>
+			<label kind="guard" x="200" y="168">len == 0</label>
+			<label kind="synchronisation" x="200" y="184">appr[e]?</label>
+			<label kind="assignment" x="200" y="200">enqueue(e)</label>
+		</transition>
+	</template>
+	<lsc>
+		<name>Scenario1</name>
+		<parameter>const id_t id</parameter>
+		<type>Universal</type>
+		<mode>Invariant</mode>
+		<declaration>clock y;</declaration>
+		<yloccoord number="0" y="0"/>
+		<yloccoord number="1" y="48"/>
+		<yloccoord number="2" y="88"/>
+		<yloccoord number="3" y="128"/>
+		<yloccoord number="4" y="220"/>
+		<instance id="id8" x="-200" y="0">
+			<name x="0" y="0">Train(id)</name>
+		</instance>
+		<instance id="id9" x="0" y="0">
+			<name x="0" y="0">Gate</name>
+		</instance>
+		<prechart x="0" y="88">
+			<lsclocation>2</lsclocation>
+		</prechart>
+		<message x="0" y="128">
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<lsclocation>3</lsclocation>
+			<label kind="message" x="-103" y="-18">leave[id]</label>
+		</message>
+		<message x="0" y="48">
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<lsclocation>1</lsclocation>
+			<label kind="message" x="-115" y="-18">go[id]</label>
+		</message>
+		<condition x="0" y="128">
+			<anchor instanceid="id9"/>
+			<lsclocation>3</lsclocation>
+			<temperature>hot</temperature>
+			<label kind="condition">y&gt;=10 &amp;&amp; y&lt;=20</label>
+		</condition>
+		<update x="0" y="48">
+			<anchor instanceid="id8"/>
+			<lsclocation>1</lsclocation>
+			<label kind="update">y:=0</label>
+		</update>
+	</lsc>
+	<lsc>
+		<name>Scenario2</name>
+		<type>Universal</type>
+		<mode>Invariant</mode>
+		<declaration>clock z;</declaration>
+		<yloccoord number="0" y="0"/>
+		<yloccoord number="1" y="56"/>
+		<yloccoord number="2" y="72"/>
+		<yloccoord number="3" y="112"/>
+		<yloccoord number="4" y="168"/>
+		<yloccoord number="5" y="192"/>
+		<yloccoord number="6" y="220"/>
+		<instance id="id10" x="192" y="0">
+			<name x="0" y="0">Train(1)</name>
+		</instance>
+		<instance id="id11" x="-184" y="0">
+			<name x="0" y="0">Train(0)</name>
+		</instance>
+		<instance id="id12" x="0" y="0">
+			<name x="0" y="0">Gate</name>
+		</instance>
+		<prechart x="0" y="112">
+			<lsclocation>3</lsclocation>
+		</prechart>
+		<message x="0" y="192">
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<lsclocation>5</lsclocation>
+			<label kind="message" x="-92" y="-18">leave[0]</label>
+		</message>
+		<message x="0" y="168">
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<lsclocation>4</lsclocation>
+			<label kind="message" x="96" y="-19">stop[1]</label>
+		</message>
+		<message x="0" y="72">
+			<source ref="id10"/>
+			<target ref="id12"/>
+			<lsclocation>2</lsclocation>
+			<label kind="message" x="93" y="-19">appr[1]</label>
+		</message>
+		<message x="0" y="56">
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<lsclocation>1</lsclocation>
+			<label kind="message" x="-100" y="-18">appr[0]</label>
+		</message>
+		<condition x="0" y="168">
+			<anchor instanceid="id10"/>
+			<lsclocation>4</lsclocation>
+			<temperature>hot</temperature>
+			<label kind="condition">z &gt;= 0 &amp;&amp; z &lt;= 2</label>
+		</condition>
+		<update x="0" y="72">
+			<anchor instanceid="id12"/>
+			<lsclocation>2</lsclocation>
+			<label kind="update">z:=0</label>
+		</update>
+	</lsc>
+	<system>Scenario = Scenario1(1);
+
+system Train, Gate;
+</system>
+	<queries>
+		<query>
+			<formula>sat: Scenario
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

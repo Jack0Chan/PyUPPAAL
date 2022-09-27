@@ -1,0 +1,44 @@
+<html>
+<head><title>Test Case Generation Tutorial part three</title></head>
+<body>
+<h1>Test Case Generation Tutorial part three</h1>
+<p>
+This tutorial assumes you have understood <a href="index2.html">part two</a>.
+</p>
+<p>
+For comments or questions please contact Petur Olsen at <code>petur@cs.aau.dk</code> or Marius Mikucionis <code>marius@cs.aau.dk</code>.
+</p>
+<h2>Using the Query File</h2>
+<p>
+Open the <a href="../updown/updown.xml">updown.xml</a> file in Uppaal.
+</p>
+<p>
+This tutorial uses the same model as part two.
+</p>
+<p>
+Sometimes it is desirable to generate test cases for specific purposes. This can be done by creating a verification query for the purpose, and using it to generate a test case.
+</p>
+<p>
+In the <code>Verifier</code> tab you can enter queries.
+Test Case generator searches for all reachability queries (that is queries which start with '<code>E&lt;&gt;</code>').<br/>
+<img src="ygg-verifier.png">
+</p>
+<p>
+The query enterer should be <code>E<> System.Max</code>, which asks the verifier to find a trace where the <code>System</code> process is in the location <code>Max</code>.
+</p>
+<p>
+To generate test cases go to the <code>Test Cases</code> tab and activate the <code>Query file</code> option, and hit <code>Generate</code>.<br/>
+<img src="ygg-generate4.png">
+</p>
+<p>
+This should generate a trace from the query file. You can double click the trace and go to the <code>Simulator</code> tab and verify that this trace does indeed lead to the <code>Max</code> location. <br/>
+<img src="ygg-simulator4.png">
+</p>
+<p>
+This is the end of the tutorial series.
+</p>
+<p>
+Please send any questions or comments to Petur Olsen at <code>petur@cs.aau.dk</code>.
+</p>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>/*
+ * For more details about this example, see 
+ * "Automatic Verification of Real-Time Communicating Systems by Constraint Solving", 
+ * by Wang Yi, Paul Pettersson and Mats Daniels. In Proceedings of the 7th International
+ * Conference on Formal Description Techniques, pages 223-238, North-Holland. 1994.
+ */
+
+const int N =  5;         // # trains + 1
+int[0,N]   el;
+chan       appr, stop, go, leave;
+chan       empty, notempty, hd, add, rem;</declaration>
+	<template>
+		<name x="40" y="16">Train</name>
+		<parameter>int[0,N] &amp;e, const int[0,N] id</parameter>
+		<declaration>clock x;</declaration>
+		<location id="id0" x="96" y="96">
+			<name x="48" y="80">Safe</name>
+		</location>
+		<location id="id1" x="192" y="384">
+			<name x="208" y="392">Stop</name>
+		</location>
+		<location id="id2" x="288" y="96">
+			<name x="312" y="80">Cross</name>
+			<label kind="invariant" x="304" y="96">x&lt;=5</label>
+		</location>
+		<location id="id3" x="96" y="256">
+			<name x="40" y="240">Appr</name>
+			<label kind="invariant" x="32" y="264">x&lt;=20</label>
+		</location>
+		<location id="id4" x="288" y="256">
+			<name x="304" y="240">Start</name>
+			<label kind="invariant" x="304" y="264">x&lt;= 15</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="160" y="216">x&gt;=10</label>
+			<label kind="assignment" x="232" y="152">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="guard" x="64" y="276">x&lt;=10 &amp;&amp;
+e==id</label>
+			<label kind="synchronisation" x="96" y="324">stop?</label>
+			<label kind="assignment" x="128" y="364">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="232" y="72">x&gt;=3</label>
+			<label kind="synchronisation" x="184" y="96">leave!</label>
+			<label kind="assignment" x="136" y="56">e:=id,
+x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="48" y="112">appr!</label>
+			<label kind="assignment" x="48" y="136">e:=id,
+x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="guard" x="296" y="192">x&gt;=7</label>
+			<label kind="assignment" x="296" y="128">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="232" y="352">e==id</label>
+			<label kind="synchronisation" x="256" y="316">go?</label>
+			<label kind="assignment" x="280" y="288">x:=0</label>
+		</transition>
+	</template>
+	<template>
+		<name x="40" y="16">Gate</name>
+		<location id="id5" x="288" y="192">
+			<committed/>
+		</location>
+		<location id="id6" x="256" y="384">
+			<committed/>
+		</location>
+		<location id="id7" x="192" y="224">
+			<committed/>
+		</location>
+		<location id="id8" x="192" y="160">
+		</location>
+		<location id="id9" x="96" y="96">
+			<committed/>
+		</location>
+		<location id="id10" x="128" y="384">
+			<committed/>
+		</location>
+		<location id="id11" x="192" y="288">
+			<name x="208" y="288">Occ</name>
+		</location>
+		<location id="id12" x="192" y="96">
+			<name x="208" y="96">Free</name>
+			<committed/>
+		</location>
+		<location id="id13" x="96" y="288">
+			<name x="64" y="304">Send</name>
+			<committed/>
+		</location>
+		<init ref="id12"/>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="112" y="72">notempty?</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="136" y="120">empty?</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="112" y="328">appr?</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="224" y="264">leave?</label>
+			<nail x="288" y="288"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="176" y="384">stop!</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="112" y="292">go!</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="64" y="176">hd!</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="144" y="180">appr?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="152" y="248">add!</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="236" y="328">add!</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="240" y="72">rem?</label>
+			<nail x="288" y="96"/>
+		</transition>
+	</template>
+	<template>
+		<name x="48" y="16">IntQueue</name>
+		<parameter>int[0,N] &amp;e</parameter>
+		<declaration>int[0,N] list[N], len, i;</declaration>
+		<location id="id14" x="192" y="160">
+			<name x="216" y="168">Start</name>
+		</location>
+		<location id="id15" x="192" y="288">
+			<name x="216" y="280">Shiftdown</name>
+			<committed/>
+		</location>
+		<init ref="id14"/>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="guard" x="136" y="344">i &lt; len</label>
+			<label kind="assignment" x="200" y="344">list[i]:=list[i+1],
+i++</label>
+			<nail x="168" y="336"/>
+			<nail x="216" y="336"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="guard" x="232" y="200">len==i</label>
+			<label kind="assignment" x="232" y="216">list[i] := 0, i := 0</label>
+			<nail x="224" y="256"/>
+			<nail x="224" y="192"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="guard" x="64" y="216">len&gt;=1</label>
+			<label kind="synchronisation" x="64" y="200">rem!</label>
+			<label kind="assignment" x="64" y="232">len--,
+i := 0</label>
+			<nail x="160" y="192"/>
+			<nail x="160" y="256"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="guard" x="32" y="160">len==0</label>
+			<label kind="synchronisation" x="32" y="144">empty!</label>
+			<nail x="96" y="184"/>
+			<nail x="96" y="136"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="160" y="64">add?</label>
+			<label kind="assignment" x="216" y="48">list[len]:=e,
+len++</label>
+			<nail x="160" y="88"/>
+			<nail x="256" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="296" y="144">hd?</label>
+			<label kind="assignment" x="288" y="120">e:=list[0]</label>
+			<nail x="280" y="168"/>
+			<nail x="264" y="104"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="guard" x="48" y="96">len&gt;0</label>
+			<label kind="synchronisation" x="56" y="72">notempty!</label>
+			<nail x="94" y="122"/>
+			<nail x="144" y="88"/>
+		</transition>
+	</template>
+	<system>Train1:=Train(el, 1);
+Train2:=Train(el, 2);
+Train3:=Train(el, 3);
+Train4:=Train(el, 4);
+Queue:=IntQueue(el);
+system 
+       Train1, Train2, Train3, Train4,
+       Gate, Queue;</system>
+	<queries>
+		<query>
+			<formula>
+			</formula>
+			<comment>===== Validation Properties:
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Gate.Occ
+			</formula>
+			<comment>Gate can receive (and store in queue) msg's from approaching trains.
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Train1.Cross
+			</formula>
+			<comment>Train 1 can reach crossing.
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Train2.Cross
+			</formula>
+			<comment>Train 2 can reach crossing.
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Train1.Cross and Train2.Stop
+			</formula>
+			<comment>Train 1 can be crossing bridge while Train 2 is waiting to cross.
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Train1.Cross and Train2.Stop and Train3.Stop and Train4.Stop
+			</formula>
+			<comment>Train 1 can cross bridge while Train 2, 3 &amp; 4 are waiting to cross.
+			</comment>
+		</query>
+		<query>
+			<formula>
+			</formula>
+			<comment>===== Safety Properties:
+			</comment>
+		</query>
+		<query>
+			<formula>A[] Train1.Cross + Train2.Cross + Train3.Cross + Train4.Cross &lt;= 1
+			</formula>
+			<comment>There is never more than one train crossing the bridge (at
+any time instance).
+			</comment>
+		</query>
+		<query>
+			<formula>A[] Queue.list[N-1] == 0
+			</formula>
+			<comment>There can never be N elements in the queue (thus the array will not overflow).
+			</comment>
+		</query>
+		<query>
+			<formula>
+			</formula>
+			<comment>===== Liveness Properties:
+			</comment>
+		</query>
+		<query>
+			<formula>Train1.Appr --&gt; Train1.Cross
+
+
+			</formula>
+			<comment>Whenever a train approaches the bridge, it will eventually cross.
+			</comment>
+		</query>
+		<query>
+			<formula>Train2.Appr --&gt; Train2.Cross
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Train3.Appr --&gt; Train3.Cross
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Train4.Appr --&gt; Train4.Cross
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>
+			</formula>
+			<comment>===== Deadlock checking:
+			</comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock
+			</formula>
+			<comment>The system is deadlock-free.
+			</comment>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>/**
+The example demonstrates different ways of generating trigonometric functions (sin and cos) over time
+using facts that sin'(t)=cos(t) and cos'(t)=-sin(t).
+*/</declaration>
+	<template>
+		<name x="5" y="5">Trig1</name>
+		<declaration>/**
+Continuous Time Markov Chain example with custom (random) time step integration.
+ */
+
+clock sint, cost=1.0, dt;
+clock sin2t; // = 2*sin(t)*cos(t) = sin(2*t)  -- expect 2x faster sine.
+
+</declaration>
+		<location id="id0" x="-104" y="-120">
+			<label kind="invariant" x="-120" y="-88">sint'==0 &amp;&amp; 
+cost'==0 &amp;&amp;
+sin2t'==0</label>
+			<label kind="exponentialrate" x="-120" y="-104">1000</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-85" y="-178">sint=sint + cost*dt,
+cost=cost - sint*dt,
+sin2t=2*sint*cost,
+dt=0</label>
+			<nail x="-136" y="-136"/>
+			<nail x="-96" y="-160"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Trig2</name>
+		<declaration>/**
+Continuous integration of ODE system with fixed time step.
+The time step size is controlled in menu Options/Statistical parameters,
+"Discretization step for hybrid systems".
+ */
+
+clock sint, cost=1.0;
+
+</declaration>
+		<location id="id1" x="-104" y="-120">
+			<label kind="invariant" x="-120" y="-104">sint'==cost &amp;&amp; 
+cost'==-sint</label>
+		</location>
+		<init ref="id1"/>
+	</template>
+	<system>clock t;
+
+//system Trig1;
+//system Trig2;
+system Trig1, Trig2;
+</system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=10] { sin(t), cos(t) }</formula>
+			<comment>Sine and cosine computed as algebraic functions of time.
+Expect one simulation up to 10 time units.</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10; 2] { sin(t), cos(t) }</formula>
+			<comment>Expect two overlapping simulations up to 10 time units.</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10] { Trig1.sint, Trig1.cost }
+			</formula>
+			<comment>CTMC generated sine and cosine.</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10] { Trig2.sint, Trig2.cost }
+			</formula>
+			<comment>Continuously integrated sine and cosine.</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10] { Trig1.sint, Trig2.sint, Trig1.cost, Trig2.cost }
+			</formula>
+			<comment>Comparison of random step and fixed time step simulations.
+Expect overlaping trajectories.</comment>
+		</query>
+		<query>
+			<formula>simulate[Trig2.cost&lt;=2] { Trig2.sint } : t&gt;=10</formula>
+			<comment>Alternative simulation plot where cosine is used as x-axis. 
+The predicate Trig2.cost&lt;=2 should be always true, thus simulation would be infinite, 
+but here the termination is decided by the predicate t&gt;=10 becoming true.
+Expect an ellipse.</comment>
+		</query>
+		<query>
+			<formula>simulate[Trig1.cost&lt;=2] { Trig1.sint, Trig1.sin2t } : t&gt;=10
+			</formula>
+			<comment>Alternative simulation plot where cosine is used as x-axis.
+The predicate Trig1.cost&lt;=2 should be always true, thus simulation would be infinite, 
+but here the termination is decided by the predicate t&gt;=10 becoming true.
+Expect an ellipse.</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10] { Trig2.sint, Trig2.cost, Trig2.sint &gt;? Trig2.cost }
+			</formula>
+			<comment>Demonstrates "inline maximum" expression.
+Expect the maximum to overlap with the max(sint, cost).</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10] { Trig2.sint, Trig2.cost, Trig2.sint &lt;? Trig2.cost }
+			</formula>
+			<comment>Demonstrates "inline minimum" expression.
+Expect the minimum to overlap with the min(sint, cost).</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=31] { Trig1.sint-sin(t) }</formula>
+			<comment>Demonstrates the precision of CTMC generated sine with exact sin(t).</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=31] { Trig2.sint-sin(t) }</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=30] (&lt;&gt; fabs(Trig1.sint-sin(t))&gt;0.0003)
+			</formula>
+			<comment>Estimates the probability of CTMC generated sint deviating from sin(t) by more than 0.0003.
+The search is sensitive to SMC parameters (significance beta and precistion epsilon) and usually gives 
+more precise probability estimate than diagnostic "simulate" formula above.
+Expect probability of ~0.3 and average time to deviation about 20.8 t.u.</comment>
+		</query>
+	</queries>
+</nta>

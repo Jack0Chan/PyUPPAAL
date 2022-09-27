@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>
+/* Example used in Figure 9 of
+ * UPPAAL-SMC: Statistical Model Checking for Priced Timed Automata.
+ * Peter Bulychev, Alexandre David, Kim G. Larsen, Marius Mikucionis,
+ * Danny Bøgsted Poulsen, Axel Legay, and Zheng Wang. 10th Workshop on
+ * Quantitative Aspects of Programming Languages and Systems, EPTCS 85,
+ * pages 1-16.
+ */
+
+typedef int[0,1000000] q_t;
+</declaration>
+	<template>
+		<name x="5" y="5">P</name>
+		<parameter>q_t &amp;a, q_t &amp;b, const q_t limit</parameter>
+		<location id="id0" x="16" y="-40">
+			<label kind="exponentialrate" x="6" y="-25">a</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-40" y="-120">a&gt;1 &amp;&amp; b&lt;limit</label>
+			<label kind="assignment" x="-32" y="-88">a--, b++</label>
+			<nail x="-16" y="-96"/>
+			<nail x="40" y="-96"/>
+		</transition>
+	</template>
+	<system>const q_t limit = 100;
+q_t a = limit-1, b=1;
+
+A=P(a,b,limit);
+B=P(b,a,limit);
+
+system A, B;</system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=10] {a,b}
+			</formula>
+			<comment>Computes one simulation up to 10 time units and displays trajectories for a and b.
+Expect the two trajectories meet and oscilate about common middle value.</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10; 10] {a,b}
+			</formula>
+			<comment>Computes one simulation up to 10 time units and displays trajectories for a and b.</comment>
+		</query>
+	</queries>
+</nta>

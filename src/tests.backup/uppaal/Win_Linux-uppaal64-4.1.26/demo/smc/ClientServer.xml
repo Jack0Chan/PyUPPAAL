@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>const int MAX_CONNECTIONS = 10;
+const int MAX_RETRIES = 3;
+
+typedef int[0,MAX_CONNECTIONS] pid_t;
+broadcast chan connect;
+broadcast chan accept[pid_t], disconnect[pid_t];
+
+pid_t ports[pid_t];
+int freePort, clientID;
+pid_t port;
+
+void initPorts()
+{
+  for(i : pid_t) ports[i] = i;
+  freePort =MAX_CONNECTIONS-1;
+}
+
+pid_t openPort()
+{
+  assert(freePort &gt; 0);
+  return ports[--freePort];
+}
+
+void closePort(pid_t p)
+{
+  assert(freePort &lt; MAX_CONNECTIONS);
+  ports[freePort++] = p;
+}
+
+bool hasPort()
+{
+  return freePort &gt; 0;
+}
+
+dynamic ServerChild(const pid_t port, const int id);
+dynamic Client(const int id);
+
+int connectID;</declaration>
+	<template>
+		<name x="5" y="5">Server</name>
+		<location id="id0" x="-32" y="-128">
+			<name x="-16" y="-144">Listening</name>
+		</location>
+		<location id="id1" x="-32" y="-192">
+			<name x="-16" y="-208">Start</name>
+			<committed/>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-24" y="-112">hasPort()</label>
+			<label kind="synchronisation" x="-24" y="-96">connect?</label>
+			<label kind="assignment" x="-24" y="-80">spawn
+ServerChild(openPort(),connectID)</label>
+			<nail x="-32" y="-48"/>
+			<nail x="-56" y="-48"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-24" y="-176">initPorts()</label>
+		</transition>
+	</template>
+	<template>
+		<name>ServerChild</name>
+		<parameter>const pid_t port, const int id</parameter>
+		<declaration>// The server can be stuck in Working.</declaration>
+		<location id="id2" x="0" y="-120">
+			<committed/>
+		</location>
+		<location id="id3" x="0" y="16">
+			<name x="16" y="8">End</name>
+		</location>
+		<location id="id4" x="0" y="-64">
+			<name x="16" y="-80">Working</name>
+		</location>
+		<location id="id5" x="0" y="-176">
+			<name x="16" y="-192">Accepting</name>
+			<label kind="exponentialrate" x="16" y="-176">1</label>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="8" y="-152">connectID=id</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="8" y="-48">disconnect[port]?</label>
+			<label kind="assignment" x="8" y="-32">closePort(port),
+exit()</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="8" y="-104">accept[port]!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Traffic</name>
+		<location id="id6" x="-96" y="-96">
+			<label kind="exponentialrate" x="-136" y="-104">2</label>
+		</location>
+		<init ref="id6"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-176" y="-144">spawn Client(++clientID)</label>
+			<nail x="-128" y="-120"/>
+			<nail x="-64" y="-120"/>
+		</transition>
+	</template>
+	<template>
+		<name>Client</name>
+		<parameter>const int id</parameter>
+		<declaration>pid_t port;
+clock x;
+int retries;</declaration>
+		<location id="id7" x="-160" y="40">
+			<name x="-208" y="24">End</name>
+		</location>
+		<location id="id8" x="-64" y="40">
+			<name x="-48" y="24">Working</name>
+			<label kind="exponentialrate" x="-48" y="40">2</label>
+		</location>
+		<location id="id9" x="-160" y="0">
+			<name x="-216" y="-16">Abort</name>
+		</location>
+		<location id="id10" x="-160" y="-64">
+			<name x="-240" y="-80">TimeOut</name>
+			<urgent/>
+		</location>
+		<location id="id11" x="-64" y="-64">
+			<name x="-48" y="-80">Waiting</name>
+			<label kind="invariant" x="-48" y="-64">x&lt;=5</label>
+		</location>
+		<location id="id12" x="-64" y="-136">
+			<name x="-56" y="-160">Starting</name>
+			<label kind="exponentialrate" x="-48" y="-144">10</label>
+		</location>
+		<init ref="id12"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-152" y="56">disconnect[port]!</label>
+			<label kind="assignment" x="-120" y="24">exit()</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id8"/>
+			<label kind="select" x="-48" y="-48">p : pid_t</label>
+			<label kind="guard" x="-48" y="-32">id==connectID</label>
+			<label kind="synchronisation" x="-48" y="-16">accept[p]?</label>
+			<label kind="assignment" x="-48" y="0">port=p</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-248" y="-48">retries==MAX_RETRIES</label>
+			<label kind="assignment" x="-152" y="-32">exit()</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-240" y="-152">retries&lt;MAX_RETRIES</label>
+			<label kind="assignment" x="-232" y="-136">++retries</label>
+			<nail x="-160" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-128" y="-80">x==5</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-56" y="-120">connect!</label>
+			<label kind="assignment" x="-56" y="-104">x=0, connectID=id</label>
+		</transition>
+	</template>
+	<system>system Server, Traffic;</system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=20; 1] {
+  foreach(c:Client)
+    (10*c.id+(c.Starting+2*c.Waiting+3*c.Working+4*c.TimeOut))
+} : clientID&gt;=10</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=10; 10] {numOf(Client),clientID}
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr([][0,2] forall(c:Client) (!(c.Waiting &amp;&amp; c.retries==0) || (&lt;&gt;[0,10]c.Working )))
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

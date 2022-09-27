@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+broadcast chan input_ball, observe_ball;
+broadcast chan hidden_path1, hidden_path2, hidden_path3, hidden_path4, hidden_path5, hidden_path6;
+broadcast chan exit1, exit2, exit3;
+
+clock gclk;
+
+const int T1_Min = 200;
+const int T1_Max = 300;
+const int T2_Min = 200;
+const int T2_Max = 300;
+const int T3_Min = 200;
+const int T3_Max = 300;
+const int T4_Min = 200;
+const int T4_Max = 300;
+const int T5_Min = 200;
+const int T5_Max = 300;
+const int T6_Min = 200;
+const int T6_Max = 300;</declaration>
+	<template>
+		<name x="5" y="5">PipeNet</name>
+		<declaration>// Place local declarations here.
+clock t;</declaration>
+		<location id="id0" x="-76" y="-170">
+			<name x="-119" y="-178">Idle</name>
+		</location>
+		<location id="id1" x="-76" y="-93">
+			<name x="-59" y="-110">Cross1</name>
+		</location>
+		<location id="id2" x="-170" y="-8">
+			<name x="-238" y="-17">Cross2</name>
+		</location>
+		<location id="id3" x="17" y="-8">
+			<name x="-51" y="-17">Cross3</name>
+		</location>
+		<location id="id4" x="-272" y="102">
+			<name x="-323" y="94">Exit1</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-76" y="102">
+			<name x="-127" y="93">Exit2</name>
+			<committed/>
+		</location>
+		<location id="id6" x="127" y="102">
+			<name x="76" y="93">Exit3</name>
+		</location>
+		<location id="id7" x="-76" y="161">
+			<name x="-127" y="153">Reset</name>
+			<committed/>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id0"/>
+			<nail x="178" y="161"/>
+			<nail x="178" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="8" y="119">exit3!</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-93" y="119">exit2!</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-195" y="119">exit1!</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id6"/>
+			<label kind="guard" x="59" y="17">t&gt;=T6_Min and
+t&lt;=T6_Max</label>
+			<label kind="synchronisation" x="59" y="51">hidden_path6!</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-68" y="17">t&gt;=T5_Min and
+t&lt;=T5_Max</label>
+			<label kind="synchronisation" x="-68" y="51">hidden_path5!</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-42" y="-85">t&gt;=T2_Min and t&lt;=T2_Max</label>
+			<label kind="synchronisation" x="-25" y="-68">hidden_path2!</label>
+			<label kind="assignment" x="-8" y="-51">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-187" y="17">t&gt;=T4_Min and
+t&lt;=T4_Max</label>
+			<label kind="synchronisation" x="-187" y="51">hidden_path4!</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-314" y="17">t&gt;=T3_Min and
+t&lt;=T3_Max</label>
+			<label kind="synchronisation" x="-314" y="51">hidden_path3!</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-297" y="-85">t&gt;=T1_Min and t&lt;=T1_Max</label>
+			<label kind="synchronisation" x="-221" y="-68">hidden_path1!</label>
+			<label kind="assignment" x="-170" y="-51">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-153" y="-153">input_ball?</label>
+			<label kind="assignment" x="-110" y="-136">t=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Input</name>
+		<location id="id8" x="-85" y="0">
+			<name x="-95" y="-34">Idle</name>
+		</location>
+		<location id="id9" x="33" y="0">
+			<name x="17" y="-34">Input1</name>
+		</location>
+		<location id="id10" x="161" y="0">
+			<name x="144" y="-34">Input2</name>
+		</location>
+		<init ref="id8"/>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="51" y="-17">gclk==1000</label>
+			<label kind="synchronisation" x="51" y="0">input_ball!</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-68" y="-17">gclk==0</label>
+			<label kind="synchronisation" x="-68" y="0">input_ball!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Monitor0</name>
+		<location id="id11" x="-178" y="-51">
+			<name x="-188" y="-85">Start</name>
+		</location>
+		<location id="id12" x="68" y="-51">
+			<name x="58" y="-85">Obs1</name>
+		</location>
+		<location id="id13" x="195" y="-51">
+			<name x="178" y="-85">Obs2</name>
+		</location>
+		<location id="id14" x="-178" y="51">
+			<name x="-195" y="68">Fail1</name>
+			<label kind="invariant" x="-263" y="42">gclk&lt;500</label>
+		</location>
+		<location id="id15" x="68" y="51">
+			<name x="52" y="68">Fail2</name>
+			<label kind="invariant" x="51" y="85">gclk&lt;1550</label>
+		</location>
+		<init ref="id11"/>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id15"/>
+			<label kind="guard" x="136" y="-17">gclk&gt;=500</label>
+			<label kind="synchronisation" x="136" y="0">exit3?</label>
+			<nail x="161" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-34" y="-17">gclk&gt;=500</label>
+			<label kind="synchronisation" x="-34" y="0">exit1?</label>
+			<nail x="-1" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-127" y="-17">gclk&gt;=0</label>
+			<label kind="synchronisation" x="-127" y="0">exit3?</label>
+			<nail x="-127" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-203" y="-17">gclk&gt;=0</label>
+			<label kind="synchronisation" x="-195" y="0">exit2?</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id15"/>
+			<label kind="guard" x="51" y="-17">gclk&gt;=500</label>
+			<label kind="synchronisation" x="51" y="0">exit2?</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-288" y="-17">gclk&gt;=0</label>
+			<label kind="synchronisation" x="-271" y="0">exit1?</label>
+			<nail x="-220" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="guard" x="85" y="-51">gclk==1550</label>
+			<label kind="synchronisation" x="86" y="-68">exit2?</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-161" y="-51">gclk==500</label>
+			<label kind="synchronisation" x="-160" y="-68">exit1?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system PipeNet, Input, Monitor0;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Monitor0.Obs2</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

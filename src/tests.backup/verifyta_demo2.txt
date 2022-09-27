@@ -1,0 +1,9 @@
+State: P2.A t(0)-P2.t<=0 P2.t-t(0)<=10 
+
+Transition: P2.A -> P2.B {t >= 10; 0; 1;} 
+
+State: P2.B t(0)-P2.t<=-10 P2.t-t(0)<=10 
+
+Transition: P2.B -> P2.C {1; 0; 1;} 
+
+State: P2.C t(0)-P2.t<=-10 P2.t-t(0)<=20 

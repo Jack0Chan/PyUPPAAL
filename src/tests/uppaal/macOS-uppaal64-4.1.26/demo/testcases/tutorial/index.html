@@ -1,0 +1,166 @@
+<html>
+<head><title>Test Case Generation Tutorial</title></head>
+<body>
+<h1>Test Case Generation Tutorial</h1>
+<p>
+This tutorial explains the off-line test-case generation feature of <a href="http://uppaal.org">Uppaal</a>.
+An explanation of Test Case generation is available in the help menu within Uppaal. Go to <code>Help Menu -> Help ...</code> and browse to <code>UPPAAL Help -> GUI Reference -> Test Cases</code>.
+</p>
+<p>
+For comments or questions please contact Petur Olsen at <code>petur@cs.aau.dk</code> or Marius Mikucionis <code>marius@cs.aau.dk</code>.
+</p>
+<p>
+The features are explained in terms of two example systems.
+An On/Off system and an Up/Down counter.
+The systems are modeled in abstract terms, but could, respectively, represent a lamp with on/off capabilities and a dimmer lamp, which can be turned up or down.
+</p>
+<p>
+Both examples include a model, decorated with test-code, a correct implementation of the system, and a mutant with an implementation error. The system and mutant are implemented in Java so they should be platform independent. Execution scripts are included for Windows and Linux.
+</p>
+<h2>On/Off system</h2>
+<p>
+Open the <a href="../onoff/onoff.xml">onoff.xml</a> file in Uppaal.
+</p>
+<p>
+The system contains two templates: System and User.
+</p>
+<p>
+The system can be either <code>On</code> or <code>Off</code>, with channels <code>on</code> and <code>off</code> changing between them.<br/>
+<img src="System.jpg"/>
+</p>
+<p>
+The user can non-deterministically press <code>on</code> or <code>off</code>. <br/>
+<img src="User.jpg"/>
+</p>
+<p>
+There are some Test Case generation specific details in this model.
+First, there are two global variables declared:
+<pre>
+int __reach__ = 0;
+int __single__ = 0;
+</pre>
+These are required for test case generation to use depth-first reachability and single step techniques for test-case generation. These variables must not be altered in the model.
+</p>
+<p>
+Second, there are two blocks of comments in the <code>System declarations</code>. A multi-line comment starting with <code>TEST_PREFIX</code> or <code>TEST_POSTFIX</code> is treated as prefix or postfix code for each test case.
+</p>
+<p>
+In this example each test case is a Java class with a main method, executing this Java class constitutes running the test case. Therefore the prefix and postfix code is wrapper code for this Java class.
+<pre>
+/** TEST_PREFIX
+  package app;
+  import app.App;
+
+  class Test extends App {
+
+  public static void main(String[] args) {
+
+*/
+
+/** TEST_POSTFIX
+  }
+}
+*/
+</pre>
+The test case class extends the <code>App</code> class we are testing. Each step in the test case will execute some methods on this class.
+</p>
+<p>
+The system model is decorated with test code. Double clicking the edge labeled <code>on?</code> and selecting the <code>Test Code</code> tab reveals an area for entering test code. In this model the test code should be <code>set_on();</code>. This will execute the method <code>set_on()</code> on the application whenever this edge is taken in a test case. Similarly <code>set_off();</code> is added to the edge labeled <code>off?</code>.<br/>
+<img src="testcode.png">
+</p>
+<p>
+For states test code can be entered in two areas, <code>Enter</code> and <code>Exit</code>. This test code is added to the test case when the trace reaches the state or leaves it, respectively. <br/>
+<img src="testcode-state.png">
+</p>
+<p>
+To generate test cases go to the <code>Test Cases</code> tab.<br/>
+<img src="ygg-tab.png">
+</p>
+<p>
+Select which techniques for test case generation to use. The different techniques are explained in the Uppaal Help Menu. For now only select <code>Depth search</code> and a depth of 20.<br/>
+<img src="ygg-tab-options.png">
+</p>
+<p>
+Select the output folder for test cases. Make this point to the <code>onoff</code> folder in this tutorial. <br/>
+<img src="ygg-output.png">
+</p>
+<p>
+Pressing <code>Generate</code> should generate a single trace. Each trace generated will have a line in the list similar to <code>Trace coverage: 4/4</code>. This shows that the trace covered four out of four edges.
+<br/>
+<img src="ygg-generate.png">
+</p>
+<p>
+By double clicking the trace and selecting the <code>Simulator</code> tab, the trace can be examined. Unsurprisingly the trace simply runs in circles with alternating on/off presses.
+<br/>
+<img src="ygg-simulator.png">
+</p>
+<p>
+Pressing the <code>Output</code> button in the <code>Test Cases</code> tab will generate a file called <code>testcase0.code</code> in the selected output folder. If several traces have been generated, several files will be generated with sequential numbering.
+</p>
+<p>
+Each of these will be a Java class with the sequence of method invocations induce by the generated trace. A snippet is shown below.
+<pre>
+ 1: package app;
+ 2: import app.App;
+ 3:
+ 4: class Test extends App {
+ 5:
+ 6:     public static void main(String[] args) {
+ 7:
+ 8: expect_off();
+ 9:
+10: set_on();
+11:
+12: expect_on();
+13:
+14: set_off();
+15:
+   <... snip ... >
+93:
+94:     }
+95: }
+</pre>
+</p>
+
+<p>The test case starts with the prefix code on lines 1-6. </p>
+<p>Line 8 is the first step of the trace. This is <code>expect_off();</code> since the initial location is <code>Off</code>. </p>
+<p>The first transition is the one labeled <code>on?</code>, the test code for this transition is <code>set_on();</code>. This is entered in the trace at line 10. </p>
+<p>The trace then enters location <code>On</code> and <code>expect_on();</code> is in the test case at line 12. The test case continues in this fashion.</p>
+<p>The trace ends with the postfix code on lines 94-95. </p>
+
+<p>
+Running the <code>test.sh</code> (or <code>test.bat</code> on Windows) will compile and run the test cases one at a time.
+It will output the name of each file as it executes them.
+No output from the test case signifies successful execution.
+<pre>
+onoff$ ./test.sh
+testcase0.code
+onoff$
+</pre>
+</p>
+<p>
+Running the <code>testiMutant.sh</code> (or <code>testMutant.bat</code> on Windows) will compile and run the test cases on the mutant implementation.
+This should result in an exception being thrown, signifying a test error.
+<pre>
+onoff$ ./testMutant.sh
+testcase0.code
+Exception in thread "main" java.lang.AssertionError
+  at app.App.expect_on(App.java:17)
+  at app.Test.main(Test.java:15)
+onoff$
+</pre>
+</p>
+<p>
+The implementation can be examined in the <code>onoff/app</code> folder. See <a href="../onoff/app/AppC.java">AppC.java</a> for the correct implementation and <a href="../onoff/app/AppM.java">AppM.java</a> for the mutant.
+</p>
+<p>
+In order to transfer this to you own applications, you will have to decorate the model with test code such that the output from <code>Test Cases</code> constitutes an executable test case in whatever test execution framework you use.
+</p>
+<p>
+Continue to part two of this tutorial for explanation of how values of parameters can be used in test cases.
+</p>
+<p>
+<a href="index2.html">Part two</a>
+</p>
+</body>
+</html>

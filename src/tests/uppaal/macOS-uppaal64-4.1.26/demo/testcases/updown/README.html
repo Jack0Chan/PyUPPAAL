@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="YetAnotherGithub.css"/>
+    <title>Uppaal Test Case Generator demo</title>
+  </head>
+  <body>
+<h1 id="uppaal-test-case-generator-demo">Uppaal Test Case Generator demo</h1>
+<p>The following describes the test case generation features in Uppaal by using a simple Java program toggling value up and down.</p>
+<h2 id="model-annotations">Model Annotations</h2>
+<ul>
+<li><p>Open the <code>updown.xml</code> model file in Uppaal in the <code>Editor</code> tab.</p>
+</li>
+<li><p>Select the <code>System</code> automaton and observe the system requirements:</p>
+<ul>
+<li>Three locations corresponding to <code>Off</code>, <code>On</code> and <code>Max</code>.</li>
+<li>Synchronization on <code>up</code> increments the value with <code>++val</code>.</li>
+<li>Synchronization on <code>down</code> decrements the value with <code>--val</code>.</li>
+<li><code>Max</code> location is special as it does not allow increments.</li>
+<li><code>Off</code> location is special as it does not allow decrements.</li>
+</ul>
+</li>
+<li><p>Double click a location and observe:</p>
+<ul>
+<li><code>Test Code</code> contains expected outcomes checks (assertions).</li>
+<li>The code may contain <code>$(variable)</code> expressions which are replaced with the corresponding variable value.</li>
+</ul>
+</li>
+<li><p>Select <code>User</code> automaton and observe the environment assumptions:</p>
+<ul>
+<li>Single location where either <code>up</code> or <code>down</code> are permitted at any time</li>
+<li>The channels <code>up</code> and <code>down</code> are hand-shake channels,
+meaning that the sender <code>User</code> must agree to synchronize with <code>System</code>
+and <code>User</code> is not allowed issue <code>up</code> or <code>down</code> if <code>System</code> does not agree.</li>
+</ul>
+</li>
+<li><p>Double click an edge and observe:</p>
+<ul>
+<li><code>Test Code</code> contains actions applied on the implementation.</li>
+</ul>
+</li>
+<li><p>Select <code>System declarations</code> section and observe:</p>
+<ul>
+<li><code>system</code> declaration containing two processes: <code>System</code> and <code>User</code>.</li>
+<li><code>TEST_FILENAME</code> comment to specify the prefix for test case file names.</li>
+<li><code>TEST_FILEEXT</code> comment to specify the extension for test case file names.</li>
+<li><code>TEST_PREFIX</code> comment to specify the fixed prolog (beginning) for each test case file.</li>
+<li><code>TEST_POSTFIX</code> comment to specify the fixed epilog (ending) for each test case file.</li>
+</ul>
+</li>
+<li><p>Select <code>Declaration</code> section and observe two additional special variables:</p>
+<ul>
+<li><code>__reach__</code> counts the number of transition taken (used in random walk test case generation).</li>
+<li><code>__single__</code> used to annotate edges when their coverage is required (used in coverage based test case generation).</li>
+</ul>
+</li>
+</ul>
+<h2 id="test-case-generation">Test Case Generation</h2>
+<p>Test case generator uses verification engine to find the system traces, collect the <code>Test Code</code> along those traces and save them as test script files.</p>
+<ul>
+<li><p>In the <code>Tools</code> menu enable <code>Test Cases</code> tool and observe a new tab <code>Test Cases</code> appear to the left of <code>Verifier</code>.</p>
+</li>
+<li><p>Select <code>Test Cases</code> tab.</p>
+</li>
+<li><p>There a three modes of generating test cases:</p>
+<ol>
+<li><code>Query</code>-based is guided by a specific purpose expressed as verification query, e.g. <code>E&lt;&gt; System.Max</code> adds a test case where the <code>System</code> reaches <code>Max</code> location. The queries can be added and edited in the <code>Verifier</code> tab. This mode is useful to compute optimal length/duration test cases.</li>
+<li><code>Depth</code>-based random walks, where the depth is the number of transitions: it keeps adding random test cases until the coverage does not improve any more. This mode targets long scenarios with a hope of exercising as many edges in series as possible.</li>
+<li><code>Edge</code> coverage based: select all or specific process edges to be covered. It targets specific edges, thus it may generate many shallow test cases with overlapping coverage, this mode is mostly suitable when the above modes are exhausted.</li>
+</ol>
+</li>
+<li><p>Each mode has two options:</p>
+<ul>
+<li><code>Search</code> specifies the search order over the state space. The search effort depends on the shape of the state space, which can be deep (long sequences of transitions), wide (a lot of non-deterministic choices, e.g. many parallel processes) or any combination of them. <code>Breadth</code>-first order is usually prefered for narrow state spaces. <code>Depth</code>-first is for shallow state spaces. <code>Random</code>-depth-first is similar to <code>Depth</code>-first except it randomizes the non-deterministic choices.</li>
+<li><code>Trace</code> specifies the optimality criterion: <code>Shortest</code> takes least transitions/steps, <code>Fastest</code> takes least amout of time, <code>Some</code> is the first found trace.</li>
+<li>Other search options can be manipulated directly in the <code>Options</code> menu.</li>
+</ul>
+</li>
+<li><p>One can choose arbitrary mode to generate test cases by clicking the corresponding <code>Add</code> button.</p>
+</li>
+<li><p>The computed trace are added to the <code>Traces</code> field where:</p>
+<ul>
+<li>The trace can be selected and its coverage examined in the <code>Trace statistics</code>.</li>
+<li>The trace can be loaded into <code>Simulator</code> by double-clicking the trace.</li>
+</ul>
+</li>
+<li><p>The combined coverage of all traces can be examined by clicking <code>Total Coverage</code> button.</p>
+</li>
+<li><p>The traces can then be translated and exported as test case scripts by clicking <code>Save Test Cases</code>.</p>
+</li>
+<li><p>The generated traces can be cleared by reloading the simulator (press <code>F5</code> or <code>View</code>-<code>Reload Simulator</code>).</p>
+</li>
+</ul>
+<h2 id="test-case-execution">Test Case Execution</h2>
+<p>The generated test cases are executed by running the following scripts: <code>test.sh</code> on Unix or <code>test.bat</code> on Windows. The scripts assume that all test cases are saved in their current directory by following the <code>TestCase-*.java</code> pattern (as specified in <code>updown.xml</code>), compile the <code>app/AppC.java</code> implementation, compile the test case and run it.</p>
+<p>The <code>app</code> dirctory also contains faulty implementation and the test cases can be run against it by executing the corresponding scripts: <code>testMutant.sh</code> on Unix and <code>testMutant.bat</code> on Winduws.</p>
+  </body>
+</html>
+

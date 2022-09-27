@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+#  
+# Run this script to start UPPAAL 4.1.x.
+#
+
+# Default options if needed.
+# Add -Duppaal.extra if you want to force extra features.
+# JAVA_DEF="-Duppaal.extra"
+#JAVA_DEF=-Duppaal.lsc
+#JAVA_DEF=
+
+# Force language if LANG is defined.
+if [ ! -z "$LANG" ]; then
+  JAVA_DEF="$JAVA_DEF -Duser.language=${LANG/_*/}"
+fi
+
+# Fix splash option if no splash is asked (Java 6).
+NOJAR=""
+for opt in $* ; do
+  if [ "$opt" = "--no-splash" ]; then
+    JAVA_DEF="$JAVA_DEF -Duppaal.extra -splash:/dev/null"
+    NOJAR="y"
+    break
+  fi
+done
+
+# Setup.
+HERE=$(dirname "$(readlink -e $0)")
+if [ "`uname -o`" = "Cygwin" ]; then
+  HERE="${HERE/#\/cygdrive\//}"
+  HERE="${HERE/\//:/}"
+  ENGINE="$HERE/bin-Windows"
+else
+  ENGINE="$HERE/bin-`uname`"
+fi
+JAR="$HERE/uppaal.jar"
+
+# No antialias if remote execution (better performance).
+EXTRADEF=""
+EXTRAOPT=""
+if [[ "$DISPLAY" != ":"* ]]; then
+  EXTRADEF="-splash:/dev/null"
+  EXTRAOPT="--no-antialias"
+fi
+
+# Start.
+if [ -z "$NOJAR" ]; then
+  java $JAVA_DEF $EXTRADEF -jar "$JAR" --enginePath "$ENGINE" $EXTRAOPT "$@"
+else
+  java $JAVA_DEF $EXTRADEF -classpath "$JAR" com.uppaal.gui.Main --enginePath "$ENGINE" $EXTRAOPT "$@"
+fi

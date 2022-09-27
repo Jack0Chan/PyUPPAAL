@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+</declaration>
+	<template>
+		<name x="5" y="5">Foo</name>
+		<declaration>// Place local declarations here.
+clock x;</declaration>
+		<location id="id0" x="224" y="56">
+			<name x="214" y="26">D22</name>
+			<label kind="invariant" x="200" y="88">x'==4</label>
+			<label kind="exponentialrate" x="214" y="71">1</label>
+		</location>
+		<location id="id1" x="224" y="-8">
+			<name x="214" y="-38">D21</name>
+			<label kind="invariant" x="232" y="8">x'==3</label>
+			<label kind="exponentialrate" x="214" y="7">1</label>
+		</location>
+		<location id="id2" x="224" y="-144">
+			<name x="214" y="-174">D11</name>
+			<label kind="invariant" x="224" y="-136">x'==1</label>
+			<label kind="exponentialrate" x="214" y="-129">1</label>
+		</location>
+		<location id="id3" x="224" y="-88">
+			<name x="214" y="-118">D12</name>
+			<label kind="invariant" x="232" y="-72">x'==2</label>
+			<label kind="exponentialrate" x="214" y="-73">1</label>
+		</location>
+		<location id="id4" x="144" y="-8">
+			<name x="134" y="-38">C2</name>
+			<label kind="invariant" x="120" y="24">x'==3</label>
+			<label kind="exponentialrate" x="134" y="7">2</label>
+		</location>
+		<location id="id5" x="144" y="-88">
+			<name x="134" y="-118">C1</name>
+			<label kind="invariant" x="152" y="-72">x'==2</label>
+			<label kind="exponentialrate" x="134" y="-73">3</label>
+		</location>
+		<location id="id6" x="88" y="-48">
+			<name x="78" y="-78">B</name>
+			<label kind="invariant" x="72" y="-16">x'==1</label>
+			<label kind="exponentialrate" x="78" y="-33">2</label>
+		</location>
+		<location id="id7" x="16" y="-48">
+			<name x="6" y="-78">A</name>
+			<label kind="invariant" x="0" y="-16">x'==0</label>
+			<label kind="exponentialrate" x="6" y="-33">1</label>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id0"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id1"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id2"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id3"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id4"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+		</transition>
+	</template>
+	<lsc>
+		<name>LscTemplate</name>
+		<type>Universal</type>
+		<mode>Invariant</mode>
+		<declaration>// Place local declarations here.
+</declaration>
+		<yloccoord number="0" y="0"/>
+		<yloccoord number="1" y="220"/>
+		<instance id="id8" x="0" y="0">
+			<name x="0" y="0">Instance</name>
+		</instance>
+	</lsc>
+	<system>system Foo;</system>
+	<queries>
+		<query>
+			<formula>Pr[&lt;= 10](&lt;&gt; Foo.D22)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;= 10](&lt;&gt; Foo.D22) &gt;= 0.23
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;= 10](&lt;&gt; Foo.D22) &lt;= 0.24
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[# &lt;= 3](&lt;&gt; Foo.D22)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[# &lt;= 3](&lt;&gt; Foo.D22) &lt;= 0.255
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[# &lt;= 3](&lt;&gt; Foo.D22) &gt;= 0.245
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[# &lt;= 2](&lt;&gt; Foo.D22)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

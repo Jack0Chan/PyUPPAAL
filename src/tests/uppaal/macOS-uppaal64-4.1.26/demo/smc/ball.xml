@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>
+/* Example used in different papers, in particular
+ * Statistical Model Checking of Dynamic Networks of Stochastic
+ * Hybrid Automata. Alexandre David, Kim G. Larsen, Axel Legay,
+ * and Danny Bøgsted Poulsen. In Proceedings of the Automated
+ * Verification of Critical Systems (AVoCS2013).
+ */
+clock p = 10.0; // Initial height - don't use random(..) here.
+clock v,x;
+
+urgent broadcast chan bounce;
+broadcast chan hit;
+clock time;
+</declaration>
+	<template>
+		<name x="5" y="5">Ball1</name>
+		<declaration>// Place local declarations here.
+</declaration>
+		<location id="id0" x="96" y="-32">
+			<label kind="invariant" x="48" y="-96">v'==-9.81 &amp;&amp;
+p'==1*v</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="168" y="-72">p &gt;= 6 &amp;&amp; v &gt;= 0</label>
+			<label kind="synchronisation" x="168" y="-88">hit?</label>
+			<label kind="assignment" x="168" y="-56">v = -(0.85+random(0.1))*v - 4</label>
+			<nail x="160" y="-88"/>
+			<nail x="160" y="-40"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="168" y="-8">p &gt;= 6 &amp;&amp; v &lt; 0 &amp;&amp; v &gt;= -4</label>
+			<label kind="synchronisation" x="168" y="-24">hit?</label>
+			<label kind="assignment" x="168" y="8">v=-4.0</label>
+			<nail x="160" y="-24"/>
+			<nail x="160" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="16" y="16">p==0 &amp;&amp; v &lt; 0</label>
+			<label kind="synchronisation" x="16" y="0">bounce!</label>
+			<label kind="assignment" x="16" y="32">v=-(0.8+random(0.12))*v</label>
+			<nail x="72" y="16"/>
+			<nail x="120" y="16"/>
+		</transition>
+	</template>
+	<template>
+		<name>Piston</name>
+		<location id="id1" x="0" y="0">
+			<label kind="exponentialrate" x="-8" y="-32">5:2</label>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="40" y="-16">hit!</label>
+			<nail x="32" y="-16"/>
+			<nail x="32" y="16"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Ball2</name>
+		<declaration>// Place local declarations here.
+</declaration>
+		<location id="id2" x="96" y="-32">
+			<label kind="invariant" x="40" y="-88">v'==-9.81 &amp;&amp;
+p'==1*v</label>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="168" y="-144">p==10 &amp;&amp; v &gt; 0</label>
+			<label kind="synchronisation" x="168" y="-128">bounce!</label>
+			<label kind="assignment" x="168" y="-112">v=-(0.85+random(0.1))*v</label>
+			<nail x="160" y="-144"/>
+			<nail x="160" y="-96"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="168" y="-72">p &gt;= 6 &amp;&amp; v &gt;= 0</label>
+			<label kind="synchronisation" x="168" y="-88">hit?</label>
+			<label kind="assignment" x="168" y="-56">v = -(0.85+random(0.1))*v - 4</label>
+			<nail x="160" y="-88"/>
+			<nail x="160" y="-40"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="168" y="-8">p &gt;= 6 &amp;&amp; v &lt; 0 &amp;&amp; v &gt;= -4</label>
+			<label kind="synchronisation" x="168" y="-24">hit?</label>
+			<label kind="assignment" x="168" y="8">v=-4.0</label>
+			<nail x="160" y="-24"/>
+			<nail x="160" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="16" y="16">p==0 &amp;&amp; v &lt; 0</label>
+			<label kind="synchronisation" x="16" y="0">bounce!</label>
+			<label kind="assignment" x="16" y="32">v=-(0.8+random(0.12))*v</label>
+			<nail x="72" y="16"/>
+			<nail x="120" y="16"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Ball3x</name>
+		<declaration>clock vx;</declaration>
+		<location id="id3" x="96" y="-32">
+			<label kind="invariant" x="72" y="-64">x'==1*vx</label>
+		</location>
+		<location id="id4" x="0" y="-32">
+			<urgent/>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-32" y="24">x==0 &amp;&amp; vx&lt;0</label>
+			<label kind="synchronisation" x="16" y="8">bounce!</label>
+			<label kind="assignment" x="-32" y="40">vx=-(0.85+random(0.15))*vx</label>
+			<nail x="120" y="16"/>
+			<nail x="72" y="16"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="-96" y="-32">x=10,
+vx=-10+random(0.5)</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Ball3y</name>
+		<declaration>// Place local declarations here.
+</declaration>
+		<location id="id5" x="96" y="-32">
+			<label kind="invariant" x="48" y="-96">v'==-9.81 &amp;&amp;
+p'==1*v</label>
+		</location>
+		<location id="id6" x="0" y="-32">
+			<urgent/>
+		</location>
+		<init ref="id6"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="guard" x="168" y="-72">p &gt;= 6 &amp;&amp; v &gt;= 0 &amp;&amp; x &gt;= 10</label>
+			<label kind="synchronisation" x="168" y="-88">hit?</label>
+			<label kind="assignment" x="168" y="-56">v = -(0.85+random(0.1))*v - 4</label>
+			<nail x="160" y="-88"/>
+			<nail x="160" y="-40"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="guard" x="168" y="-8">p &gt;= 6 &amp;&amp; v &lt; 0 &amp;&amp; v &gt;= -4 &amp;&amp; x &gt;= 10</label>
+			<label kind="synchronisation" x="168" y="-24">hit?</label>
+			<label kind="assignment" x="168" y="8">v=-4.0</label>
+			<nail x="160" y="-24"/>
+			<nail x="160" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="guard" x="16" y="16">p==0 &amp;&amp; v &lt; 0</label>
+			<label kind="synchronisation" x="16" y="0">bounce!</label>
+			<label kind="assignment" x="16" y="32">v=-(0.8+random(0.12))*v</label>
+			<nail x="72" y="16"/>
+			<nail x="120" y="16"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-48" y="-64">v=5.8+random(0.5)</label>
+		</transition>
+	</template>
+	<system>system Ball3x,Ball3y,Piston;</system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=20; 50] { p }</formula>
+			<comment>Inspect the vertical position over time (50 simulation runs)</comment>
+		</query>
+		<query>
+			<formula>simulate[x&lt;=300; 3] { p }</formula>
+			<comment>Inspect the vertical position over horizontal position as the ball is running away.</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=20](&lt;&gt; time &gt;= 12 &amp;&amp; p &gt;= 4) &gt;= 0.15</formula>
+			<comment>Cheap way of testing the probability that the ball can still be above 4 after 12 time units.</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=20](&lt;&gt; time &gt;= 12 &amp;&amp; p &gt;= 4)</formula>
+			<comment>Expensive way of estimating the probability that the ball can still be above 4 after 12 time units.
+The probability is around 0.5.</comment>
+		</query>
+		<query>
+			<formula></formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

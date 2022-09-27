@@ -1,0 +1,619 @@
+<?xml version='1.0' encoding='utf-8'?>
+<nta>
+	<declaration>// Place global declarations here.
+clock tTL;
+broadcast chan pWantCrss, pGreen, pRed, pYellow, cWantCrss, cGreen, cRed;
+broadcast chan cYellow, pCrss, pFinish;</declaration>
+	<template>
+		<name>TrafficLight</name>
+		<parameter>broadcast chan &amp;cWantCrss, broadcast chan &amp;cGreen, broadcast chan &amp;cYellow, broadcast chan &amp;cRed, broadcast chan &amp;pWantCrss, broadcast chan &amp;pGreen, broadcast chan &amp;pYellow, broadcast chan &amp;pRed</parameter>
+		<declaration>clock tTL;</declaration>
+		<location id="id0" x="-238" y="0">
+			<name x="-238" y="-42">cRed_pGreen</name>
+			<label kind="invariant" x="-221" y="-25">tTL&lt;=55</label>
+		</location>
+		<location id="id1" x="-238" y="68">
+			<committed />
+		</location>
+		<location id="id2" x="-86" y="0">
+			<name x="-86" y="-42">cRed_pYellow</name>
+			<label kind="invariant" x="-69" y="-25">tTL&lt;=5</label>
+		</location>
+		<location id="id3" x="-86" y="68">
+			<committed />
+		</location>
+		<location id="id4" x="51" y="0">
+			<name x="51" y="-42">cGreen_pRed</name>
+			<label kind="invariant" x="68" y="-25">tTL&lt;=55</label>
+		</location>
+		<location id="id5" x="51" y="68">
+			<committed />
+		</location>
+		<location id="id6" x="204" y="0">
+			<name x="204" y="-42">cYellow_pRed</name>
+			<label kind="invariant" x="221" y="-25">tTL&lt;=5</label>
+		</location>
+		<location id="id7" x="204" y="68">
+			<committed />
+		</location>
+		<location id="id8" x="-238" y="-76">
+			<committed />
+		</location>
+		<location id="id9" x="-87" y="-76">
+			<committed />
+		</location>
+		<location id="id10" x="51" y="-76">
+			<committed />
+		</location>
+		<location id="id11" x="204" y="-76">
+			<committed />
+		</location>
+		<init ref="id0" />
+		<transition>
+			<source ref="id6" />
+			<target ref="id11" />
+			<label kind="synchronisation" x="212" y="-59">pWantCrss?</label>
+			<nail x="221" y="-34" />
+			<nail x="221" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id4" />
+			<target ref="id10" />
+			<label kind="synchronisation" x="59" y="-59">pWantCrss?</label>
+			<nail x="68" y="-34" />
+			<nail x="68" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id2" />
+			<target ref="id9" />
+			<label kind="synchronisation" x="-78" y="-59">pWantCrss?</label>
+			<nail x="-70" y="-34" />
+			<nail x="-70" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id0" />
+			<target ref="id8" />
+			<label kind="synchronisation" x="-229" y="-59">pWantCrss?</label>
+			<nail x="-221" y="-34" />
+			<nail x="-221" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id11" />
+			<target ref="id6" />
+			<label kind="synchronisation" x="170" y="-59">pRed!</label>
+			<nail x="187" y="-59" />
+			<nail x="187" y="-34" />
+		</transition>
+		<transition>
+			<source ref="id10" />
+			<target ref="id4" />
+			<label kind="synchronisation" x="17" y="-59">pRed!</label>
+			<nail x="34" y="-59" />
+			<nail x="34" y="-34" />
+		</transition>
+		<transition>
+			<source ref="id9" />
+			<target ref="id2" />
+			<label kind="synchronisation" x="-137" y="-59">pYellow!</label>
+			<nail x="-104" y="-58" />
+			<nail x="-104" y="-34" />
+		</transition>
+		<transition>
+			<source ref="id8" />
+			<target ref="id0" />
+			<label kind="synchronisation" x="-289" y="-59">pGreen!</label>
+			<nail x="-255" y="-59" />
+			<nail x="-255" y="-34" />
+		</transition>
+		<transition>
+			<source ref="id6" />
+			<target ref="id0" />
+			<label kind="guard" x="-26" y="-110">tTL&gt;=5</label>
+			<label kind="assignment" x="25" y="-110">tTL=0</label>
+			<nail x="298" y="0" />
+			<nail x="298" y="-92" />
+			<nail x="-297" y="-92" />
+			<nail x="-297" y="0" />
+		</transition>
+		<transition>
+			<source ref="id4" />
+			<target ref="id6" />
+			<label kind="guard" x="127" y="-17">tTL&gt;=55</label>
+			<label kind="assignment" x="127" y="0">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id2" />
+			<target ref="id4" />
+			<label kind="guard" x="-18" y="-17">tTL&gt;=5</label>
+			<label kind="assignment" x="-18" y="0">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id1" />
+			<target ref="id0" />
+			<label kind="synchronisation" x="-280" y="26">cRed!</label>
+			<nail x="-255" y="42" />
+			<nail x="-255" y="26" />
+		</transition>
+		<transition>
+			<source ref="id0" />
+			<target ref="id1" />
+			<label kind="synchronisation" x="-229" y="26">cWantCrss?</label>
+			<nail x="-221" y="26" />
+			<nail x="-221" y="42" />
+		</transition>
+		<transition>
+			<source ref="id0" />
+			<target ref="id2" />
+			<label kind="guard" x="-161" y="-17">tTL&gt;=55</label>
+			<label kind="assignment" x="-161" y="0">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id3" />
+			<target ref="id2" />
+			<label kind="synchronisation" x="-120" y="25">cRed!</label>
+			<nail x="-102" y="42" />
+			<nail x="-102" y="26" />
+		</transition>
+		<transition>
+			<source ref="id2" />
+			<target ref="id3" />
+			<label kind="synchronisation" x="-78" y="26">cWantCrss?</label>
+			<nail x="-69" y="26" />
+			<nail x="-69" y="42" />
+		</transition>
+		<transition>
+			<source ref="id5" />
+			<target ref="id4" />
+			<label kind="synchronisation" x="0" y="25">cGreen!</label>
+			<nail x="35" y="42" />
+			<nail x="35" y="26" />
+		</transition>
+		<transition>
+			<source ref="id4" />
+			<target ref="id5" />
+			<label kind="synchronisation" x="59" y="25">cWantCrss?</label>
+			<nail x="68" y="26" />
+			<nail x="68" y="42" />
+		</transition>
+		<transition>
+			<source ref="id7" />
+			<target ref="id6" />
+			<label kind="synchronisation" x="153" y="26">cYellow!</label>
+			<nail x="188" y="42" />
+			<nail x="188" y="26" />
+		</transition>
+		<transition>
+			<source ref="id6" />
+			<target ref="id7" />
+			<label kind="synchronisation" x="212" y="26">cWantCrss?</label>
+			<nail x="221" y="26" />
+			<nail x="221" y="42" />
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">TrafficLightCar</name>
+		<parameter>broadcast chan &amp;cWantCrss, broadcast chan &amp;cGreen, broadcast chan &amp;cYellow, broadcast chan &amp;cRed, int tRed, int tGreen, int tYellow</parameter>
+		<declaration>// Place local declarations here.
+clock tTL;</declaration>
+		<location id="id12" x="238" y="136">
+			<name x="195" y="110">Red</name>
+			<label kind="invariant" x="161" y="127">tTL&lt;=tRed</label>
+		</location>
+		<location id="id13" x="238" y="246">
+			<committed />
+		</location>
+		<location id="id14" x="460" y="136">
+			<name x="476" y="93">Green</name>
+			<label kind="invariant" x="476" y="110">tTL&lt;=tGreen</label>
+		</location>
+		<location id="id15" x="460" y="246">
+			<committed />
+		</location>
+		<location id="id16" x="680" y="136">
+			<name x="688" y="102">Yellow</name>
+			<label kind="invariant" x="697" y="127">tTL&lt;=tYellow</label>
+		</location>
+		<location id="id17" x="680" y="246">
+			<committed />
+		</location>
+		<init ref="id12" />
+		<transition>
+			<source ref="id16" />
+			<target ref="id12" />
+			<label kind="guard" x="399" y="51">tTL&gt;=tYellow</label>
+			<label kind="assignment" x="501" y="51">tTL=0</label>
+			<nail x="680" y="51" />
+			<nail x="237" y="51" />
+		</transition>
+		<transition>
+			<source ref="id14" />
+			<target ref="id16" />
+			<label kind="guard" x="493" y="136">tTL&gt;=tGreen</label>
+			<label kind="assignment" x="578" y="136">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id13" />
+			<target ref="id12" />
+			<label kind="synchronisation" x="170" y="187">cRed!</label>
+			<nail x="221" y="212" />
+			<nail x="221" y="170" />
+		</transition>
+		<transition>
+			<source ref="id12" />
+			<target ref="id13" />
+			<label kind="synchronisation" x="262" y="188">cWantCrss?</label>
+			<nail x="255" y="170" />
+			<nail x="255" y="212" />
+		</transition>
+		<transition>
+			<source ref="id12" />
+			<target ref="id14" />
+			<label kind="guard" x="280" y="136">tTL&gt;=tRed</label>
+			<label kind="assignment" x="348" y="136">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id15" />
+			<target ref="id14" />
+			<label kind="synchronisation" x="383" y="187">cGreen!</label>
+			<nail x="444" y="212" />
+			<nail x="444" y="170" />
+		</transition>
+		<transition>
+			<source ref="id14" />
+			<target ref="id15" />
+			<label kind="synchronisation" x="485" y="187">cWantCrss?</label>
+			<nail x="477" y="170" />
+			<nail x="477" y="212" />
+		</transition>
+		<transition>
+			<source ref="id17" />
+			<target ref="id16" />
+			<label kind="synchronisation" x="604" y="187">cYellow!</label>
+			<nail x="664" y="212" />
+			<nail x="664" y="170" />
+		</transition>
+		<transition>
+			<source ref="id16" />
+			<target ref="id17" />
+			<label kind="synchronisation" x="706" y="187">cWantCrss?</label>
+			<nail x="697" y="170" />
+			<nail x="697" y="212" />
+		</transition>
+	</template>
+	<template>
+		<name>TrafficLightPedestrian</name>
+		<parameter>broadcast chan &amp;pWantCrss, broadcast chan &amp;pGreen, broadcast chan &amp;pYellow, broadcast chan &amp;pRed, int tRed, int tGreen, int tYellow</parameter>
+		<declaration>clock tTL;</declaration>
+		<location id="id18" x="-450" y="-25">
+			<name x="-510" y="-51">Green</name>
+			<label kind="invariant" x="-527" y="-34">tTL&lt;=tGreen</label>
+		</location>
+		<location id="id19" x="-229" y="-25">
+			<name x="-204" y="-68">Yellow</name>
+			<label kind="invariant" x="-204" y="-51">tTL&lt;=tYellow</label>
+		</location>
+		<location id="id20" x="-228" y="-136">
+			<committed />
+		</location>
+		<location id="id21" x="-449" y="-136">
+			<committed />
+		</location>
+		<location id="id22" x="0" y="-25">
+			<name x="25" y="-68">Red</name>
+			<label kind="invariant" x="25" y="-51">tTL&lt;=tRed</label>
+		</location>
+		<location id="id23" x="1" y="-136">
+			<committed />
+		</location>
+		<init ref="id18" />
+		<transition>
+			<source ref="id22" />
+			<target ref="id18" />
+			<label kind="guard" x="-280" y="25">tTL&gt;=tRed</label>
+			<label kind="assignment" x="-212" y="25">tTL=0</label>
+			<nail x="0" y="25" />
+			<nail x="-450" y="25" />
+		</transition>
+		<transition>
+			<source ref="id19" />
+			<target ref="id22" />
+			<label kind="guard" x="-170" y="-25">tTL&gt;=tYellow</label>
+			<label kind="assignment" x="-85" y="-25">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id21" />
+			<target ref="id18" />
+			<label kind="synchronisation" x="-526" y="-102">pGreen!</label>
+			<nail x="-466" y="-102" />
+			<nail x="-467" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id18" />
+			<target ref="id21" />
+			<label kind="synchronisation" x="-423" y="-102">pWantCrss?</label>
+			<nail x="-433" y="-59" />
+			<nail x="-432" y="-102" />
+		</transition>
+		<transition>
+			<source ref="id20" />
+			<target ref="id19" />
+			<label kind="synchronisation" x="-314" y="-102">pYellow!</label>
+			<nail x="-245" y="-102" />
+			<nail x="-246" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id19" />
+			<target ref="id20" />
+			<label kind="synchronisation" x="-203" y="-102">pWantCrss?</label>
+			<nail x="-212" y="-59" />
+			<nail x="-211" y="-102" />
+		</transition>
+		<transition>
+			<source ref="id18" />
+			<target ref="id19" />
+			<label kind="guard" x="-408" y="-25">tTL&gt;=tGreen</label>
+			<label kind="assignment" x="-323" y="-25">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id23" />
+			<target ref="id22" />
+			<label kind="synchronisation" x="-68" y="-102">pRed!</label>
+			<nail x="-16" y="-102" />
+			<nail x="-17" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id22" />
+			<target ref="id23" />
+			<label kind="synchronisation" x="26" y="-102">pWantCrss?</label>
+			<nail x="17" y="-59" />
+			<nail x="18" y="-102" />
+		</transition>
+	</template>
+	<template>
+		<name>Pedestrian</name>
+		<parameter>broadcast chan &amp;pWantCrss, broadcast chan &amp;pGreen, broadcast chan &amp;pRed, broadcast chan &amp;pYellow, broadcast chan &amp;pCrss, broadcast chan &amp;pFinish, int tPCrssMin, int tPCrssMax</parameter>
+		<declaration>clock tp;
+clock tTL;</declaration>
+		<location id="id24" x="-680" y="-110">
+			<name x="-706" y="-144">Idle</name>
+			<label kind="invariant" x="-706" y="-102">tTL &lt;= 115</label>
+		</location>
+		<location id="id25" x="-688" y="-51">
+			<name x="-714" y="-43">Crossing</name>
+			<label kind="invariant" x="-714" y="-25">tp&lt;=tPCrssMax</label>
+		</location>
+		<location id="id26" x="-586" y="-110">
+			<name x="-586" y="-144">CheckTL</name>
+			<committed />
+		</location>
+		<location id="id27" x="-586" y="-51">
+			<committed />
+		</location>
+		<location id="id28" x="-765" y="-204">
+			<committed />
+		</location>
+		<location id="id29" x="-671" y="-161">
+			<committed />
+		</location>
+		<location id="id30" x="-765" y="-51">
+			<name x="-775" y="-85">Finish</name>
+		</location>
+		<init ref="id24" />
+		<transition>
+			<source ref="id28" />
+			<target ref="id30" />
+		</transition>
+		<transition>
+			<source ref="id29" />
+			<target ref="id30" />
+		</transition>
+		<transition>
+			<source ref="id24" />
+			<target ref="id26" />
+			<label kind="synchronisation" x="-680" y="-144">pWantCrss!</label>
+		</transition>
+		<transition>
+			<source ref="id29" />
+			<target ref="id27" />
+			<nail x="-620" y="-187" />
+			<nail x="-510" y="-187" />
+			<nail x="-510" y="-76" />
+		</transition>
+		<transition>
+			<source ref="id28" />
+			<target ref="id27" />
+			<nail x="-629" y="-246" />
+			<nail x="-493" y="-246" />
+			<nail x="-493" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id26" />
+			<target ref="id28" />
+			<label kind="synchronisation" x="-637" y="-229">pYellow?</label>
+			<nail x="-586" y="-204" />
+		</transition>
+		<transition>
+			<source ref="id27" />
+			<target ref="id25" />
+			<label kind="synchronisation" x="-654" y="-76">pCrss!</label>
+			<label kind="assignment" x="-646" y="-51">tp=0</label>
+		</transition>
+		<transition>
+			<source ref="id25" />
+			<target ref="id30" />
+			<label kind="guard" x="-875" y="-136">tp&gt;=tPCrssMin</label>
+			<label kind="synchronisation" x="-739" y="-85">pFinish!</label>
+		</transition>
+		<transition>
+			<source ref="id26" />
+			<target ref="id27" />
+			<label kind="synchronisation" x="-578" y="-93">pGreen?</label>
+		</transition>
+		<transition>
+			<source ref="id26" />
+			<target ref="id29" />
+			<label kind="synchronisation" x="-654" y="-178">pRed?</label>
+			<nail x="-603" y="-161" />
+		</transition>
+	</template>
+	<template>
+		<name>Pedestrian_NTL</name>
+		<parameter>broadcast chan &amp;pWantCrss, broadcast chan &amp;pGreen, broadcast chan &amp;pRed, broadcast chan &amp;pYellow, broadcast chan &amp;pCrss, broadcast chan &amp;pFinish, int tPCrssMin, int tPCrssMax</parameter>
+		<declaration>clock tp;</declaration>
+		<location id="id31" x="-688" y="-110">
+			<name x="-714" y="-144">Idle</name>
+		</location>
+		<location id="id32" x="-688" y="-59">
+			<name x="-714" y="-51">Crossing</name>
+			<label kind="invariant" x="-705" y="-34">tp&lt;=tPCrssMax</label>
+		</location>
+		<location id="id33" x="-586" y="-110">
+			<name x="-586" y="-144">CheckTL</name>
+			<committed />
+		</location>
+		<location id="id34" x="-586" y="-59">
+			<committed />
+		</location>
+		<init ref="id31" />
+		<transition>
+			<source ref="id33" />
+			<target ref="id31" />
+			<nail x="-586" y="-161" />
+			<nail x="-688" y="-161" />
+		</transition>
+		<transition>
+			<source ref="id34" />
+			<target ref="id32" />
+			<label kind="synchronisation" x="-654" y="-76">pCrss!</label>
+		</transition>
+		<transition>
+			<source ref="id32" />
+			<target ref="id31" />
+			<label kind="guard" x="-731" y="-93">tp&gt;=tPCrssMin</label>
+			<label kind="synchronisation" x="-680" y="-93">pFinish!</label>
+		</transition>
+		<transition>
+			<source ref="id33" />
+			<target ref="id34" />
+			<label kind="assignment" x="-620" y="-93">tp=0</label>
+		</transition>
+		<transition>
+			<source ref="id33" />
+			<target ref="id31" />
+			<nail x="-594" y="-136" />
+			<nail x="-680" y="-136" />
+		</transition>
+		<transition>
+			<source ref="id31" />
+			<target ref="id33" />
+			<label kind="synchronisation" x="-671" y="-127">pWantCrss!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Car</name>
+		<parameter>broadcast chan &amp;cWantCrss, broadcast chan &amp;cRed, broadcast chan &amp;cGreen, broadcast chan &amp;cYellow, int tCCrssMax, int tCCrssMin, broadcast chan &amp;pCrss, broadcast chan &amp;pFinish</parameter>
+		<declaration>// position of the car
+clock tc;</declaration>
+		<location id="id35" x="144" y="59">
+			<name x="119" y="25">Crossing</name>
+			<label kind="invariant" x="127" y="68">tc&lt;=tCCrssMin</label>
+		</location>
+		<location id="id36" x="-59" y="59">
+			<name x="-51" y="59">Idle</name>
+		</location>
+		<location id="id37" x="51" y="59">
+			<name x="51" y="25">CheckTL</name>
+			<committed />
+		</location>
+		<location id="id38" x="-144" y="102">
+			<name x="-154" y="68">Finish</name>
+		</location>
+		<init ref="id36" />
+		<transition>
+			<source ref="id36" />
+			<target ref="id36" />
+			<label kind="synchronisation" x="-110" y="17">pFinish?</label>
+			<nail x="-102" y="59" />
+			<nail x="-85" y="34" />
+		</transition>
+		<transition>
+			<source ref="id36" />
+			<target ref="id36" />
+			<label kind="synchronisation" x="-119" y="76">pCrss?</label>
+			<nail x="-85" y="93" />
+			<nail x="-93" y="68" />
+		</transition>
+		<transition>
+			<source ref="id37" />
+			<target ref="id36" />
+			<label kind="synchronisation" x="-42" y="17">cRed?</label>
+			<label kind="assignment" x="8" y="17">tc=0</label>
+			<nail x="34" y="34" />
+			<nail x="-42" y="34" />
+		</transition>
+		<transition>
+			<source ref="id35" />
+			<target ref="id38" />
+			<label kind="guard" x="-25" y="85">tc&gt;=tCCrssMin</label>
+			<label kind="assignment" x="76" y="85">tc=0</label>
+			<nail x="142" y="101" />
+			<nail x="-59" y="102" />
+		</transition>
+		<transition>
+			<source ref="id37" />
+			<target ref="id35" />
+			<label kind="synchronisation" x="68" y="42">cGreen?</label>
+			<label kind="assignment" x="76" y="59">tc=0</label>
+		</transition>
+		<transition>
+			<source ref="id37" />
+			<target ref="id36" />
+			<label kind="synchronisation" x="-51" y="-8">cYellow?</label>
+			<label kind="assignment" x="17" y="-8">tc=0</label>
+			<nail x="51" y="10" />
+			<nail x="-59" y="10" />
+		</transition>
+		<transition>
+			<source ref="id36" />
+			<target ref="id37" />
+			<label kind="guard" x="-25" y="59">tc&gt;=1</label>
+			<label kind="synchronisation" x="-42" y="42">cWantCrss!</label>
+		</transition>
+	</template>
+	<template><name>Monitor1</name><location id="id39" x="0" y="200" /><location id="id40" x="300" y="200" /><location id="id41" x="600" y="200"><name x="600" y="180">pass</name></location><location id="id42" x="0" y="-200"><name x="0" y="-220">fail0</name></location><location id="id43" x="300" y="-200"><name x="300" y="-220">fail1</name></location><init ref="id39" /><transition><source ref="id39" /><target ref="id40" /><label kind="synchronisation" x="100" y="170">pGreen?</label></transition><transition><source ref="id40" /><target ref="id41" /><label kind="synchronisation" x="400" y="170">pCrss?</label></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="-99" y="-130">pCheckLight?</label><nail x="-99" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="-33" y="-130">pRed?</label><nail x="-33" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="0" y="-130">pYellow?</label><nail x="0" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="33" y="-130">pCrss?</label><nail x="33" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="66" y="-130">cCrss?</label><nail x="66" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="201" y="-130">pCheckLight?</label><nail x="201" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="234" y="-130">pGreen?</label><nail x="234" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="267" y="-130">pRed?</label><nail x="267" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="300" y="-130">pYellow?</label><nail x="300" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="366" y="-130">cCrss?</label><nail x="366" y="-100" /></transition></template><system>
+
+// =============================================
+// ========== template instantiations ==========
+TrafficLights = TrafficLight(cWantCrss, cGreen, cYellow, cRed, pWantCrss, pGreen, pYellow, pRed);
+Traffic_Light_Car = TrafficLightCar(cWantCrss, cGreen, cYellow, cRed, 60, 55, 5);
+Traffic_Light_Pedestrian = TrafficLightPedestrian(pWantCrss, pGreen, pYellow, pRed, 60, 55, 5);
+Cars  = Car(cWantCrss, cRed, cGreen, cYellow, 4, 1, pCrss, pFinish);
+
+
+LV0Pedestrian1 = Pedestrian_NTL(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 1, 4);
+LV0Pedestrian2 = Pedestrian(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 1, 4);
+LV0Pedestrian3 = Pedestrian(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 4, 10);
+
+LV1Pedestrian1 = Pedestrian_NTL(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 1, 15);
+LV1Pedestrian2 = Pedestrian(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 0, 10);
+
+LV2Pedestrian1 = Pedestrian_NTL(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 0, 10);
+
+LV3Pedestrian1 = Pedestrian_NTL(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish, 0, 15);
+// =============================================
+// ========== systems ==========
+
+
+// pass model checking
+//system Cars, TrafficLights, LV0Pedestrian1;
+//system TrafficLights, Cars, LV0Pedestrian2;
+//system Cars, TrafficLights, LV0Pedestrian3;
+
+//system Cars, TrafficLights, LV1Pedestrian1;
+
+//system Cars, TrafficLights, LV2Pedestrian1;
+
+//system Cars, TrafficLights, LV3Pedestrian1;
+
+system Cars, TrafficLights, LV1Pedestrian2,Monitor1;</system>
+	<queries><query><formula>E&lt;&gt; ! not (PPedestrian.Crossing and PCar.Crossing) &amp;&amp; !Monitor1.pass</formula><comment /></query></queries></nta>

@@ -18,8 +18,13 @@ tracer_custom = TRACER_CUSTOM_WINDOWS if platform.system() == 'Windows' else TRA
 
 class OneClockZone:
     def __init__(self, clock1: str, clock2: str, is_equal: bool, bound_value: int):
-        """
-        clock1 - clock2 < or ≤ bound_value
+        """clock1 - clock2 < or ≤ bound_value
+
+        Args:
+            clock1 (str): _description_
+            clock2 (str): _description_
+            is_equal (bool): _description_
+            bound_value (int): _description_
         """
         self.__clock1: str = clock1
         self.__clock2: str = clock2
@@ -53,8 +58,12 @@ class OneClockZone:
 
 class ClockZone:
     def __init__(self, clockzones: List[OneClockZone]):
-        """
-        ClockZone List
+        """Composed by `OneClockZone`. 
+        
+        For the `.xtr` trace, each state contains several clock zones.
+
+        Args:
+            clockzones (List[OneClockZone]): _description_
         """
         self.__clockzones: List[OneClockZone] = clockzones
 
@@ -75,9 +84,15 @@ class ClockZone:
         return self.__clockzones
 
 class Edges:
-    def __init__(self, start_location, end_location, Guard: str, Sync: str, Update: str):
-        """Edges
-        process.start_location -> process.end_location: {Guard, Sync, Update} 
+    def __init__(self, start_location: str, end_location: str, Guard: str, Sync: str, Update: str):
+        """process.start_location -> process.end_location: {Guard, Sync, Update} 
+
+        Args:
+            start_location (str): _description_
+            end_location (str): _description_
+            Guard (str): _description_
+            Sync (str): _description_
+            Update (str): _description_
         """
         # 下面变量名改为小写
         self.__start_location = start_location
@@ -86,8 +101,6 @@ class Edges:
         self.__Sync = Sync
         self.__Update = Update
         self.__process = self.start_location.split('.')[0]
-        # self.is_sync = Sync != '0'
-        # self.is_grard = Guard != '1'
 
     def __str__(self):
         res = f'{self.process}.{self.start_location} -> {self.process}.{self.end_location}:'
@@ -143,6 +156,14 @@ class Edges:
 
 class Transition:
     def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[Edges] = None):
+        """_summary_
+
+        Args:
+            sync (str): _description_
+            start_process (str): _description_
+            end_process (List[str]): _description_
+            edges (List[Edges], optional): _description_. Defaults to None.
+        """
         self.__sync: str = sync
         self.__start_process: str = start_process
         self.__end_process: List[str] = end_process
@@ -179,8 +200,11 @@ class Transition:
 
 class GlobalVar:
     def __init__(self, variables_name: List[str], variables_value: List[float]):
-        """
-        GlobalVar: variables_name[i] = variables_value[i]
+        """GlobalVar: variables_name[i] = variables_value[i]
+
+        Args:
+            variables_name (List[str]): _description_
+            variables_value (List[float]): _description_
         """
         self.variables_name: List[str] = variables_name
         self.variables_value: List[float] = variables_value
@@ -202,12 +226,13 @@ class SimTrace:
                  global_variables: List[GlobalVar] = []):
         """
         第i个state和第i个transition有相同的clock constraints
-        第i个transition前面跟第i个state，详情看__str__()
+        第i个transition前面跟第i个state, 详情看__str__()
         """
         self.__states: List[List[str]] = states
         self.__global_variables: List[GlobalVar] = global_variables
         self.__clock_constraints: List[ClockZone] = clock_constraints
         self.__transitions: List[Transition] = transitions
+        self.__raw: str = ''
 
         # check length correct
         # is_equal_conlen = len(self.__states) == len(self.__clock_constraints)
@@ -229,6 +254,15 @@ class SimTrace:
                 res += f'transitions [{i}]: {self.__transitions[i].__str__()}\n'
                 res += f'-----------------------------------\n'
         return res
+
+    @property
+    def raw(self) -> str:
+        """Raw data of the trace.
+
+        Returns:
+            str: Raw data of the trace.
+        """
+        return self.__raw
 
     @property
     def states(self) -> List[List[str]]:
@@ -257,13 +291,14 @@ class SimTrace:
         self.__transitions: List[Transition] = []
 
     def filter_by_index(self, index_array: List[int]) -> SimTrace:
-        # 改为slice方法
-        """
-        Filter the corresponding `SimTrace` by index
+        # 用__slice__方法改写
+        """Filter the corresponding `SimTrace` by index.
 
-        :param List[int] index_array: indicating indices list
+        Args:
+            index_array (List[int]): _description_
 
-        :return: a `SimTrace`
+        Returns:
+            SimTrace: _description_
         """
         new_states = [self.__states[i] for i in range(len(self.__states)) if i in index_array]
         new_clock_cons = [self.__clock_constraints[i] for i in range(len(self.__clock_constraints)) if i in index_array]
@@ -272,13 +307,14 @@ class SimTrace:
         new_simtrace = SimTrace(new_states, new_clock_cons, new_transitions, new_global_var)
         return new_simtrace
 
-    def filter_by_actions(self, focused_actions: List[str]=None) -> SimTrace:
-        """
-        Filter the edges by actions
+    def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
+        """Filter the edges by actions
 
-        :param List[int] focused_actions: actions list
+        Args:
+            focused_actions (List[str], optional): actions that you take cares of.
 
-        :return: a `SimTrace` which retains `edges` and `clock constraints`
+        Returns:
+            SimTrace: _description_
         """
         if focused_actions is None:
             return self
@@ -309,18 +345,28 @@ class Tracer:
     """
     Analyze the `xtr` file generated by verification from command line
     """
-
     @staticmethod
-    def get_timed_trace(model_path: str, trace_path: str, hold: bool=False) -> SimTrace:
-        """
-        Get `trace` and its `dclk` interval of each transition state.
-        To emphasize, due to the limitation of verification return of `UPPAAL`, the trace is no longer a specific time, but a constraints of `gclk`, which makes it easier to generate a verification monitor, but is poor at dividing parameters.
+    def get_timed_trace(model_path: str, xtr_trace_path: str, hold: bool=False) -> SimTrace:
+        """Analyze the `xtr_trace_path` trace file generated by `model_path` model and return the instance `SimTrace`.
 
-        :param str model_path: the path of model file
-        :param str trace_path: the path of trace file
-        :param bool hold: determine whether retain intermediate file, e.g., `.if` and `.txt` file
-        :return: a `SimTrace`
+        The internal process is as following: 
+        1. Convert the `model_path` model into a `.if` file.
+        2. Analyze `.if` file and the `xtr_trace_path` to get the instance `SimTrace`.
+        3. [reference](https://github.com/UPPAALModelChecker/utap).
+
+        Args:
+            model_path (str): the path of the `.xml` model file
+            xtr_trace_path (str): the path of the `.xtr` trace file
+            hold (bool, optional): determine whether retain intermediate file, e.g., `.if` and `.txt` file. Defaults to False.
+
+        Raises:
+            FileNotFoundError: _description_
+
+        Returns:
+            SimTrace: _description_
         """
+
+        trace_path = xtr_trace_path
         verifyta = Verifyta()
         # use Verifta to compile model_path to if format file
         if_file = verifyta.compile_to_if(model_path=model_path)
@@ -341,6 +387,8 @@ class Tracer:
         f = open(trace_txt, 'r')
         trace_text = f.readlines()
         f.close()
+        # store the raw trace
+        self.__raw = trace_text
 
         # construct SimulationTrace instance
         clock_constraints, states, global_variables, transitions = [], [], [], []

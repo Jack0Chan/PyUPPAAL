@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+
+chan on;
+chan off;
+
+int __reach__ = 0;
+int __single__ = 0;
+</declaration>
+	<template>
+		<name x="5" y="5">System</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id0" x="136" y="-93">
+			<name x="144" y="-119">On</name>
+			<label kind="testcodeEnter">expect_on();</label>
+		</location>
+		<location id="id1" x="0" y="0">
+			<name x="-34" y="0">Off</name>
+			<label kind="testcodeEnter">expect_off();</label>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="136" y="0">off?</label>
+			<label kind="testcode">set_off();</label>
+			<nail x="136" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-25" y="-110">on?</label>
+			<label kind="testcode">set_on();</label>
+			<nail x="0" y="-93"/>
+		</transition>
+	</template>
+	<template>
+		<name>User</name>
+		<location id="id2" x="-17" y="-17">
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-25" y="34">off!</label>
+			<nail x="-42" y="34"/>
+			<nail x="9" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-26" y="-85">on!</label>
+			<nail x="-43" y="-68"/>
+			<nail x="8" y="-68"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Process = System();
+// List one or more processes to be composed into a system.
+system Process, User;
+
+
+/** TEST_PREFIX
+package app;
+import app.App;
+
+class Test extends App {
+
+    public static void main(String[] args) {
+*/
+
+/** TEST_POSTFIX
+    }
+}
+*/
+</system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

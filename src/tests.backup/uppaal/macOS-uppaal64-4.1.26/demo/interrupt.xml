@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// This model is based on the example of Section 2 in
+// Priorities in Process Algebras, by Rance Cleveland and
+// Matthew Hennesy (Information and Computation, 1990).
+
+// The interrupt controller INT should communicate 'i'
+// whenever possible, so that C cannot receive 'up' or 'down'
+// after INT has received 'shut_down'.
+
+// Uncomment one of the priority specifications to make the model work,
+// by using channel priorities (end of these declarations), or
+// process priorities (system declaration).
+
+// Input to the counter
+chan up, down;
+
+// Shut down request
+chan shut_down;
+
+// Internal communication
+chan i;
+
+// Counter modulo (wrap-around).
+const int MODULO = 16;
+
+// Counter value
+int[0,MODULO-1] count = 0;
+
+// Channel priority declarations
+// =============================
+// Uncomment one of the priority specifications to make the model work.
+
+// (1) 'i' has higher priority than others.
+//chan priority default &lt; i;
+
+// (2) 'i' has higher priority than 'up' and 'down'
+//chan priority up, down &lt; i;
+</declaration>
+	<template>
+		<name x="5" y="5">INT</name>
+		<location id="id0" x="-232" y="-104">
+		</location>
+		<location id="id1" x="-232" y="-192">
+		</location>
+		<location id="id2" x="-232" y="-280">
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-224" y="-160">i!</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-224" y="-248">shut_down?</label>
+		</transition>
+	</template>
+	<template>
+		<name>C</name>
+		<declaration>
+void count_up()
+{
+  count = (count + 1) % MODULO;
+}
+
+void count_down()
+{
+  count = count &gt; 0 ? (count - 1) % MODULO : 0;
+}
+</declaration>
+		<location id="id3" x="-384" y="-224">
+		</location>
+		<location id="id4" x="-384" y="-312">
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-480" y="-344">up?</label>
+			<label kind="assignment" x="-520" y="-328">count_up()</label>
+			<nail x="-448" y="-312"/>
+			<nail x="-448" y="-344"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-320" y="-344">down?</label>
+			<label kind="assignment" x="-320" y="-328">count_down()</label>
+			<nail x="-328" y="-312"/>
+			<nail x="-328" y="-344"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-376" y="-280">i?</label>
+		</transition>
+	</template>
+	<template>
+		<name>env</name>
+		<location id="id5" x="-176" y="64">
+			<name x="-152" y="56">ERROR</name>
+		</location>
+		<location id="id6" x="-176" y="-40">
+			<name x="-160" y="-48">OFF</name>
+		</location>
+		<location id="id7" x="-176" y="-136">
+			<name x="-184" y="-176">ON</name>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-248" y="0">down!</label>
+			<nail x="-208" y="-16"/>
+			<nail x="-208" y="32"/>
+			<nail x="-192" y="48"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-200" y="0">up!</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-168" y="-96">shut_down!</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-288" y="-160">down!</label>
+			<nail x="-240" y="-136"/>
+			<nail x="-240" y="-168"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-104" y="-160">up!</label>
+			<nail x="-112" y="-168"/>
+			<nail x="-112" y="-136"/>
+		</transition>
+	</template>
+	<system>system INT,C,env;
+
+// Use this system line to specify process priorities:
+//system C,env &lt; INT;
+</system>
+	<queries>
+		<query>
+			<formula>A[] not env.ERROR
+			</formula>
+			<comment>env cannot send 'up' or 'down' after sending 'shut_down' (encoded using an error location).
+			</comment>
+		</query>
+	</queries>
+</nta>

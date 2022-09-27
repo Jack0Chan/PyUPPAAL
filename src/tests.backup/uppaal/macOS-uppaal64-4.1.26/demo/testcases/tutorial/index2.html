@@ -1,0 +1,142 @@
+<html>
+<head><title>Test Case Genaration Tutorial part two</title></head>
+<body>
+<h1>Test Case Generation Tutorial part two</h1>
+<p>
+This tutorial assumes you have understood <a href="index.html">part one</a>.
+</p>
+<p>
+For comments or questions please contact Petur Olsen at <code>petur@cs.aau.dk</code> or Marius Mikucionis <code>marius@cs.aau.dk</code>.
+</p>
+<h2>Up/Down system</h2>
+<p>
+Open the <a href="../updown/updown.xml">updown.xml</a> file in Uppaal.
+</p>
+<p>
+The system contains two templates: System and User.
+</p>
+<p>
+The system can be either <code>On</code>, <code>Max</code>, or <code>Off</code>, with channels <code>up</code> and <code>down</code> changing between them.<br/>
+<img src="System2.png"/>
+</p>
+<p>
+The user can non-deterministically press <code>up</code> or <code>down</code>. <br/>
+<img src="ygg-user2.png"/>
+</p>
+<p>
+Global variable declarations and prefix/postfix code is the same as for the on/off model.
+</p>
+<p>
+The system model is decorated with slightly different test code.
+</p>
+<p>
+The state <code>Off</code> is still decorated with <code>expect_off();</code>, similarly the state <code>Max</code> is decorated with <code>expect_max();</code>. The state <code>On</code> is different, since here we want to verify the value of the variable <code>val</code> as well as the location. This is done by entering the value of <code>val</code> into the test case using the code <code>
+expect_on($(System.val));</code>. This will execute the <code>expect_on</code> with the value of <code>val</code> as parameter. Since <code>val</code> is local to the process <code>System</code> the name is entered as <code>System.val</code>.
+</p>
+<p>
+To generate test cases go to the <code>Test Cases</code> tab.<br/>
+<img src="ygg-tab2.png">
+</p>
+<p>
+Select which techniques for test case generation to use. The different techniques are explained in the Uppaal Help Menu. For now only select <code>Depth search</code> and a depth of 20.<br/>
+<img src="ygg-tab-options.png">
+</p>
+<p>
+Select the output folder for test cases. Make this point to the <code>updown</code> folder in this tutorial. <br/>
+<img src="ygg-output2.png">
+</p>
+<p>
+Pressing <code>Generate</code> should generate three trace. Each trace generated will have a line in the list similar to <code>Trace coverage: 5/8</code>. This shows that the trace covered five out of eight edges.
+<br/>
+<img src="ygg-generate2.png">
+</p>
+<p>
+By double clicking the trace and selecting the <code>Simulator</code> tab, the trace can be examined. By selecting <code>Mark Visited</code> in the <code>View</code> menu, all covered edges will be colored blue in the simulator.
+<br/>
+<img src="ygg-simulator2.png">
+</p>
+<p>
+Due to the randomness of the model and the test case generation algorithm it is unlikely to get 100% coverage.
+This coverage can be increased by using the <code>Single step</code> method. This method searches for traces for uncovered edges.
+Activating this method and pressing generate again should generate four traces with <code>8/8</code> in total coverage. <br/>
+<img src="ygg-generate3.png">
+</p>
+<p>
+Pressing the <code>Output</code> button in the <code>Test Cases</code> tab will generate a file called <code>TestCase-000.java</code> in the selected output folder. If several traces have been generated, several files will be generated with sequential numbering.
+</p>
+<p>
+Each of these will be a Java class with the sequence of method invocations induce by the generated trace. A snippet is shown below.
+<pre>
+ 1: package app;
+ 2: import app.App;
+ 3:
+ 4: class Test extends App {
+ 5:
+ 6:     public static void main(String[] args) {
+ 7:
+ 8:
+ 9: expect_off();
+10:
+11: up();
+12:
+13: expect_on(1);
+14:
+15: up();
+16:
+17: expect_on(2);
+18:
+19: up();
+20:
+21: expect_on(3);
+22:
+23: down();
+24:
+25: expect_on(2);
+26:
+27: up();
+   <... snip ...>
+94:     }
+95: }
+</pre>
+</p>
+<p>The composition of the test case is the same as in the first part of the tutorial</p>
+<p>The difference can be seen on lines 13, 17, 21, and 25. Here it is seen that the value of <code>val</code> is entered into the trace. It can be seen that the value increases after <code>up();</code> and decreases after <code>down();</code>.</p>
+<p>
+Running the <code>test.sh</code> (or <code>test.bat</code> on Windows) will compile and run the test cases one at a time.
+It will output the name of each file as it executes them.
+No output from the test case signifies successful execution.
+<pre>
+updown$ ./test.sh
+TestCase-000.java
+TestCase-001.java
+TestCase-002.java
+TestCase-003.java
+updown$
+</pre>
+</p>
+<p>
+Running the <code>testMutant.sh</code> (or <code>testMutant.bat</code> on Windows) will compile and run the test cases on the mutant implementation.
+This should result in an exception being thrown when executing test case number 3, signifying a test error.
+<pre>
+updown$ ./testMutant.sh
+TestCase-000.java
+Exception in thread "main" java.lang.AssertionError
+  at app.App.expect_on(App.java:17)
+  at app.Test.main(Test.java:15)
+TestCase-001.java
+TestCase-002.java
+TestCase-003.java
+Exception in thread "main" java.lang.AssertionError
+  at app.App.expect_on(App.java:17)
+  at app.Test.main(Test.java:15)
+updown$
+</pre>
+</p>
+<p>
+The implementation can be examined in the <code>updown/app</code> folder. See <a href="../updown/app/AppC.java">AppC.java</a> for the correct implementation and <a href="../updown/app/AppM.java">AppM.java</a> for the mutant.
+</p>
+<p>
+<a href="index3.html">Part three</a> explains how to use verification queries to generate traces.
+</p>
+</body>
+</html>

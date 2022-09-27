@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/uppaal-xml">
+    <glob pattern="*.xml" weight="10"/>
+    <sub-class-of type="application/xml"/>
+    <magic priority="60">
+      <match type="string" offset="35:100" value="-//Uppaal Team//DTD"/>
+    </magic>
+    <root-XML namespaceURI="http://www.uppaal.org/2013/Suite" localName="nta" weight="100"/>
+    <alias type="application/vnd.uppaal-xml"/>
+    <alias type="application/x-uppaal-xml"/>
+    <generic-icon name="uppaal-icon"/>
+  </mime-type>
+</mime-info>
