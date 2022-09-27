@@ -5,8 +5,6 @@ from __future__ import annotations
 
 # system powershell
 from subprocess import run
-
-# coding=utf-8
 from typing import List
 import xml.etree.cElementTree as ET
 
@@ -19,7 +17,6 @@ import os
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
     """
-
     def __init__(self, model_path: str):
         self.__model_path: str = model_path
         self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
@@ -70,45 +67,35 @@ class UModel:
                 new_model_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_model_path)
 
-    def get_communication_graph(self, save_path=None) -> Mermaid:
-        """
-        Get the communication graph of the Uppaal model with `.md`, `.svg`, `.png` or `.pdf` file.
+    def get_communication_graph(self, save_path=None, is_beautify=True) -> Mermaid:
+        """Get the communication graph of the UPPAAL model, and return a `Mermaid` instance.
 
-        :param str save_path: the absolute path to save the file
-        :return: None
-        """        
-        mermaid_cg = build_cg(self.model_path)
-        # do something with mermaid_cg
-        m=Mermaid()
-        mermaid_cg = m.merge_mermaid(mermaid_cg)
-        
-        temp_path = self.model_path[: self.model_path.rfind(".")] + "_CG.md"
-        with open(temp_path, "w", encoding='utf-8') as f:
-            f.write(mermaid_cg)
-            
-        print("Communication Graph has been created successfully, you can covert .md to .png/ .svg/ .pdf on https://mermaid.live/edit")
-            
-        # if save_path==None:
-        #     return None
-        # if save_path.endswith(".svg") or save_path.endswith(".png") or save_path.endswith(".pdf"):
-        #     cmd='mmdc -i ' + temp_path + ' -o ' + save_path
-        #     run(cmd, shell=True)
-        #     os.remove(temp_path)
+        Args:
+            save_path (_type_, optional): `<.md | .svg | .pdf | .png>`, the path to save the file. Defaults to None.
+            is_beautify (bool, optional): whether beautify the mermaid file by merging edges. Defaults to True.
 
-    def verify(self, trace_path: str) -> str:
+        Returns:
+            Mermaid: _description_
         """
+        mermaid_str = build_cg(self.model_path)
+        m=Mermaid(mermaid_str)
+        if is_beautify:
+            m.beautify()
+        if save_path:
+            m.export(save_path)
+        return m
+
+    def verify(self, trace_path: str = None) -> str:
+        """什么情况返回SimTrace呢？
         Verify the model, and save the result in `trace_path`.
 
         :param str trace_path: the path of trace file, `< .xtr | .xml>`
         :return: the path of verification result
         """
-        # 取出文件名../AVNRT_Initial_straight.xml
-        idx = self.model_path.rfind('/')
-        # tmp_model_path: ../tmp_verify_AVNRT_Initial_straight.xml
-        tmp_model_path = f'{self.model_path[:idx + 1]}tmp_verify_{self.model_path[idx + 1:]}'
-        self.save(tmp_model_path)
-        # print(tmp_model_path)
-        return Verifyta().simple_verify(tmp_model_path, trace_path)[0]
+        if trace_path:
+            return Verifyta().easy_verify(self.model_path, trace_path)[0]
+        else:
+            return Verifyta().verify(self.model_path)[0]
 
 
 # templates

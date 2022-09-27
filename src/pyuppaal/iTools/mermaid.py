@@ -13,6 +13,12 @@ class Mermaid:
         # List of `[source, edge_name, target]`
         self.__mermaid_list: List[List[str]] = None
 
+    def __str__(self) -> str:
+        return self.__mermaid_str
+    
+    def __repr__(self) -> str:
+        return self.__str__()
+
     @property
     def mermaid_str(self) -> str:
         """Raw mermaid string.

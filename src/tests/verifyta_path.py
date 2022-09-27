@@ -14,3 +14,14 @@ path_dir = {
 }
 
 VERIFYTA_PATH = path_dir[platform.system()]
+
+def bring_to_root(file_name: str) -> str:
+	"""Add root prefix to `file_name`.
+
+	Args:
+		file_name (str): _description_
+
+	Returns:
+		str: _description_
+	"""
+	return os.path.join(ROOT_DIR, file_name)
