@@ -59,7 +59,7 @@ TrafficLights--cYellow-->Cars
 LV1Pedestrian1--pCrss-->Cars
 LV1Pedestrian2--pCrss-->Cars```'''
     m = Mermaid(s)
-    export_files = ['mermaid_test.md', 'mermaid_test.svg', 'mermaid_test.png']
+    export_files = ['mermaid_test.md', 'mermaid_test.svg', 'mermaid_test.pdf', 'mermaid_test.png']
     for export_file in export_files[0:1]:
         export_file = os.path.join(ROOT_DIR, export_file)
         m.export(export_file)

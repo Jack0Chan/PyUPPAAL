@@ -1,19 +1,29 @@
-"""tracer
+"""tracer example:
+State: P2.A t(0)-P2.t<=0 P2.t-t(0)<=10
+
+Transition: P2.A -> P2.B {t >= 10; 0; 1;}
+
+State: P2.B t(0)-P2.t<=-10 P2.t-t(0)<=10
+
+Transition: P2.B -> P2.C {1; 0; 1;}
+
+State: P2.C t(0)-P2.t<=-10 P2.t-t(0)<=20
+
+使用方法 ./trace_custom.exe xxx.if xxx.xtr your_output.txt
+注意输入要是LF行尾，不能是CRLF，否则会报错unknown section
 """
 # 这一行的import能够指定class的method返回自身类
 # 参考链接：https://www.nuomiphp.com/eplan/11188.html
 from __future__ import annotations
-from typing import List, Tuple, Dict
-import xml.etree.cElementTree as ET
+import os
+from typing import List
 from .verifyta import Verifyta
 from .config import TRACER_CUSTOM_PATH
-import os
 
-
-# ClockZone = namedtuple('ClockZone', ['clock1', 'clock2', 'is_equal', 'bound_value'])
-# Transition = namedtuple('Transition', ['sync', 'start_process', 'end_process'])
 
 class OneClockZone:
+    """_summary_
+    """
     def __init__(self, clock1: str, clock2: str, is_equal: bool, bound_value: int):
         """clock1 - clock2 < or ≤ bound_value
 
@@ -38,25 +48,47 @@ class OneClockZone:
 
     @property
     def clock1(self) -> str:
+        """clock1 - clock2 < or ≤ bound_value
+
+        Returns:
+            str: _description_
+        """
         return self.__clock1
 
     @property
     def clock2(self) -> str:
+        """clock1 - clock2 < or ≤ bound_value
+
+        Returns:
+            str: _description_
+        """
         return self.__clock2
 
     @property
     def is_equal(self) -> bool:
+        """clock1 - clock2 < or ≤ bound_value
+
+        Returns:
+            str: _description_
+        """
         return self.__is_equal
 
     @property
     def bound_value(self) -> int:
+        """clock1 - clock2 < or ≤ bound_value
+
+        Returns:
+            str: _description_
+        """
         return self.__bound_value
 
 
 class ClockZone:
+    """Composed by `List` of `OneClockZone`.
+    """
     def __init__(self, clockzones: List[OneClockZone]):
-        """Composed by `OneClockZone`. 
-        
+        """Composed by `List` of `OneClockZone`.
+
         For the `.xtr` trace, each state contains several clock zones.
 
         Args:
@@ -65,93 +97,154 @@ class ClockZone:
         self.__clockzones: List[OneClockZone] = clockzones
 
     def __str__(self):
-        res = f'[]'
-        if len(self.clockzones) > 0:
-            res = '['
-            for i in range(len(self.clockzones)):
-                res += f'{self.clockzones[i].__str__()}; '
-            res += ']'
-        return res
+        if self.clockzones:
+            tmp = '; '.join(self.__clockzones)
+        return f'[{tmp}]'
+        # if len(self.clockzones) > 0:
+        #     res = '['
+        #     for i in range(len(self.clockzones)):
+        #         res += f'{self.clockzones[i].__str__()}; '
+        #     res += ']'
+        # return res
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def clockzones(self) -> List[OneClockZone]:
+        """`List` of `OneClockZone`.
+
+        Returns:
+            List[OneClockZone]: _description_
+        """
         return self.__clockzones
 
+
 class Edges:
-    def __init__(self, start_location: str, end_location: str, Guard: str, Sync: str, Update: str):
-        """process.start_location -> process.end_location: {Guard, Sync, Update} 
+    """process.start_location -> process.end_location: {guard, sync, update}.
+    """
+    def __init__(self, start_location: str, end_location: str, guard: str, sync: str, update: str):
+        """process.start_location -> process.end_location: {guard, sync, update}
 
         Args:
             start_location (str): _description_
             end_location (str): _description_
-            Guard (str): _description_
-            Sync (str): _description_
-            Update (str): _description_
+            guard (str): _description_
+            sync (str): _description_
+            update (str): _description_
         """
-        # 下面变量名改为小写
-        self.__start_location = start_location
-        self.__end_location = end_location
-        self.__Guard = Guard
-        self.__Sync = Sync
-        self.__Update = Update
-        self.__process = self.start_location.split('.')[0]
+        self.__start_location: str = start_location
+        self.__end_location: str = end_location
+        self.__guard: str = guard
+        self.__sync: str = sync
+        self.__update: str = update
+        self.__process: str = self.start_location.split('.')[0]
 
     def __str__(self):
         res = f'{self.process}.{self.start_location} -> {self.process}.{self.end_location}:'
-        res = res + f'{{{self.Guard};{self.Sync};{self.Update}}}'
+        res = res + f'{{{self.guard};{self.sync};{self.update}}}'
         return res
 
     @property
-    def start_location(self):
+    def start_location(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
         return self.__start_location
 
     @property
-    def end_location(self):
+    def end_location(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
         return self.__end_location
 
     @property
-    def Guard(self):
-        return self.__Guard
+    def guard(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        return self.__guard
 
     @property
-    def Sync(self):
-        return self.__Sync
+    def sync(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        return self.__sync
 
     @property
-    def Update(self):
-        return self.__Update
+    def update(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        return self.__update
 
     @property
-    def process(self):
+    def process(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
         return self.__process
 
     @property
-    def is_sync(self):
-        return self.Sync[-1] == '!' or self.Sync[-1] == '?'
+    def is_sync(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        return self.sync[-1] == '!' or self.sync[-1] == '?'
 
     @property
-    def sync_symbol(self):
+    def sync_symbol(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
         if self.is_sync:
-            return self.Sync[:-1]
+            return self.sync[:-1]
         else:
             return None
 
     @property
-    def is_guard(self):
-        return self.Guard != '1'
+    def is_guard(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        return self.guard != '1'
 
     @property
-    def sync_type(self):
+    def sync_type(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
         if self.is_sync:
-            return 'send' if self.Sync[-1] == '!' else 'receive'
+            return 'send' if self.sync[-1] == '!' else 'receive'
         else:
             return None
 
 
 class Transition:
+    """_summary_
+    """
     def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[Edges] = None):
         """_summary_
 
@@ -320,24 +413,6 @@ class SimTrace:
         return self.filter_by_index(index_array)
 
 
-    # def filter_by_clocks(self, concerned_clocks: List[str], is_both: bool) -> SimTrace:
-    #     """通过clockZone筛选trace
-
-    #     Args:
-    #         concerned_clocks (List[str]): _description_
-    #         is_both (bool): _description_
-
-    #     Returns:
-    #         SimTrace: _description_
-    #     """
-    #     if is_both:
-    #         pass
-    #     else:
-    #         pass
-    #     pass
-    #     raise NotImplementedError('NotImplementedError') 
-
-
 class Tracer:
     """
     Analyze the `xtr` file generated by verification from command line
@@ -373,8 +448,8 @@ class Tracer:
         cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path} {trace_txt}'
         cmd_res = os.popen(cmd_command).read()
         # debug
-        # print(cmd_command)
-        # print(cmd_res)
+        print(cmd_command)
+        print(cmd_res)
         
         # check file exist
         if not os.path.exists(trace_txt):
@@ -384,9 +459,6 @@ class Tracer:
         f = open(trace_txt, 'r')
         trace_text = f.readlines()
         f.close()
-        # store the raw trace
-        self.__raw = trace_text
-
         # construct SimulationTrace instance
         clock_constraints, states, global_variables, transitions = [], [], [], []
         for tr_ind in range(len(trace_text)):

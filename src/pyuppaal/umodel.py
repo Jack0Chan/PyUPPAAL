@@ -448,7 +448,7 @@ class UModel:
             # 保存构建好的模型
             new_umodel.save()
 
-            Verifyta().simple_verify(new_umodel.model_path)
+            Verifyta().easy_verify(new_umodel.model_path)
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
             if not os.path.exists(trace_path):
@@ -479,7 +479,7 @@ class UModel:
         if query is not None:
             new_umodel.set_queries(queries=query)
 
-        Verifyta().simple_verify(new_model_path, options=options)
+        Verifyta().easy_verify(new_model_path, options=options)
         trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
         if not os.path.exists(trace_path):
             return []
@@ -553,7 +553,7 @@ class UModel:
             # 保存构建好的模型
             new_umodel.save()
 
-            Verifyta().simple_verify(new_umodel.model_path)
+            Verifyta().easy_verify(new_umodel.model_path)
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
             if not os.path.exists(trace_path):
