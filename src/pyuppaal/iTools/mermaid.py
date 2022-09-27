@@ -145,10 +145,10 @@ class Mermaid:
         return self.mermaid_str
 
     def export(self, target_file: str) -> str:
-        """Export mermaid to a `<.md | .svg | .png>` file.
+        """Export mermaid to a `<.md | .svg | .pdf | .png>` file.
 
         Args:
-            target_file (str): `<.md | .svg | .png>`
+            target_file (str): `<.md | .svg | .pdf | .png>`.
 
         Returns:
             str: path to the target file.
@@ -157,6 +157,9 @@ class Mermaid:
             with open(target_file, 'w', encoding='utf-8') as f:
                 f.write(self.mermaid_str)
         elif target_file.endswith('.svg'):
+            # 实现后别忘了去tests/test_mermaid.py里修改63行的测试 ['mermaid_test.md', 'mermaid_test.svg', 'mermaid_test.png']
+            raise NotImplementedError
+        elif target_file.endswith('.pdf'):
             # 实现后别忘了去tests/test_mermaid.py里修改63行的测试 ['mermaid_test.md', 'mermaid_test.svg', 'mermaid_test.png']
             raise NotImplementedError
         elif target_file.endswith('.png'):
