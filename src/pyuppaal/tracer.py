@@ -1,16 +1,13 @@
+"""tracer
+"""
 # 这一行的import能够指定class的method返回自身类
 # 参考链接：https://www.nuomiphp.com/eplan/11188.html
 from __future__ import annotations
 from typing import List, Tuple, Dict
 import xml.etree.cElementTree as ET
 from .verifyta import Verifyta
-from .config import *
+from .config import TRACER_CUSTOM_PATH
 import os
-import platform
-
-
-platform_system = platform.system()
-tracer_custom = TRACER_CUSTOM_WINDOWS if platform.system() == 'Windows' else TRACER_CUSTOM_LINUX
 
 
 # ClockZone = namedtuple('ClockZone', ['clock1', 'clock2', 'is_equal', 'bound_value'])
@@ -373,7 +370,7 @@ class Tracer:
         file_path, file_ext = os.path.splitext(if_file)
         # use trcer_custom to generate txt file
         trace_txt = file_path +'.txt'
-        cmd_command = f'{tracer_custom} {if_file} {trace_path} {trace_txt}'
+        cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path} {trace_txt}'
         cmd_res = os.popen(cmd_command).read()
         # debug
         # print(cmd_command)
