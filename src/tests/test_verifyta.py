@@ -3,25 +3,27 @@
 import os
 import time
 import pytest
-from verifyta_path import VERIFYTA_PATH
-from verifyta_path import ROOT_DIR
+import verifyta_path
 from pyuppaal import Verifyta
+
+Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
 
 def test_set_verifyta_path():
     """_summary_
     """
+    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
     with pytest.raises(ValueError) as excinfo:
         Verifyta().set_verifyta_path('invalid path')
-    assert Verifyta().set_verifyta_path(VERIFYTA_PATH) is True
+    assert Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH) is True
 
 
 def test_verify():
     """_summary_
     """
-    Verifyta().set_verifyta_path(VERIFYTA_PATH)
-    model_paths = [os.path.join(ROOT_DIR, 'demo1.xml'),
-                   os.path.join(ROOT_DIR, 'demo2.xml'),
-                   os.path.join(ROOT_DIR, 'demo3.xml')]
+    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
+    model_paths = [verifyta_path.bring_to_root('demo1.xml'),
+                   verifyta_path.bring_to_root('demo2.xml'),
+                   verifyta_path.bring_to_root('demo3.xml')]
     # single thread loop
     t0 = time.time()
     verify_ress = Verifyta().verify(model_paths, verify_options='-t 1 -o 0')
@@ -46,16 +48,16 @@ def test_verify():
 def test_easy_verify1():
     """_summary_
     """
-    Verifyta().set_verifyta_path(VERIFYTA_PATH)
-    model_paths = [os.path.join(ROOT_DIR, 'demo1.xml'),
-                   os.path.join(ROOT_DIR, 'demo2.xml'),
-                   os.path.join(ROOT_DIR, 'demo3.xml')]
+    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
+    model_paths = [verifyta_path.bring_to_root('demo1.xml'),
+                   verifyta_path.bring_to_root('demo2.xml'),
+                   verifyta_path.bring_to_root('demo3.xml')]
     # ======== without trace_paths ========
     # the third model do not have counter-example
     # should automatically create .xtr counter-example
     Verifyta().easy_verify(model_paths, verify_options=['-t 1 -o 0', '-t 2 -o 0', '-t 2 -o 1'], num_threads=3)
-    target_trace_paths = [os.path.join(ROOT_DIR, 'demo1-1.xtr'),
-                          os.path.join(ROOT_DIR, 'demo2-1.xtr')]
+    target_trace_paths = [verifyta_path.bring_to_root('demo1-1.xtr'),
+                          verifyta_path.bring_to_root('demo2-1.xtr')]
     for trace_path in target_trace_paths:
         assert os.path.exists(trace_path) is True
         os.remove(trace_path)
@@ -64,18 +66,18 @@ def test_easy_verify1():
 def test_easy_verify2():
     """_summary_
     """
-    Verifyta().set_verifyta_path(VERIFYTA_PATH)
-    model_paths = [os.path.join(ROOT_DIR, 'demo1.xml'),
-                   os.path.join(ROOT_DIR, 'demo2.xml'),
-                   os.path.join(ROOT_DIR, 'demo3.xml')]
+    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
+    model_paths = [verifyta_path.bring_to_root('demo1.xml'),
+                   verifyta_path.bring_to_root('demo2.xml'),
+                   verifyta_path.bring_to_root('demo3.xml')]
     # ======== with trace_paths ========
-    trace_paths = [os.path.join(ROOT_DIR, 't1.xtr'),
-                   os.path.join(ROOT_DIR, 't2-.xml'),
-                   os.path.join(ROOT_DIR, 't3-.xml')]
+    trace_paths = [verifyta_path.bring_to_root('t1.xtr'),
+                   verifyta_path.bring_to_root('t2-.xml'),
+                   verifyta_path.bring_to_root('t3-.xml')]
     Verifyta().easy_verify(model_paths, trace_path=trace_paths, verify_options='-t 1 -o 0', num_threads=3)
     # the third model do not have counter-example
-    target_trace_paths = [os.path.join(ROOT_DIR, 't1-1.xtr'),
-                          os.path.join(ROOT_DIR, 't2-1.xml')]
+    target_trace_paths = [verifyta_path.bring_to_root('t1-1.xtr'),
+                          verifyta_path.bring_to_root('t2-1.xml')]
     for trace_path in target_trace_paths:
         assert os.path.exists(trace_path) is True
         os.remove(trace_path)
