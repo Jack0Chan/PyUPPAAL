@@ -2,6 +2,7 @@
 """
 # support return typing UModel
 from __future__ import annotations
+from enum import auto
 
 # system powershell
 from subprocess import run
@@ -13,14 +14,25 @@ from .verifyta import Verifyta
 from .iTools import UFactory, build_cg ,Mermaid
 from .tracer import SimTrace, Tracer
 import os
+import warnings
 
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
     """
-    def __init__(self, model_path: str):
+    def __init__(self, model_path: str, auto_save = True):
+        """_summary_
+
+        Args:
+            model_path (str): _description_
+            auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
+        """
         self.__model_path: str = model_path
         self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
+        self.auto_save: bool = auto_save
+        if len(self.queries) >= 2:
+            warnings.warn(f'Currently we only support models with only 1 query. If you want more queries, please split the models. Current queries: {self.queries}.')
+        
 
     @property
     def model_path(self) -> str:
@@ -85,23 +97,41 @@ class UModel:
             m.export(save_path)
         return m
 
-    def verify(self, trace_path: str = None) -> str:
-        """什么情况返回SimTrace呢？
-        Verify the model, and save the result in `trace_path`.
+    def verify(self, trace_path: str = None, verify_options: str=None) -> str:
+        """Verify and return the terminal output.
 
-        :param str trace_path: the path of trace file, `< .xtr | .xml>`
-        :return: the path of verification result
+        Args:
+            trace_path (str, optional): _description_. Defaults to None.
+            verify_options (str, optional): _description_. Defaults to None.
+
+        Returns:
+            str: _description_
         """
         if trace_path:
-            return Verifyta().easy_verify(self.model_path, trace_path)[0]
+            return Verifyta().easy_verify(self.model_path, trace_path, verify_options)[0]
         else:
-            return Verifyta().verify(self.model_path)[0]
+            return Verifyta().verify(self.model_path, verify_options)[0]
+
+    def easy_verify(self, verify_options: str="-t 1") -> SimTrace | None:
+        """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return the SimTrace (if exists).
+
+        Args:
+            verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
+
+        Returns:
+            SimTrace | None: if exists a counter example, return a SimTrace, else return None.
+        """
+        xtr_trace_path = self.model_path.replace('.xml', '.xtr')
+        Verifyta().easy_verify(self.model_path, xtr_trace_path, verify_options=verify_options)
+        try:
+            return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
+        except:
+            return None
 
 
-# templates
-
-
-    def get_templates(self) -> List[str]:
+    # ======== templates ========
+    @property
+    def templates(self) -> List[str]:
         """
         :return: the element of template in `List[str]` type
         """
@@ -128,22 +158,21 @@ class UModel:
         """
         template_elem = self.get_template(template_name)
         if template_elem is None:
+            if self.auto_save: self.save()
             return False
         self.__root_elem.remove(template_elem)
+        if self.auto_save: self.save()
         return True
 
 
-# queries
-
-
-    def get_queries(self) -> List[str]:
+    # ======== queries ========
+    @property
+    def queries(self) -> List[str]:
         """
         :return: the str list of queries
         """
-        query_formula_elems = self.__element_tree.findall(
-            './queries/query/formula')
-        queries = ''.join(
-            [query_elem.text for query_elem in query_formula_elems])
+        query_formula_elems = self.__element_tree.findall('./queries/query/formula')
+        queries = [query_elem.text for query_elem in query_formula_elems]
         return queries
 
     def clear_queries(self) -> bool:
@@ -153,8 +182,10 @@ class UModel:
         root = self.__root_elem
         queries_elem = root.find('queries')
         if queries_elem is None:
+            if self.auto_save: self.save()
             return False
         root.remove(queries_elem)
+        if self.auto_save: self.save()
         return True
 
     def set_queries(self, queries: List[str]) -> None:
@@ -167,12 +198,12 @@ class UModel:
         # 然后构造queries并插入到模型中
         queries_elem = UFactory.queries(queries)
         self.__root_elem.append(queries_elem)
+        if self.auto_save: self.save()
 
 
-# system
-
-
-    def get_system(self) -> str:
+    # ======== system ========
+    @property
+    def system(self) -> str:
         """
         :return: the str of system
         """
@@ -187,19 +218,11 @@ class UModel:
         """
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
+        if self.auto_save: self.save()
 
-    # def add_system(self, system_str: str) -> None:
-    #     """
-    #     添加system。值得注意的是，这里实现方法是简单拼接system_str到末尾，并调整好末尾分号的位置，
-    #     那么，如果想添加多个system，比如test1和test2，那么直接传入'test1, test2'即可
-    #     返回self.get_system()
-    #     """
-    #     current_system = self.get_system()
-    #     new_system = f'{current_system[:current_system.rfind(";")]},{system_str};'
-    #     self.set_system(new_system)
-
-# declaration
-    def get_declaration(self) -> str:
+    # ======== declaration ========
+    @property
+    def declaration(self) -> str:
         """
         :return: str of declararion
         """
@@ -214,17 +237,11 @@ class UModel:
         """
         declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
+        if self.auto_save: self.save()
 
-    # def add_declaration(self, declaration_str: str) -> None:
-    #     """
-    #     添加一条新的语句到最后一行或者第一行
-    #     """
-    #     current_declaration = self.get_declaration()
-    #     new_declaration = f'{current_declaration[:-1]},{declaration_str};'
-    #     self.set_declaration(new_declaration)
-
-# other
-    def get_max_location_id(self) -> int:
+    # ======== other ========
+    @property
+    def max_location_id(self) -> int:
         """
         Get the maximum location_id so as to make it easier to create new template
 
@@ -238,7 +255,8 @@ class UModel:
                for location_elem in location_elems]
         return max(ids)
 
-    def get_broadcast_chan(self) -> List[str]:
+    @property
+    def broadcast_chan(self) -> List[str]:
         """
         @yhc get broadcast channels in Declarations
 
@@ -259,21 +277,11 @@ class UModel:
             broadcast_chan += tmp_actions
             start_index = end_index
         start_index = 0
-        # while True:
-        #     start_index = systems.find('broadcast chan', start_index, -1)
-        #     if start_index == -1:
-        #         break
-        #     end_index = systems.find(';', start_index, -1)
-        #     tmp_actions = systems[start_index+15:end_index].strip().split(',')
-        #     tmp_actions = [x.strip() for x in tmp_actions]
-        #     broadcast_chan += tmp_actions
-        #     start_index = end_index
         return list(set(broadcast_chan))
 
 
-# all patterns
-
-    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = False, allpattern: bool = False,is_auto_save: bool = True):
+    # all patterns
+    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = False, allpattern: bool = False):
         """
         Add new linear monitor template, it will also be embedded in `system declarations`. When conflicting, the original monitor will be overwritten.
 
@@ -308,9 +316,7 @@ class UModel:
                 break
         cur_system = '\n'.join(cur_system)
         self.set_system(cur_system)
-        if is_auto_save== True:
-            self.save()
-        
+        if self.auto_save: self.save()
         return None
 
     def add_input(self, input_template_name: str, signals: TimedActions):
@@ -338,6 +344,7 @@ class UModel:
                 break
         cur_system = '\n'.join(cur_system)
         self.set_system(cur_system)
+        if self.auto_save: self.save()
         return None
 
     def find_a_pattern(self, inputs: TimedActions, observes: TimedActions,

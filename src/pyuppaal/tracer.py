@@ -429,6 +429,7 @@ class SimTrace:
         """Parse raw string to components.
         """
         trace_text = self.__raw
+        trace_text = trace_text.split('\n')
         clock_constraints, states, global_variables, transitions = [], [], [], []
         for tr_ind in range(len(trace_text)):
             state_text, globalvar_name, globalvar_val, clockzones_text, transitions_text = [], [], [], [], []
@@ -489,9 +490,22 @@ class SimTrace:
         self.__global_variables = global_variables
 
     def save_raw(self, file_name: str) -> None:
-        # save raw data to .txt file
+        """Save raw data to file.
+
+        Args:
+            file_name (str): _description_
+        """
         with open(file_name, 'w', encoding='utf-8') as f:
             f.write(self.raw)
+
+    def save(self, file_name: str) -> None:
+        """Save self.__str__() to file.
+
+        Args:
+            file_name (str): _description_
+        """
+        with open(file_name, 'w', encoding='utf-8') as f:
+            f.write(self.__str__())
 
     @property
     def raw(self) -> str:
