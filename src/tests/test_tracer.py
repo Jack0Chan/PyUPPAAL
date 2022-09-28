@@ -1,20 +1,29 @@
 """_summary_
 """
+import os
 import verifyta_path
 from pyuppaal import Tracer
 from pyuppaal import Verifyta
 
-Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
-model_path = verifyta_path.bring_to_root('AVNRT_Fake_GroundTruth.xml')
-trace_path = verifyta_path.bring_to_root('AVNRT_Fake_GroundTruth-1.xtr')
-Verifyta().easy_verify(model_path)
+def test_tracer_basic():
+    """_summary_
+    """
+    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
+    model_path = verifyta_path.bring_to_root('pedestrian.xml')
+    trace_path = verifyta_path.bring_to_root('pedestrian-1.xtr')
 
-sim_trace = Tracer.get_timed_trace(model_path, trace_path)
-print(sim_trace)
+    Verifyta().easy_verify(model_path)
+    sim_trace = Tracer.get_timed_trace(model_path, trace_path)
+    assert os.path.exists(trace_path) is True
+    os.remove(trace_path)
+    # ==== save raw SimTrace ====
+    raw_sim_trace_path = verifyta_path.bring_to_root('pedestrian-raw.txt')
+    sim_trace.save_raw(raw_sim_trace_path)
+    assert os.path.exists(raw_sim_trace_path) is True
+    os.remove(raw_sim_trace_path)
 
-
-# Verifyta().set_verifyta_path(VERIFYTA_PATH)
-# model_path = bring_to_root('pedestrian.xml')
-# trace_path = bring_to_root('pedestrian-1.xtr')
-# Verifyta().easy_verify(model_path)
-# print(Tracer.get_timed_trace(model_path, trace_path, hold=False))
+    # ==== save SimTrace ====
+    sim_trace_path = verifyta_path.bring_to_root('pedestrian.txt')
+    sim_trace.save(sim_trace_path)
+    assert os.path.exists(sim_trace_path) is True
+    os.remove(sim_trace_path)

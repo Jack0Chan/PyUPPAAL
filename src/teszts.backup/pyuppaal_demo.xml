@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+broadcast chan hidden_path1, hidden_path2;
+broadcast chan input_ball, observe_ball;
+clock gclk;</declaration>
+	<template>
+		<name x="5" y="5">PipeNet</name>
+		<declaration>// Place local declarations here.
+clock t;</declaration>
+		<location id="id0" x="-51" y="-161">
+			<name x="-102" y="-169">Idle</name>
+		</location>
+		<location id="id1" x="-51" y="77">
+			<name x="-102" y="68">Reset</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-51" y="-84">
+			<name x="-34" y="-93">Entry</name>
+		</location>
+		<location id="id3" x="-51" y="17">
+			<name x="-34" y="9">Exit</name>
+			<committed/>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<nail x="85" y="77"/>
+			<nail x="85" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-144" y="34">observe_ball!</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-25" y="-34">t&gt;=2 &amp;&amp; t&lt;= 4</label>
+			<label kind="synchronisation" x="-25" y="-59">hidden_path2!</label>
+			<nail x="-34" y="-59"/>
+			<nail x="-34" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-170" y="-34">t&gt;=1 &amp;&amp; t&lt;=3</label>
+			<label kind="synchronisation" x="-170" y="-59">hidden_path1!</label>
+			<nail x="-69" y="-59"/>
+			<nail x="-69" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-127" y="-135">input_ball?</label>
+			<label kind="assignment" x="-84" y="-118">t=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Input</name>
+		<location id="id4" x="-229" y="0">
+			<name x="-239" y="-34">Idle</name>
+		</location>
+		<location id="id5" x="-84" y="0">
+		</location>
+		<location id="id6" x="60" y="0">
+			<name x="43" y="-34">Finish</name>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-51" y="-17">gclk==20</label>
+			<label kind="synchronisation" x="-51" y="0">input_ball!</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-195" y="-17">gclk==10</label>
+			<label kind="synchronisation" x="-195" y="0">input_ball!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Monitor0</name>
+		<location id="id7" x="-246" y="-51">
+			<name x="-263" y="-85">Start</name>
+		</location>
+		<location id="id8" x="-102" y="-51">
+		</location>
+		<location id="id9" x="42" y="-51">
+			<name x="26" y="-85">Pass</name>
+		</location>
+		<location id="id10" x="-246" y="51">
+			<name x="-229" y="42">Fail1</name>
+		</location>
+		<location id="id11" x="-102" y="51">
+			<name x="-85" y="42">Fail2</name>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-102" y="0">gclk&lt;23</label>
+			<label kind="synchronisation" x="-102" y="-17">observe_ball?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-246" y="0">gclk&lt;12</label>
+			<label kind="synchronisation" x="-246" y="-17">observe_ball?</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-76" y="-51">gclk==23</label>
+			<label kind="synchronisation" x="-76" y="-68">observe_ball?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-212" y="-51">gclk==12</label>
+			<label kind="synchronisation" x="-221" y="-68">observe_ball?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system PipeNet, Input, Monitor0;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Monitor0.Pass</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

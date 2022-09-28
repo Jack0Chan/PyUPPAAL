@@ -331,6 +331,8 @@ class Verifyta:
                          f'model_path: {len_model_path}, trace_path: {len_trace_path}'
             raise ValueError(error_info)
 
+        if verify_options is None:
+            verify_options = "-t 1"
         if isinstance(verify_options, str):
             verify_options = [verify_options for _ in range(len_model_path)]
 
@@ -352,6 +354,6 @@ class Verifyta:
                 option = f"-f {trace_i.replace('.xtr', '')} {verify_options_i}"
                 options.append(option)
             else:
-                error_info = 'trace_path should end with ".xml" or ".xtr", current trace_path = {trace_i}.'
+                error_info = f'trace_path should end with ".xml" or ".xtr", current trace_path = {trace_i}.'
                 raise ValueError(error_info)
         return self.verify(model_path=model_path, verify_options=options, num_threads=num_threads)
