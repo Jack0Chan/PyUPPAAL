@@ -585,7 +585,7 @@ class Tracer:
         # use Verifta to compile model_path to if format file
         if_file = verifyta.compile_to_if(model_path=model_path)
         # .if 文件名和拓展名
-        file_path, file_ext = os.path.splitext(if_file)
+        # file_path, file_ext = os.path.splitext(if_file)
         # construct command
         cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path}'
         # cmd result

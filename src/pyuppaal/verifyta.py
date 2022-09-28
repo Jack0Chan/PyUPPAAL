@@ -175,7 +175,8 @@ class Verifyta:
         # set uppaal environment variables
         # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
         cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
-        cmd = cmd_env+"&&"+f'{self.__verifyta_path} {model_path} > {if_path}'
+        # cmd = cmd_env+"&&"+f'{self.__verifyta_path} {model_path} > {if_path}'
+        cmd = f'{cmd_env} && {self.__verifyta_path} {model_path} > {if_path}'
         self.cmd(cmd=cmd)
         if not os.path.exists(if_path):
             error_info = f'if file {if_path} has not generated.'
