@@ -9,7 +9,9 @@ Verifyta().set_verifyta_path(VERIFYTA_PATH)
 model_path = bring_to_root('AVNRT_Fake_GroundTruth.xml')
 trace_path = bring_to_root('AVNRT_Fake_GroundTruth-1.xtr')
 Verifyta().easy_verify(model_path)
-print(Tracer.get_timed_trace(model_path, trace_path, hold=False))
+
+sim_trace = Tracer.get_timed_trace(model_path, trace_path, save_raw=False)
+# print(sim_trace)
 
 
 # Verifyta().set_verifyta_path(VERIFYTA_PATH)

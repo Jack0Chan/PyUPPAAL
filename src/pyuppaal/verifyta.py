@@ -244,7 +244,9 @@ class Verifyta:
             raise ValueError(error_info)
 
         # set uppaal environment variables
-        cmd_env = 'set UPPAAL_COMPILE_ONLY=0' if self.__is_windows else "UPPAAL_COMPILE_ONLY=0"
+        # 因为生成.if的时候UPPAAL_COMPILE_ONLY=1, 这里要改回来。但是改成啥都不对，所以就啥都不加，然后就对了。。。
+        # 啥都不加是@yhc试出来的
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self.__is_windows else "UPPAAL_COMPILE_ONLY="
 
         cmds = []
         for i in range(len_model_path):
@@ -257,6 +259,7 @@ class Verifyta:
             # 构造命令
             cmd = cmd_env+'&&'+f'{self.__verifyta_path} {model_i} {verify_options_i}'
             cmds.append(cmd)
+        # print(cmds)
         return self.cmds(cmds=cmds, num_threads=num_threads)
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
