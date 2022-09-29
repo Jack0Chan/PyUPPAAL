@@ -128,26 +128,16 @@ class UModel:
         except:
             return None
 
-
     # ======== templates ========
     @property
     def templates(self) -> List[str]:
-        """
-        :return: the element of template in `List[str]` type
-        """
-        return self.__element_tree.iter("template")
+        """Get all template names of current model.
 
-    def get_template(self, template_name: str) -> str:
+        Returns:
+            List[str]: list of all template names.
         """
-        Get the element according to the input name.
-
-        :param str template_name : the name of template
-        :return: the element of template in `str` type
-        """
-        for template in self.__element_tree.iter("template"):
-            if template.find('name').text == template_name:
-                return template
-        return None
+        template_names = self.__element_tree.findall("./template/name")
+        return [i.text for i in template_names]
 
     def remove_template(self, template_name: str) -> bool:
         """
@@ -156,7 +146,12 @@ class UModel:
         :param str template_name: the name of template
         :return: `True` when succeed, `False` when fail
         """
-        template_elem = self.get_template(template_name)
+        # get template
+        template_elem = None
+        for template in self.__element_tree.iter("template"):
+            if template.find('name').text == template_name:
+                template_elem = template
+        # remove template
         if template_elem is None:
             if self.auto_save: self.save()
             return False
@@ -164,20 +159,23 @@ class UModel:
         if self.auto_save: self.save()
         return True
 
-
     # ======== queries ========
     @property
     def queries(self) -> List[str]:
-        """
-        :return: the str list of queries
+        """Get all queries string.
+
+        Returns:
+            List[str]: _description_
         """
         query_formula_elems = self.__element_tree.findall('./queries/query/formula')
         queries = [query_elem.text for query_elem in query_formula_elems]
         return queries
 
     def clear_queries(self) -> bool:
-        """
-        Delete `queries_elem`, mainly called by `set_queries`
+        """Clear all queries of the model.
+
+        Returns:
+            bool: _description_
         """
         root = self.__root_elem
         queries_elem = root.find('queries')
@@ -189,9 +187,10 @@ class UModel:
         return True
 
     def set_queries(self, queries: List[str]) -> None:
-        """
-        :param List[str] queries: list of queries
-        :return: `self.get_queries()` after setting queries
+        """Set the queries of current model.
+
+        Args:
+            queries (List[str]): `List` of queries to be set.
         """
         # 首先删除所有的queries
         self.clear_queries()
@@ -200,21 +199,22 @@ class UModel:
         self.__root_elem.append(queries_elem)
         if self.auto_save: self.save()
 
-
     # ======== system ========
     @property
     def system(self) -> str:
-        """
-        :return: the str of system
+        """Get the system of the model.
+
+        Returns:
+            str: _description_
         """
         system_elem = self.__element_tree.find('system')
         return system_elem.text
 
     def set_system(self, system_str: str) -> None:
-        """
-        set the str of system to `system_str`
+        """Set the system element of current model.
 
-        :param str system_str: aiming str
+        Args:
+            system_str (str): target system string you want to set.
         """
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
@@ -223,17 +223,19 @@ class UModel:
     # ======== declaration ========
     @property
     def declaration(self) -> str:
-        """
-        :return: str of declararion
+        """Get the declaration of the model.
+
+        Returns:
+            str: _description_
         """
         declaration_elem = self.__element_tree.find('declaration')
         return declaration_elem.text
 
     def set_declaration(self, declaration_str: str) -> None:
-        """
-        set the str of declaration to `declaration_str`
+        """Set the declaration element of current model.
 
-        :param str declaration_str: aiming str
+        Args:
+            declaration_str (str): target declaration string you want to set.
         """
         declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
@@ -241,11 +243,11 @@ class UModel:
 
     # ======== other ========
     @property
-    def max_location_id(self) -> int:
-        """
-        Get the maximum location_id so as to make it easier to create new template
+    def __max_location_id(self) -> int:
+        """Get the maximum location_id so as to make it easier to create a new template.
 
-        :return: the maximum location_id
+        Returns:
+            int: max location id.
         """
         location_elems = self.__element_tree.findall('./template/location')
         # <location id="id0" x="-187" y="-76">
@@ -257,13 +259,13 @@ class UModel:
 
     @property
     def broadcast_chan(self) -> List[str]:
-        """
-        @yhc get broadcast channels in Declarations
+        """Get broadcast channels in Declaration.
 
-        :return: `List[str]`, List of broadcast channels.
+        Returns:
+            List[str]: List of broadcast channels.
         """
-        declarations = self.get_declaration()
-        systems = self.get_system()
+        declarations = self.declaration
+        systems = self.system
         start_index = 0
         broadcast_chan = []
         while True:
@@ -271,63 +273,57 @@ class UModel:
             if start_index == -1:
                 break
             end_index = declarations.find(';', start_index, -1)
-            tmp_actions = declarations[start_index +
-                                       15:end_index].strip().split(',')
+            tmp_actions = declarations[start_index +15:end_index].strip().split(',')
             tmp_actions = [x.strip() for x in tmp_actions]
             broadcast_chan += tmp_actions
             start_index = end_index
         start_index = 0
         return list(set(broadcast_chan))
 
+    def add_observer_template(self, observations: TimedActions, template_name: str='observer', is_strict_observer: bool = True):
+        """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
-    # all patterns
-    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = False, allpattern: bool = False):
+        An observer is xxx.
+
+        Args:
+            observations (TimedActions): observed actions, observed time lower_bound, observed time upper_bound.
+            template_name (str, optional): the name of the template. Defaults to 'observer'.
+            is_strict_observer (bool, optional): if strict, any other observations will be illegal. 
+                For example, assume you set observations `a1, gclk=1, a2, gclk=3`, and there exists trace T: `a1, gclk=1, a2, gclk=2, a2, gclk=3`.
+                If `is_strict_observer` is True, then T is invalid. Defaults to True.
+
+        Returns:
+            _type_: _description_
         """
-        Add new linear monitor template, it will also be embedded in `system declarations`. When conflicting, the original monitor will be overwritten.
+        raise NotImplementedError
 
-        :param str monitor_name: the name of monitor
-        :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
-        :param List[str] observe_actions: observe actions @yhc is there any observe_actions in Timed actions?
-        :param bool strict: determine whether monitor is strict or not
-        :param bool allpattern: determine whether allpattern is enabled
+    def add_pattern_template(self, pattern_list: List[str], template_name: str):
+        """Add a pattern template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
+        
+        Args:
+            pattern_list (List[str]): pattern to be monitored.
+            template_name (str): _description_
+
+        Returns:
+            _type_: _description_
         """
-        # 处理observe_actions is None的情况
-        if observe_actions is None:
-            observe_actions = self.get_broadcast_chan()
+        raise NotImplementedError
 
-        start_id = self.get_max_location_id() + 1
+    def add_input(self, signals: TimedActions, template_name: str='input'):
+        """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
+
+        Args:
+            signals (TimedActions): _description_
+            template_name (str, optional): _description_. Defaults to 'input'.
+
+        Returns:
+            _type_: _description_
+        """
+        start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
-        self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(
-        ), observe_actions, start_id, strict, allpattern)
-        self.__root_elem.insert(-2, monitor)
-        # 将新到monitor加入到system中
-        cur_system = self.get_system()
-        cur_system = cur_system.split('\n')
-        cur_system = [x.strip() for x in cur_system]
-        for i in range(len(cur_system)):
-            if cur_system[i].startswith('system'):
-                tmpl = cur_system[i][6:].split(',')
-                tmpl = [y.strip() for y in tmpl]
-                tmpl = [y.strip(';') for y in tmpl]
-                if monitor_name not in tmpl:
-                    tmpl.insert(0, monitor_name)
-                cur_system[i] = 'system ' + ','.join(tmpl) + ';'
-                break
-        cur_system = '\n'.join(cur_system)
-        self.set_system(cur_system)
-        if self.auto_save: self.save()
-        return None
-
-    def add_input(self, input_template_name: str, signals: TimedActions):
-        """
-        Add new linear input template, it will also be embedded in `system declarations`.
-        """
-        start_id = self.get_max_location_id() + 1
-        # 删除相同名字的monitor
-        self.remove_template(input_template_name)
+        self.remove_template(template_name)
         input_model = UFactory.input(
-            input_template_name, signals.convert_to_list_tuple(), start_id)
+            template_name, signals.convert_to_list_tuple(), start_id)
         self.__root_elem.insert(-2, input_model)
         # 将新到monitor加入到system中
         cur_system = self.get_system()
@@ -338,8 +334,61 @@ class UModel:
                 tmpl = cur_system[i][6:].split(',')
                 tmpl = [y.strip() for y in tmpl]
                 tmpl = [y.strip(';') for y in tmpl]
-                if input_template_name not in tmpl or input_template_name+';' not in tmpl:
-                    tmpl.insert(0, input_template_name)
+                if template_name not in tmpl or template_name+';' not in tmpl:
+                    tmpl.insert(0, template_name)
+                cur_system[i] = 'system ' + ','.join(tmpl) + ';'
+                break
+        cur_system = '\n'.join(cur_system)
+        self.set_system(cur_system)
+        if self.auto_save: self.save()
+        return None
+
+    # all patterns
+    # def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
+        """Add new linear monitor template, which will also be embedded in `system declarations`. 
+        
+        If `monitor_name` already exists in current templates, it will be overwritten.
+
+        Args:
+            monitor_name (str): the template name of the monitor.
+            signals (TimedActions): actions, lower_bound, upper_bound.
+            observe_actions (List[str], optional): _description_. Defaults to None.
+            strict (bool, optional): _description_. Defaults to True.
+            allpattern (bool, optional): _description_. Defaults to False.
+
+        Returns:
+            _type_: _description_
+        """
+
+        """
+        
+
+        :param str monitor_name: the name of monitor
+        :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
+        :param List[str] observe_actions: observe actions @yhc is there any observe_actions in Timed actions?
+        :param bool strict: determine whether monitor is strict or not
+        :param bool allpattern: determine whether allpattern is enabled
+        """
+        # 处理observe_actions is None的情况
+        if observe_actions is None:
+            observe_actions = self.broadcast_chan
+
+        start_id = self.__max_location_id + 1
+        # 删除相同名字的monitor
+        self.remove_template(monitor_name)
+        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), observe_actions, start_id, strict, allpattern)
+        self.__root_elem.insert(-2, monitor)
+        # 将新到monitor加入到system中
+        cur_system = self.system
+        cur_system = cur_system.split('\n')
+        cur_system = [x.strip() for x in cur_system]
+        for i in range(len(cur_system)):
+            if cur_system[i].startswith('system'):
+                tmpl = cur_system[i][6:].split(',')
+                tmpl = [y.strip() for y in tmpl]
+                tmpl = [y.strip(';') for y in tmpl]
+                if monitor_name not in tmpl:
+                    tmpl.insert(0, monitor_name)
                 cur_system[i] = 'system ' + ','.join(tmpl) + ';'
                 break
         cur_system = '\n'.join(cur_system)
@@ -487,12 +536,11 @@ class UModel:
         if not hold:
             os.remove(new_model_path)
             os.remove(trace_path)
-
         return new_umodel.get_queries(), pattern_seq.actions
 
     def find_all_patterns_with_query(self, query: str = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
         """
-        注意这里的input已经在模型中，并且原模型不包含任何Monitor
+        注意这里的input已经在模型中, 并且原模型不包含任何Monitor
 
         observable_events: List[Tuple[str, str, str]]
         在给定input和observation的情况下寻找所有可能的counter example

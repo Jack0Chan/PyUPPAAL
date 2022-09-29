@@ -12,6 +12,10 @@ u.set_queries(['A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)'])
 sim_trace = u.easy_verify()
 sim_trace.save_raw(bring_to_root('pedestrian_raw.txt'))
 print(sim_trace)
+print('====')
+print(u.templates)
+print(u.queries)
+print(u.broadcast_chan)
 
 
 
