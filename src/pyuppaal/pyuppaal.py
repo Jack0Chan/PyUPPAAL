@@ -6,6 +6,9 @@ from .datastruct import TimedActions
 from typing import List
 
 
+def print_test():
+    print("666")
+
 def set_verifyta_path(verifyta_path: str):
     """
     Set verifyta path, and you will get tips if `verifyta_path` is invalid.
