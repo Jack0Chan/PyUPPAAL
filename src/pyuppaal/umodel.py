@@ -30,8 +30,8 @@ class UModel:
         self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
         self.auto_save: bool = auto_save
-        if len(self.queries) >= 2:
-            warnings.warn(f'Currently we only support models with only 1 query. If you want more queries, please split the models. Current queries: {self.queries}.')
+        # if len(self.queries) >= 2:
+        #     warnings.warn(f'Currently we only support models with only 1 query. If you want more queries, please split the models. Current queries: {self.queries}.')
         
 
     @property
@@ -280,6 +280,7 @@ class UModel:
         start_index = 0
         return list(set(broadcast_chan))
 
+    # TODO: change the methods below
     def add_observer_template(self, observations: TimedActions, template_name: str='observer', is_strict_observer: bool = True):
         """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
@@ -308,7 +309,7 @@ class UModel:
             _type_: _description_
         """
         raise NotImplementedError
-
+    
     def add_input(self, signals: TimedActions, template_name: str='input'):
         """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
@@ -322,11 +323,26 @@ class UModel:
         start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
         self.remove_template(template_name)
+
+        # Drain clock name from signals
+        if signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
+            # If the stmt has clk name, like 'a1 > 1', then use the clk name
+            # Only accept input like "a1 > 1" or "a1>1", not ">1" or "1"
+            clock_name = signals.lb[0].split('>')[0]
+        else: # Otherwise, we use the default clock name
+            # accept input like ">1" or "1"
+            clock_name = 'monitor_clk'
+        for i in range(len(signals.lb)): # Remove the clock name and operator
+            # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
+            signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
+            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()
+            
+
         input_model = UFactory.input(
-            template_name, signals.convert_to_list_tuple(), start_id)
+            template_name, signals.convert_to_list_tuple(clock_name), start_id)
         self.__root_elem.insert(-2, input_model)
         # 将新到monitor加入到system中
-        cur_system = self.get_system()
+        cur_system = self.system
         cur_system = cur_system.split('\n')
         cur_system = [x.strip() for x in cur_system]
         for i in range(len(cur_system)):
