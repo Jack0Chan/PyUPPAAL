@@ -360,7 +360,7 @@ class UModel:
         return None
 
     # all patterns
-    # def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
+    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
         """Add new linear monitor template, which will also be embedded in `system declarations`. 
         
         If `monitor_name` already exists in current templates, it will be overwritten.
@@ -438,25 +438,8 @@ class UModel:
                                observe_actions=observe_actions, strict=True)
         # 设置验证语句
         query = 'E<> Monitor0.pass'
-        new_umodel.set_queries([query])
-        # 保存构建好的模型
-        new_umodel.save()
-        # 获取第0个pattern
-        Verifyta().simple_verify(new_model_path, options=options)
-        trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
-        if not os.path.exists(trace_path):
-            return []
 
-        # 通过Trace 得到 Simtrace对象
-        simtrace = Tracer.get_timed_trace(new_model_path, trace_path)
-        # focused_actions = list(set(input_actions + hidden_actions + observe_actions))
-        # print(focused_actions)
-        pattern_seq = simtrace.filter_by_actions(focused_actions)
-
-        if not hold:
-            os.remove(new_model_path)
-            os.remove(trace_path)
-        return query, pattern_seq.actions
+        return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
 
     def find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
                           observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
@@ -502,27 +485,40 @@ class UModel:
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'E<> Monitor0.pass && {monitor_pass_str}'
 
-            # 设置验证语句
-            new_umodel.set_queries([monitor_pass_str])
-            # 保存构建好的模型
-            new_umodel.save()
-
-            Verifyta().easy_verify(new_umodel.model_path)
+            new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
+            if len(new_patterns_raw) == 0:
+                return []
+            else:
+                _, new_patterns = new_patterns_raw
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
-            if not os.path.exists(trace_path):
-                return []
 
-            # 通过Trace 得到 Simtrace对象
-            simtrace = Tracer.get_timed_trace(
-                new_umodel.model_path, trace_path)
-            new_patterns = simtrace.filter_by_actions(focused_actions).actions
             iter = iter + 1
+            
         if not hold:
             os.remove(new_model_path)
             os.remove(trace_path)
 
         return all_patterns
+
+    def find_a_pattern_with_query_inplace(self, query: str, focused_action: List[str] = None, hold = False, options=None):
+        if query is not None:
+            self.set_queries(queries=[query])
+
+        self.save()
+        self.verify(self.model_path, options)
+        trace_path = os.path.splitext(self.model_path)[0] + '-1.xtr'
+        if not os.path.exists(trace_path):
+            return []
+
+        sim_trace = Tracer.get_timed_trace(self.model_path, trace_path)
+        pattern_seq = sim_trace.filter_by_actions(focused_action)
+
+        if not hold:
+            os.remove(trace_path)
+            os.remove(self.model_path)
+        
+        return self.get_queries(), pattern_seq.actions
 
     def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
@@ -532,27 +528,9 @@ class UModel:
         # 设置路径
         # 新模型路径，不覆盖原模型
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        self.copy_as(new_model_path=new_model_path)
-        new_umodel = UModel(new_model_path)
+        new_umodel = self.copy_as(new_model_path=new_model_path)
 
-        if query is not None:
-            new_umodel.set_queries(queries=query)
-
-        Verifyta().easy_verify(new_model_path, options=options)
-        trace_path = os.path.splitext(new_model_path)[0] + '-1.xtr'
-        if not os.path.exists(trace_path):
-            return []
-
-        # 通过Trace 得到 Simtrace对象
-        simtrace = Tracer.get_timed_trace(self.model_path, trace_path)
-        # focused_actions = list(set(input_actions + hidden_actions + observe_actions))
-        # print(focused_actions)
-        pattern_seq = simtrace.filter_by_actions(focused_actions)
-
-        if not hold:
-            os.remove(new_model_path)
-            os.remove(trace_path)
-        return new_umodel.get_queries(), pattern_seq.actions
+        return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
 
     def find_all_patterns_with_query(self, query: str = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
         """
@@ -606,23 +584,18 @@ class UModel:
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
 
-            # 设置验证语句
-            new_umodel.set_queries([monitor_pass_str])
-            # 保存构建好的模型
-            new_umodel.save()
-
-            Verifyta().easy_verify(new_umodel.model_path)
+            new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
+            if len(new_patterns_raw) == 0:
+                return []
+            else:
+                _, new_patterns = new_patterns_raw 
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
-            if not os.path.exists(trace_path):
-                return []
 
-            # 通过Trace 得到 Simtrace对象
-            simtrace = Tracer.get_timed_trace(
-                new_umodel.model_path, trace_path)
-            new_patterns = simtrace.filter_by_actions(focused_actions).actions
             iter = iter + 1
+
         if not hold:
             os.remove(new_model_path)
             os.remove(trace_path)
+
         return all_patterns

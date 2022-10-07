@@ -19,11 +19,6 @@ from pyuppaal import TimedActions
 # print(u.broadcast_chan)
 
 pyuppaal.set_verifyta_path(VERIFYTA_PATH)
-u = UModel(bring_to_root('AVNRT_Fake_GroundTruth.xml'))
-u.save_as(bring_to_root('AVNRT_Fake_GroundTruth_copy.xml'))
-signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
-
-u.add_input(signals)
 
 
 def test_cg():
@@ -49,11 +44,13 @@ def test_verify():
     """_summary_
     """
     u = UModel(bring_to_root('pedestrian.xml'))
-    u.set_queries(['A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)'])
+    u.find_all_patterns_with_query('A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)')
 
 
 def test_add_input_template():
     u = UModel(bring_to_root('AVNRT_Fake_GroundTruth.xml'))
     u.save_as(bring_to_root('AVNRT_Fake_GroundTruth_copy.xml'))
-    signals = TimedActions(["sigIn!", "sigIn!"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
+    signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
     u.add_input(signals)
+
+test_verify()
