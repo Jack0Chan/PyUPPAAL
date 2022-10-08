@@ -580,7 +580,7 @@ clock tc;</declaration>
 			<label kind="synchronisation" x="-42" y="42">cWantCrss!</label>
 		</transition>
 	</template>
-	<template><name>Monitor1</name><location id="id39" x="0" y="200" /><location id="id40" x="300" y="200" /><location id="id41" x="600" y="200"><name x="600" y="180">pass</name></location><location id="id42" x="0" y="-200"><name x="0" y="-220">fail0</name></location><location id="id43" x="300" y="-200"><name x="300" y="-220">fail1</name></location><init ref="id39" /><transition><source ref="id39" /><target ref="id40" /><label kind="synchronisation" x="100" y="170">pGreen?</label></transition><transition><source ref="id40" /><target ref="id41" /><label kind="synchronisation" x="400" y="170">pCrss?</label></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="-99" y="-130">pCheckLight?</label><nail x="-99" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="-33" y="-130">pRed?</label><nail x="-33" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="0" y="-130">pYellow?</label><nail x="0" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="33" y="-130">pCrss?</label><nail x="33" y="-100" /></transition><transition><source ref="id39" /><target ref="id42" /><label kind="synchronisation" x="66" y="-130">cCrss?</label><nail x="66" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="201" y="-130">pCheckLight?</label><nail x="201" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="234" y="-130">pGreen?</label><nail x="234" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="267" y="-130">pRed?</label><nail x="267" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="300" y="-130">pYellow?</label><nail x="300" y="-100" /></transition><transition><source ref="id40" /><target ref="id43" /><label kind="synchronisation" x="366" y="-130">cCrss?</label><nail x="366" y="-100" /></transition></template><system>
+	<system>
 
 // =============================================
 // ========== template instantiations ==========
@@ -615,7 +615,7 @@ LV3Pedestrian1 = Pedestrian_NTL(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish
 
 //system Cars, TrafficLights, LV3Pedestrian1;
 
-system Monitor1,Cars,TrafficLights,LV1Pedestrian2;
+system Cars, TrafficLights, LV1Pedestrian2;
 
 </system>
-	<queries><query><formula>['E&lt;&gt; (PPedestrian.Crossing and PCar.Crossing)'] &amp;&amp; !Monitor1.pass</formula><comment /></query></queries></nta>
+	<queries><query><formula>E&lt;&gt; (PPedestrian.Crossing and PCar.Crossing)</formula><comment /></query></queries></nta>
