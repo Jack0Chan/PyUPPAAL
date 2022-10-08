@@ -31,4 +31,7 @@ class TimedActions:
 
     def convert_to_patterns(self):
         return self.actions
+
+    def __len__(self):
+        return len(self.lb)
     
