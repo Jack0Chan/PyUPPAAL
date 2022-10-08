@@ -21,9 +21,12 @@ State: Cars.Crossing TrafficLights.cGreen_pRed LV1Pedestrian2.Crossing Cars.tCCr
 # 这一行的import能够指定class的method返回自身类
 # 参考链接：https://www.nuomiphp.com/eplan/11188.html
 from __future__ import annotations
+from dataclasses import replace
 import os
-from typing import List
+from typing import Dict, Generator, List
+from xml.etree.ElementTree import Element, ElementTree
 from .verifyta import Verifyta
+import xml.etree.cElementTree as ET
 from .config import TRACER_CUSTOM_PATH
 
 
@@ -339,7 +342,6 @@ class GlobalVar:
     def __repr__(self):
         return self.__str__()
 
-
 class SimTrace:
     """_summary_
     """
@@ -507,6 +509,55 @@ class SimTrace:
         with open(file_name, 'w', encoding='utf-8') as f:
             f.write(self.__str__())
 
+    def trim_transitions(self, model_path: str) -> None:
+        element_tree_root: Element | None = ET.ElementTree(file=model_path).getroot()
+        if element_tree_root is None:
+            raise ValueError(f"Invalid UPPAAL template file")
+
+        # Get template parameters from .xml file
+        templates: Generator[Element, None, None] = element_tree_root.iterfind("template")
+        param_map: Dict[str, List[str]] = dict()
+        for template in templates:
+            name: str = template.find("name").text # uppaal guaranteed this to have only one         
+            param_elememt: Element | None = template.find("parameter") # uppaal guaranteed this to have only one
+            if param_elememt is not None:
+                param_map[name] = list(map(lambda item: item.strip().split(' ')[-1].replace('&', ''), 
+                                        param_elememt.text.split(','))) # remove type and ref annotation
+            else:
+                param_map[name] = []
+
+        
+        # Get system components defination
+        system_items: List[str] = list(filter(lambda line: len(line) > 0 and line.find("//") != 0, # remove comment and empty line
+                                    element_tree_root.find("system").text
+                                        .replace("\r\n", "\n") # unify "\n"
+                                        .replace('\t', '') # remove "\t"
+                                        .split("\n")))[:-1] # remove "system"
+
+        source_map: Dict[str, Dict[str, str]] = dict()
+        for item in system_items:
+            name, constructor = item.replace(";", "").replace(" ", "").split('=') # remove ';' and ' '
+            item_map: Dict[str, str] = dict()
+            left_brace_index = constructor.find('(')
+            constructor_name = constructor[:left_brace_index] # get the name of the constructor(template)
+            real_param_list = constructor[left_brace_index + 1: -1].split(',') # get corresponding param list
+            form_param_list = param_map[constructor_name] # get constructor param list
+
+            for i, real_param in enumerate(real_param_list):
+                item_map[form_param_list[i]] = real_param # map form param to real param
+
+            source_map[name] = item_map
+
+        # print(source_map)
+
+        for i, transition in enumerate(self.__transitions):
+            if transition.sync is not None and transition.start_process in source_map.keys():
+                # If not in the keys, then it does not have a parameter, so we just skip it
+                self.__transitions[i] = Transition(source_map[transition.start_process][transition.sync], 
+                                        transition.start_process, transition.end_process)
+
+
+
     @property
     def raw(self) -> str:
         """Original raw string of the trace.
@@ -612,4 +663,5 @@ class Tracer:
         # remove .if file
         os.remove(if_file)
         res = SimTrace(trace_text)
+        res.trim_transitions(model_path)
         return res
