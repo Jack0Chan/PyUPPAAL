@@ -588,7 +588,7 @@ class UModel:
                 default_query = "E<> ! " + default_query.strip()
         else:
             default_query = query
-        default_query, new_patterns = self.find_a_pattern_with_query(
+        _, new_patterns = self.find_a_pattern_with_query(
             default_query, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         new_umodel = UModel(new_model_path)
@@ -615,7 +615,7 @@ class UModel:
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
 
-            print("=====================start now==================")
+
             new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
             if len(new_patterns_raw) == 0:
                 return []
@@ -623,9 +623,6 @@ class UModel:
                 _, new_patterns = new_patterns_raw 
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
-
-            print(iter)
-            print(new_patterns)
 
             iter = iter + 1
 

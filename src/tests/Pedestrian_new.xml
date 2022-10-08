@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+clock tTL;
+broadcast chan pCheckLight, pGreen, pRed, pYellow, pCrss, pFinish;
+broadcast chan cCheckLight, cGreen, cRed, cYellow, cCrss, cFinish;</declaration>
+	<template>
+		<name>TrafficLight</name>
+		<declaration>clock tTL;</declaration>
+		<location id="id0" x="358" y="0">
+			<name x="358" y="-42">cRed_pGreen</name>
+			<label kind="invariant" x="375" y="-25">tTL&lt;=55</label>
+		</location>
+		<location id="id1" x="358" y="68">
+			<committed/>
+		</location>
+		<location id="id2" x="518" y="0">
+			<name x="518" y="-42">cRed_pYellow</name>
+			<label kind="invariant" x="535" y="-25">tTL&lt;=5</label>
+		</location>
+		<location id="id3" x="518" y="68">
+			<committed/>
+		</location>
+		<location id="id4" x="51" y="0">
+			<name x="51" y="-42">cGreen_pRed</name>
+			<label kind="invariant" x="68" y="-25">tTL&lt;=55</label>
+		</location>
+		<location id="id5" x="51" y="68">
+			<committed/>
+		</location>
+		<location id="id6" x="204" y="0">
+			<name x="204" y="-42">cYellow_pRed</name>
+			<label kind="invariant" x="221" y="-25">tTL&lt;=5</label>
+		</location>
+		<location id="id7" x="204" y="68">
+			<committed/>
+		</location>
+		<location id="id8" x="358" y="-76">
+			<committed/>
+		</location>
+		<location id="id9" x="517" y="-76">
+			<committed/>
+		</location>
+		<location id="id10" x="51" y="-76">
+			<committed/>
+		</location>
+		<location id="id11" x="204" y="-76">
+			<committed/>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="212" y="-59">pCheckLight?</label>
+			<nail x="221" y="-34"/>
+			<nail x="221" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="59" y="-59">pCheckLight?</label>
+			<nail x="68" y="-34"/>
+			<nail x="68" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="526" y="-59">pCheckLight?</label>
+			<nail x="534" y="-34"/>
+			<nail x="534" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="367" y="-59">pCheckLight?</label>
+			<nail x="375" y="-34"/>
+			<nail x="375" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="170" y="-59">pRed!</label>
+			<nail x="187" y="-59"/>
+			<nail x="187" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="17" y="-59">pRed!</label>
+			<nail x="34" y="-59"/>
+			<nail x="34" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="467" y="-59">pYellow!</label>
+			<nail x="500" y="-58"/>
+			<nail x="500" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="307" y="-59">pGreen!</label>
+			<nail x="341" y="-59"/>
+			<nail x="341" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id0"/>
+			<label kind="guard" x="280" y="-17">tTL&gt;=5</label>
+			<label kind="assignment" x="280" y="0">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="guard" x="127" y="-17">tTL&gt;=55</label>
+			<label kind="assignment" x="127" y="0">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="238" y="-110">tTL&gt;=5</label>
+			<label kind="assignment" x="306" y="-110">tTL=0</label>
+			<nail x="620" y="0"/>
+			<nail x="620" y="-93"/>
+			<nail x="8" y="-93"/>
+			<nail x="8" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="316" y="26">cRed!</label>
+			<nail x="341" y="42"/>
+			<nail x="341" y="26"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="367" y="26">cCheckLight?</label>
+			<nail x="375" y="26"/>
+			<nail x="375" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="435" y="-17">tTL&gt;=55</label>
+			<label kind="assignment" x="435" y="0">tTL=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="484" y="25">cRed!</label>
+			<nail x="502" y="42"/>
+			<nail x="502" y="26"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="526" y="26">cCheckLight?</label>
+			<nail x="535" y="26"/>
+			<nail x="535" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="0" y="25">cGreen!</label>
+			<nail x="35" y="42"/>
+			<nail x="35" y="26"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="59" y="25">cCheckLight?</label>
+			<nail x="68" y="26"/>
+			<nail x="68" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="153" y="26">cYellow!</label>
+			<nail x="188" y="42"/>
+			<nail x="188" y="26"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="212" y="26">cCheckLight?</label>
+			<nail x="221" y="26"/>
+			<nail x="221" y="42"/>
+		</transition>
+	</template>
+	<template>
+		<name>Pedestrian</name>
+		<parameter> int tPCrssMin, int tPCrssMax</parameter>
+		<declaration>clock tp;
+clock tTL;</declaration>
+		<location id="id12" x="-722" y="-101">
+			<name x="-739" y="-127">Idle</name>
+			<label kind="invariant" x="-748" y="-93">tTL &lt;= 115</label>
+		</location>
+		<location id="id13" x="-688" y="-42">
+			<name x="-714" y="-68">Crossing</name>
+			<label kind="invariant" x="-739" y="-8">tp&lt;=tPCrssMax</label>
+		</location>
+		<location id="id14" x="-586" y="-101">
+			<name x="-569" y="-110">CheckTL</name>
+			<committed/>
+		</location>
+		<location id="id15" x="-586" y="-42">
+			<committed/>
+		</location>
+		<location id="id16" x="-586" y="-161">
+			<committed/>
+		</location>
+		<location id="id17" x="-773" y="-42">
+			<name x="-765" y="-68">Finish</name>
+		</location>
+		<init ref="id12"/>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<nail x="-773" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-705" y="-118">pCheckLight!</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<nail x="-501" y="-161"/>
+			<nail x="-501" y="-42"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-569" y="-144">pYellow?</label>
+			<nail x="-569" y="-135"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-654" y="-42">pCrss!</label>
+			<label kind="assignment" x="-646" y="-59">tp=0</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-756" y="-59">tp&gt;=tPCrssMin</label>
+			<label kind="synchronisation" x="-756" y="-42">pFinish!</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-578" y="-85">pGreen?</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-646" y="-144">pRed?</label>
+			<nail x="-603" y="-135"/>
+		</transition>
+	</template>
+	<template>
+		<name>Car</name>
+		<parameter>int tCCrssMax, int tCCrssMin</parameter>
+		<declaration>// position of the car
+clock tc;</declaration>
+		<location id="id18" x="153" y="102">
+			<name x="170" y="93">Crossing</name>
+			<label kind="invariant" x="136" y="111">tc&lt;=tCCrssMin</label>
+		</location>
+		<location id="id19" x="-59" y="59">
+			<name x="-42" y="59">Idle</name>
+		</location>
+		<location id="id20" x="68" y="59">
+			<name x="68" y="25">CheckTL</name>
+			<committed/>
+		</location>
+		<location id="id21" x="-59" y="102">
+			<name x="-42" y="102">Finish</name>
+		</location>
+		<location id="id22" x="153" y="59">
+			<committed/>
+		</location>
+		<init ref="id19"/>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="161" y="68">cCrss!</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-42" y="17">cRed?</label>
+			<label kind="assignment" x="8" y="17">tc=0</label>
+			<nail x="51" y="34"/>
+			<nail x="-42" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id21"/>
+			<label kind="guard" x="-17" y="85">tc&gt;=tCCrssMin</label>
+			<label kind="synchronisation" x="51" y="102">cFinish!</label>
+			<label kind="assignment" x="8" y="102">tc=0</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="85" y="42">cGreen?</label>
+			<label kind="assignment" x="93" y="59">tc=0</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-51" y="-8">cYellow?</label>
+			<label kind="assignment" x="17" y="-8">tc=0</label>
+			<nail x="68" y="10"/>
+			<nail x="-59" y="10"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-8" y="59">tc&gt;=1</label>
+			<label kind="synchronisation" x="-42" y="42">cCheckLight!</label>
+		</transition>
+	</template>
+	<system>// ========== systems ==========
+PCar  = Car(4, 1);
+PTrafficLights = TrafficLight();
+PPedestrian = Pedestrian(0, 10);
+
+system PCar, PTrafficLights, PPedestrian;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; (PPedestrian.Crossing and PCar.Crossing)</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
