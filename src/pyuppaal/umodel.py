@@ -121,6 +121,8 @@ class UModel:
         Returns:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
         """
+        if not '-t' in verify_options:
+            raise ValueError(f'-t must be set in verify_options, current verify_options: {verify_options}.')
         xtr_trace_path = self.model_path.replace('.xml', '.xtr')
         Verifyta().easy_verify(self.model_path, xtr_trace_path, verify_options=verify_options)
         try:
@@ -310,7 +312,7 @@ class UModel:
         """
         raise NotImplementedError
     
-    def add_input(self, signals: TimedActions, template_name: str='input'):
+    def add_input_template(self, signals: TimedActions, template_name: str='input'):
         """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         Args:
@@ -325,13 +327,19 @@ class UModel:
         self.remove_template(template_name)
 
         # Drain clock name from signals
-        if signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
+        if len(signals) > 0 and type(signals.lb[0]) != str:
+            signals.lb = list(map(str, signals.lb))
+        
+        if len(signals) > 0 and type(signals.ub[0]) != str:
+            signals.ub = list(map(str, signals.ub))
+
+        if len(signals) > 0 and signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
             # If the stmt has clk name, like 'a1 > 1', then use the clk name
             # Only accept input like "a1 > 1" or "a1>1", not ">1" or "1"
             clock_name = signals.lb[0].split('>')[0]
         else: # Otherwise, we use the default clock name
             # accept input like ">1" or "1"
-            clock_name = 'monitor_clk'
+            clock_name = 'input_clk'
         for i in range(len(signals.lb)): # Remove the clock name and operator
             # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
             signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
@@ -360,7 +368,7 @@ class UModel:
         return None
 
     # all patterns
-    def add_monitor(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
+    def add_monitor_template(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
         """Add new linear monitor template, which will also be embedded in `system declarations`. 
         
         If `monitor_name` already exists in current templates, it will be overwritten.
@@ -385,9 +393,29 @@ class UModel:
         :param bool strict: determine whether monitor is strict or not
         :param bool allpattern: determine whether allpattern is enabled
         """
+        
         # 处理observe_actions is None的情况
         if observe_actions is None:
             observe_actions = self.broadcast_chan
+
+        # Drain clock name from signals
+        if len(signals) > 0 and type(signals.lb[0]) != str:
+            signals.lb = list(map(str, signals.lb))
+        
+        if len(signals) > 0 and type(signals.ub[0]) != str:
+            signals.ub = list(map(str, signals.ub))
+
+        if len(signals) > 0 and signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
+            # If the stmt has clk name, like 'a1 > 1', then use the clk name
+            # Only accept input like "a1 > 1" or "a1>1", not ">1" or "1"
+            clock_name = signals.lb[0].split('>')[0]
+        else: # Otherwise, we use the default clock name
+            # accept input like ">1" or "1"
+            clock_name = 'input_clk'
+        for i in range(len(signals.lb)): # Remove the clock name and operator
+            # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
+            signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
+            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()            
 
         start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
@@ -433,8 +461,8 @@ class UModel:
         patterns = []
         # 构建Monitor0
 
-        new_umodel.add_input('input0', inputs)
-        new_umodel.add_monitor('Monitor0', observes,
+        new_umodel.add_input_template(inputs, "input0")
+        new_umodel.add_monitor_template('Monitor0', observes,
                                observe_actions=observe_actions, strict=True)
         # 设置验证语句
         query = 'E<> Monitor0.pass'
@@ -470,12 +498,12 @@ class UModel:
         all_patterns = []
         monitor_id = 0
         iter = 1
-        while len(new_patterns) != 0 and (iter <= max_patterns) if max_patterns is not None else True:
+        while len(new_patterns) != 0 and (iter <= max_patterns if max_patterns is not None else True):
             monitor_id += 1
             all_patterns.append((monitor_pass_str, new_patterns))
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
-            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
+            new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
             
             # 构造验证语句
             # 构造monitor.pass
@@ -491,7 +519,7 @@ class UModel:
             else:
                 _, new_patterns = new_patterns_raw
 
-            trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
+            trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'         
 
             iter = iter + 1
             
@@ -506,19 +534,22 @@ class UModel:
             self.set_queries(queries=[query])
 
         self.save()
-        self.verify(self.model_path, options)
-        trace_path = os.path.splitext(self.model_path)[0] + '-1.xtr'
-        if not os.path.exists(trace_path):
+        if options is not None:
+            sim_trace = self.easy_verify(options)
+        else:
+            sim_trace = self.easy_verify()
+
+        if sim_trace is None:
             return []
 
-        sim_trace = Tracer.get_timed_trace(self.model_path, trace_path)
+        trace_path = os.path.splitext(self.model_path)[0] + '-1.xtr'
         pattern_seq = sim_trace.filter_by_actions(focused_action)
 
         if not hold:
             os.remove(trace_path)
             os.remove(self.model_path)
         
-        return self.get_queries(), pattern_seq.actions
+        return self.queries, pattern_seq.actions
 
     def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
         """
@@ -573,7 +604,7 @@ class UModel:
             monitor_id += 1
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
-            new_umodel.add_monitor(f'Monitor{monitor_id}', new_observes,
+            new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes,
                                    observe_actions=focused_actions, strict=True, allpattern=True)
 
             # 构造验证语句
@@ -584,6 +615,7 @@ class UModel:
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
 
+            print("=====================start now==================")
             new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
             if len(new_patterns_raw) == 0:
                 return []
@@ -591,6 +623,9 @@ class UModel:
                 _, new_patterns = new_patterns_raw 
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
+
+            print(iter)
+            print(new_patterns)
 
             iter = iter + 1
 

@@ -550,7 +550,12 @@ class SimTrace:
         new_clock_cons = [self.__clock_constraints[i] for i in range(len(self.__clock_constraints)) if i in index_array]
         new_transitions = [self.__transitions[i] for i in range(len(self.__transitions)) if i in index_array]
         new_global_var = [self.__global_variables[i] for i in range(len(self.__global_variables)) if i in index_array]
-        new_simtrace = SimTrace(new_states, new_clock_cons, new_transitions, new_global_var)
+        # new_simtrace = SimTrace(new_states, new_clock_cons, new_transitions, new_global_var)
+        new_simtrace = SimTrace("")
+        new_simtrace.__states = new_states
+        new_simtrace.__clock_constraints = new_clock_cons
+        new_simtrace.__transitions = new_transitions
+        new_simtrace.__global_variables = new_global_var
         return new_simtrace
 
     def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:

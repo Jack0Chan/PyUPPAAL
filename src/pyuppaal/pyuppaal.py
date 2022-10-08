@@ -21,9 +21,9 @@ def set_verifyta_path(verifyta_path: str):
     Verifyta().set_verifyta_path(verifyta_path)
 
 
-def simple_verify(model_path: str | List[str], trace_path: str | List[str], parallel: str = None):
+def easy_verify(model_path: str | List[str], trace_path: str | List[str], verify_options: str="-t 1", num_threads=1):
     """
-    Simple verification with default options, return to the shortest diagnostic path. 
+    Easy verification with default options, return to the shortest diagnostic path. 
     Verify the model in model_path and save the verification results to trace_path.
 
     :param str or List[str] model_path: model paths to be verified.
@@ -31,7 +31,7 @@ def simple_verify(model_path: str | List[str], trace_path: str | List[str], para
     :param str parallel: <'process'|'threads'>, select parallel method for accelerate verification, 
         None(default): run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
     """
-    return Verifyta().simple_verify(model_path, trace_path, parallel)
+    return Verifyta().easy_verify(model_path, trace_path, verify_options, num_threads)
 
 
 def get_timed_trace(model_path: str, trace_path: str, hold: bool = False):
