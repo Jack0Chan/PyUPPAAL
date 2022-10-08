@@ -1,0 +1,522 @@
+<?xml version='1.0' encoding='utf-8'?>
+<nta>
+	<declaration>broadcast chan sigIn,sigOut;
+broadcast chan actNodeSA,actNodeHisA,actNodeSP,actNodeFP,actNodeHisH,actNodeHisV;
+broadcast chan actPathSA,actPathHisA,actPathSP,actPathFP,actPathHisH,actPathHisV;
+clock gclk;
+
+const int tERPMinSA = 241;
+const int tERPMaxSA = 242;
+const int tRestMinSA = 1000;
+const int tRestMaxSA = 1000;
+const int tERPMinSP = 200;
+const int tERPMaxSP = 500;
+const int tERPMinFP = 200;
+const int tERPMaxFP = 500;
+const int tCondMinSAHisA = 10;
+const int tCondMaxSAHisA = 28;
+const int tCondMinHisAHisH = 10;
+const int tCondMaxHisAHisH = 100;
+const int tCondMinSASP = 100;
+const int tCondMaxSASP = 500;
+const int tCondMinSPHisH = 407;
+const int tCondMaxSPHisH = 500;
+const int tCondMinHisHHisV = 10;
+const int tCondMaxHisHHisV = 118;</declaration>
+	<template>
+		<name x="5" y="5">Node</name>
+		<parameter>broadcast chan &amp;actNode, broadcast chan &amp;actPath, int tRestMin, int tRestMax, int tERPMin, int tERPMax</parameter>
+		<declaration>// Place local declarations here.
+clock t;</declaration>
+		<location id="id0" x="-187" y="-76">
+			<name x="-221" y="-110">Rest</name>
+			<label kind="invariant" x="-272" y="-68">t&lt;=tRestMax</label>
+		</location>
+		<location id="id1" x="25" y="-76">
+			<name x="-17" y="-85">ERP</name>
+			<label kind="invariant" x="34" y="-59">t&lt;=tERPMax</label>
+		</location>
+		<location id="id2" x="-51" y="-119">
+			<committed />
+		</location>
+		<init ref="id0" />
+		<transition>
+			<source ref="id1" />
+			<target ref="id1" />
+			<label kind="synchronisation" x="76" y="-93">actNode?</label>
+			<nail x="67" y="-102" />
+			<nail x="67" y="-59" />
+		</transition>
+		<transition>
+			<source ref="id2" />
+			<target ref="id1" />
+			<label kind="synchronisation" x="-34" y="-136">actPath!</label>
+			<nail x="25" y="-119" />
+		</transition>
+		<transition>
+			<source ref="id0" />
+			<target ref="id2" />
+			<label kind="synchronisation" x="-178" y="-136">actNode?</label>
+			<label kind="assignment" x="-102" y="-136">t=0</label>
+			<nail x="-187" y="-119" />
+		</transition>
+		<transition>
+			<source ref="id1" />
+			<target ref="id0" />
+			<label kind="guard" x="-153" y="-51">t&gt;=tERPMin</label>
+			<label kind="assignment" x="-51" y="-51">t=0</label>
+			<nail x="25" y="-34" />
+			<nail x="-187" y="-34" />
+		</transition>
+		<transition>
+			<source ref="id0" />
+			<target ref="id2" />
+			<label kind="guard" x="-170" y="-93">t&gt;=tRestMin</label>
+			<label kind="assignment" x="-76" y="-93">t=0</label>
+			<nail x="-51" y="-76" />
+		</transition>
+	</template>
+	<template>
+		<name>NodeN</name>
+		<parameter>broadcast chan &amp;actNode, broadcast chan &amp;actPath,int tERPMin, int tERPMax</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id3" x="105" y="56">
+			<name x="71" y="22">Rest</name>
+		</location>
+		<location id="id4" x="284" y="56">
+			<name x="292" y="22">ERP</name>
+			<label kind="invariant" x="293" y="73">t&lt;=tERPMax</label>
+		</location>
+		<location id="id5" x="173" y="13">
+			<committed />
+		</location>
+		<init ref="id3" />
+		<transition>
+			<source ref="id4" />
+			<target ref="id4" />
+			<label kind="synchronisation" x="351" y="47">actNode?</label>
+			<nail x="343" y="30" />
+			<nail x="343" y="73" />
+		</transition>
+		<transition>
+			<source ref="id5" />
+			<target ref="id4" />
+			<label kind="synchronisation" x="190" y="-12">actPath!</label>
+			<nail x="284" y="13" />
+		</transition>
+		<transition>
+			<source ref="id3" />
+			<target ref="id5" />
+			<label kind="synchronisation" x="97" y="-12">actNode?</label>
+			<label kind="assignment" x="131" y="13">t=0</label>
+			<nail x="105" y="13" />
+		</transition>
+		<transition>
+			<source ref="id4" />
+			<target ref="id3" />
+			<label kind="guard" x="139" y="90">t&gt;=tERPMin</label>
+			<label kind="assignment" x="156" y="107">t=0</label>
+			<nail x="284" y="107" />
+			<nail x="105" y="107" />
+		</transition>
+	</template>
+	<template>
+		<name>NodeNoERP</name>
+		<parameter>broadcast chan &amp;actNode, broadcast chan &amp;actPath</parameter>
+		<location id="id6" x="-195" y="-25">
+			<name x="-229" y="-59">Rest</name>
+		</location>
+		<location id="id7" x="-127" y="-68">
+			<committed />
+		</location>
+		<init ref="id6" />
+		<transition>
+			<source ref="id7" />
+			<target ref="id6" />
+			<label kind="synchronisation" x="-119" y="-51">actPath!</label>
+			<nail x="-127" y="-25" />
+		</transition>
+		<transition>
+			<source ref="id6" />
+			<target ref="id7" />
+			<label kind="synchronisation" x="-203" y="-93">actNode?</label>
+			<nail x="-195" y="-68" />
+		</transition>
+	</template>
+	<template>
+		<name>Path</name>
+		<parameter>broadcast chan &amp;actPath1, broadcast chan &amp;actPath2, broadcast chan &amp;actNode1, broadcast chan &amp;actNode2, int tCondMin, int tCondMax</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id8" x="-178" y="-42">
+			<name x="-178" y="-76">Idle</name>
+		</location>
+		<location id="id9" x="-306" y="-42">
+			<name x="-348" y="-76">Ante</name>
+			<label kind="invariant" x="-399" y="-34">t&lt;=tCondMax</label>
+		</location>
+		<location id="id10" x="-51" y="-42">
+			<name x="-42" y="-76">Retro</name>
+			<label kind="invariant" x="-42" y="-34">t&lt;=tCondMax</label>
+		</location>
+		<location id="id11" x="-178" y="51">
+			<label kind="invariant" x="-170" y="59">t&lt;=2</label>
+		</location>
+		<init ref="id8" />
+		<transition>
+			<source ref="id9" />
+			<target ref="id11" />
+			<label kind="synchronisation" x="-288" y="85">actPath2?</label>
+			<label kind="assignment" x="-288" y="102">t=0</label>
+			<nail x="-306" y="102" />
+			<nail x="-178" y="102" />
+		</transition>
+		<transition>
+			<source ref="id10" />
+			<target ref="id11" />
+			<label kind="synchronisation" x="-160" y="85">actPath1?</label>
+			<label kind="assignment" x="-160" y="102">t=0</label>
+			<nail x="-51" y="102" />
+			<nail x="-178" y="102" />
+		</transition>
+		<transition>
+			<source ref="id9" />
+			<target ref="id11" />
+			<label kind="guard" x="-289" y="17">t&gt;=tCondMin</label>
+			<label kind="synchronisation" x="-288" y="34">actNode2!</label>
+			<label kind="assignment" x="-288" y="51">t=0</label>
+			<nail x="-306" y="51" />
+		</transition>
+		<transition>
+			<source ref="id11" />
+			<target ref="id8" />
+			<label kind="guard" x="-170" y="-17">t&gt;=2</label>
+			<label kind="assignment" x="-170" y="0">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id10" />
+			<target ref="id11" />
+			<label kind="guard" x="-136" y="17">t&gt;=tCondMin</label>
+			<label kind="synchronisation" x="-136" y="34">actNode1!</label>
+			<label kind="assignment" x="-93" y="51">t=0</label>
+			<nail x="-51" y="51" />
+		</transition>
+		<transition>
+			<source ref="id8" />
+			<target ref="id10" />
+			<label kind="synchronisation" x="-144" y="-68">actPath2?</label>
+			<label kind="assignment" x="-127" y="-42">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id8" />
+			<target ref="id9" />
+			<label kind="synchronisation" x="-272" y="-68">actPath1?</label>
+			<label kind="assignment" x="-246" y="-42">t=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>NPNPath</name>
+		<parameter>broadcast chan &amp;actPath1, broadcast chan &amp;actPath2, broadcast chan &amp;actNode1, broadcast chan &amp;actNode2, int tCondMin, int tCondMax, int tERPMin, int tERPMax</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id12" x="-178" y="-42">
+			<name x="-178" y="-76">Idle</name>
+		</location>
+		<location id="id13" x="-306" y="-42">
+			<name x="-348" y="-76">Ante</name>
+			<label kind="invariant" x="-399" y="-34">t&lt;=tCondMax</label>
+		</location>
+		<location id="id14" x="-51" y="-42">
+			<name x="-42" y="-76">Retro</name>
+			<label kind="invariant" x="-42" y="-34">t&lt;=tCondMax</label>
+		</location>
+		<location id="id15" x="-178" y="51">
+			<label kind="invariant" x="-170" y="59">t&lt;=tERPMax</label>
+		</location>
+		<init ref="id12" />
+		<transition>
+			<source ref="id13" />
+			<target ref="id15" />
+			<label kind="synchronisation" x="-288" y="85">actPath2?</label>
+			<nail x="-306" y="102" />
+			<nail x="-178" y="102" />
+		</transition>
+		<transition>
+			<source ref="id14" />
+			<target ref="id15" />
+			<label kind="synchronisation" x="-160" y="85">actPath1?</label>
+			<nail x="-51" y="102" />
+			<nail x="-178" y="102" />
+		</transition>
+		<transition>
+			<source ref="id13" />
+			<target ref="id15" />
+			<label kind="guard" x="-289" y="17">t&gt;=tCondMin</label>
+			<label kind="synchronisation" x="-288" y="34">actNode2!</label>
+			<nail x="-306" y="51" />
+		</transition>
+		<transition>
+			<source ref="id15" />
+			<target ref="id12" />
+			<label kind="guard" x="-170" y="-17">t&gt;=tERPMin</label>
+			<label kind="assignment" x="-170" y="0">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id14" />
+			<target ref="id15" />
+			<label kind="guard" x="-136" y="17">t&gt;=tCondMin</label>
+			<label kind="synchronisation" x="-136" y="34">actNode1!</label>
+			<nail x="-51" y="51" />
+		</transition>
+		<transition>
+			<source ref="id12" />
+			<target ref="id14" />
+			<label kind="synchronisation" x="-144" y="-68">actPath2?</label>
+			<label kind="assignment" x="-127" y="-42">t=0</label>
+		</transition>
+		<transition>
+			<source ref="id12" />
+			<target ref="id13" />
+			<label kind="synchronisation" x="-272" y="-68">actPath1?</label>
+			<label kind="assignment" x="-246" y="-42">t=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>ConvertOut</name>
+		<location id="id16" x="-85" y="-17">
+		</location>
+		<location id="id17" x="59" y="-17">
+			<name x="76" y="-25">out</name>
+			<committed />
+		</location>
+		<init ref="id16" />
+		<transition>
+			<source ref="id16" />
+			<target ref="id17" />
+			<label kind="synchronisation" x="-68" y="-93">actPathHisA?</label>
+			<nail x="-85" y="-68" />
+			<nail x="59" y="-68" />
+		</transition>
+		<transition>
+			<source ref="id16" />
+			<target ref="id17" />
+			<label kind="synchronisation" x="-68" y="-42">actPathHisV?</label>
+		</transition>
+		<transition>
+			<source ref="id16" />
+			<target ref="id17" />
+			<label kind="synchronisation" x="-68" y="-68">actPathHisH?</label>
+			<nail x="-85" y="-42" />
+			<nail x="59" y="-42" />
+		</transition>
+		<transition>
+			<source ref="id17" />
+			<target ref="id16" />
+			<label kind="synchronisation" x="-51" y="0">sigOut!</label>
+			<nail x="59" y="17" />
+			<nail x="-85" y="17" />
+		</transition>
+	</template>
+	<template>
+		<name>ConvertIn</name>
+		<location id="id18" x="0" y="0">
+		</location>
+		<location id="id19" x="119" y="0">
+			<committed />
+		</location>
+		<init ref="id18" />
+		<transition>
+			<source ref="id18" />
+			<target ref="id19" />
+			<label kind="synchronisation" x="34" y="-17">sigIn?</label>
+		</transition>
+		<transition>
+			<source ref="id19" />
+			<target ref="id18" />
+			<label kind="synchronisation" x="17" y="34">actNodeSA!</label>
+			<nail x="119" y="51" />
+			<nail x="0" y="51" />
+		</transition>
+	</template>
+	<template>
+		<name>Timer</name>
+		<declaration>clock t;</declaration>
+		<location id="id23" x="-425" y="-102">
+			<name x="-435" y="-136">Start</name>
+			<label kind="invariant" x="-484" y="-85">t&lt;=10000</label>
+		</location>
+		<location id="id24" x="-289" y="-102">
+			<name x="-299" y="-136">Stop</name>
+		</location>
+		<init ref="id23" />
+		<transition>
+			<source ref="id23" />
+			<target ref="id24" />
+			<label kind="guard" x="-391" y="-102">t&gt;=10000</label>
+		</transition>
+	</template>
+	<template>
+		<name>Input</name>
+		<location id="id25" x="0" y="200">
+			<label kind="invariant" x="0" y="160">gclk&lt;=2028</label>
+		</location>
+		<location id="id26" x="300" y="200">
+			<name x="300" y="180">Finish</name>
+		</location>
+		<init ref="id25" />
+		<transition>
+			<source ref="id25" />
+			<target ref="id26" />
+			<label kind="guard" x="100" y="200">gclk&gt;=2028</label>
+			<label kind="synchronisation" x="100" y="170">sigIn!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Monitor0</name>
+		<location id="id27" x="0" y="200">
+			<label kind="invariant" x="0" y="160">gclk&lt;=1028</label>
+		</location>
+		<location id="id28" x="300" y="200">
+			<label kind="invariant" x="300" y="160">gclk&lt;=1122</label>
+		</location>
+		<location id="id29" x="600" y="200">
+			<label kind="invariant" x="600" y="160">gclk&lt;=1240</label>
+		</location>
+		<location id="id30" x="900" y="200">
+			<label kind="invariant" x="900" y="160">gclk&lt;=2056</label>
+		</location>
+		<location id="id31" x="1200" y="200">
+			<label kind="invariant" x="1200" y="160">gclk&lt;=2150</label>
+		</location>
+		<location id="id32" x="1500" y="200">
+			<label kind="invariant" x="1500" y="160">gclk&lt;=2268</label>
+		</location>
+		<location id="id33" x="1800" y="200">
+			<name x="1800" y="180">pass</name>
+		</location>
+		<location id="id34" x="0" y="-200">
+			<name x="0" y="-220">fail0</name>
+			<label kind="invariant" x="0" y="-240">gclk&lt;1028</label>
+		</location>
+		<location id="id35" x="300" y="-200">
+			<name x="300" y="-220">fail1</name>
+			<label kind="invariant" x="300" y="-240">gclk&lt;1122</label>
+		</location>
+		<location id="id36" x="600" y="-200">
+			<name x="600" y="-220">fail2</name>
+			<label kind="invariant" x="600" y="-240">gclk&lt;1240</label>
+		</location>
+		<location id="id37" x="900" y="-200">
+			<name x="900" y="-220">fail3</name>
+			<label kind="invariant" x="900" y="-240">gclk&lt;2056</label>
+		</location>
+		<location id="id38" x="1200" y="-200">
+			<name x="1200" y="-220">fail4</name>
+			<label kind="invariant" x="1200" y="-240">gclk&lt;2150</label>
+		</location>
+		<location id="id39" x="1500" y="-200">
+			<name x="1500" y="-220">fail5</name>
+			<label kind="invariant" x="1500" y="-240">gclk&lt;2268</label>
+		</location>
+		<init ref="id27" />
+		<transition>
+			<source ref="id27" />
+			<target ref="id28" />
+			<label kind="guard" x="100" y="200">gclk&gt;=1028</label>
+			<label kind="synchronisation" x="100" y="170">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id28" />
+			<target ref="id29" />
+			<label kind="guard" x="400" y="200">gclk&gt;=1122</label>
+			<label kind="synchronisation" x="400" y="170">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id29" />
+			<target ref="id30" />
+			<label kind="guard" x="700" y="200">gclk&gt;=1240</label>
+			<label kind="synchronisation" x="700" y="170">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id30" />
+			<target ref="id31" />
+			<label kind="guard" x="1000" y="200">gclk&gt;=2056</label>
+			<label kind="synchronisation" x="1000" y="170">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id31" />
+			<target ref="id32" />
+			<label kind="guard" x="1300" y="200">gclk&gt;=2150</label>
+			<label kind="synchronisation" x="1300" y="170">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id32" />
+			<target ref="id33" />
+			<label kind="guard" x="1600" y="200">gclk&gt;=2268</label>
+			<label kind="synchronisation" x="1600" y="170">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id27" />
+			<target ref="id34" />
+			<label kind="synchronisation" x="100" y="-130">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id28" />
+			<target ref="id35" />
+			<label kind="guard" x="400" y="-100">gclk&gt;1028</label>
+			<label kind="synchronisation" x="400" y="-130">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id29" />
+			<target ref="id36" />
+			<label kind="guard" x="700" y="-100">gclk&gt;1122</label>
+			<label kind="synchronisation" x="700" y="-130">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id30" />
+			<target ref="id37" />
+			<label kind="guard" x="1000" y="-100">gclk&gt;1240</label>
+			<label kind="synchronisation" x="1000" y="-130">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id31" />
+			<target ref="id38" />
+			<label kind="guard" x="1300" y="-100">gclk&gt;2056</label>
+			<label kind="synchronisation" x="1300" y="-130">sigOut?</label>
+		</transition>
+		<transition>
+			<source ref="id32" />
+			<target ref="id39" />
+			<label kind="guard" x="1600" y="-100">gclk&gt;2150</label>
+			<label kind="synchronisation" x="1600" y="-130">sigOut?</label>
+		</transition>
+	</template>
+	<system>
+NSA=Node(actNodeSA,actPathSA,tRestMinSA,tRestMaxSA,tERPMinSA,tERPMaxSA);
+//NHisA=NodeN(actNodeHisA,actPathHisA,tERPMinHisA,tERPMaxHisA);
+NHisA=NodeNoERP(actNodeHisA,actPathHisA);
+
+NSP=NodeN(actNodeSP,actPathSP,tERPMinSP,tERPMaxSP);
+//NFP=NodeN(actNodeFP,actPathFP,tERPMinFP,tERPMaxFP);
+
+//NHisH=NodeN(actNodeHisH,actPathHisH,tERPMinHisH,tERPMaxHisH);
+//NHisV=NodeN(actNodeHisV,actPathHisV,tERPMinHisV,tERPMaxHisV);
+NHisH=NodeNoERP(actNodeHisH,actPathHisH);
+NHisV=NodeNoERP(actNodeHisV,actPathHisV);
+
+PSAHisA=Path(actPathSA,actPathHisA,actNodeSA,actNodeHisA,tCondMinSAHisA,tCondMaxSAHisA);
+PHisASP=Path(actPathHisA,actPathSP,actNodeHisA,actNodeSP,tCondMinSASP,tCondMaxSASP);
+//PHisAFP=Path(actPathHisA,actPathFP,actNodeHisA,actNodeFP,tCondMinSAFP,tCondMaxSAFP);
+PSPHisH=Path(actPathSP,actPathHisH,actNodeSP,actNodeHisH,tCondMinSPHisH,tCondMaxSPHisH);
+//PFPHisH=Path(actPathFP,actPathHisH,actNodeFP,actNodeHisH,tCondMinFPHisH,tCondMaxFPHisH);
+PHisHHisV=Path(actPathHisH,actPathHisV,actNodeHisH,actNodeHisV,tCondMinHisHHisV,tCondMaxHisHHisV);
+
+NPNFP=NPNPath(actPathHisA,actPathHisH,actNodeHisA,actNodeHisH,tCondMinHisAHisH,tCondMaxHisAHisH, tERPMinFP, tERPMaxFP);
+// List one or more processes to be composed into a system.
+system NSA,PSAHisA,NHisA,NPNFP,PHisASP,NSP,PSPHisH,NHisH,PHisHHisV,NHisV,Input,ConvertIn,ConvertOut,Timer,Monitor0;	
+	</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Monitor0.pass</formula>
+			<comment />
+		</query>
+	</queries>
+</nta>
