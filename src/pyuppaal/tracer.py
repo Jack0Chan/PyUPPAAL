@@ -551,22 +551,28 @@ class SimTrace:
 
         source_map: Dict[str, Dict[str, str]] = dict()
         for item in system_items:
-            name, constructor = item.replace(";", "").replace(" ", "").split('=') # remove ';' and ' '
-            item_map: Dict[str, str] = dict()
+            name, constructor = item.replace(";", "").replace(" ", "").split('=') # remove ';' and ' '            
             left_brace_index: int = constructor.find('(')
             constructor_name: str = constructor[:left_brace_index] # get the name of the constructor(template)
-            real_param_list: List[str] = constructor[left_brace_index + 1: -1].split(',') # get corresponding param list
+            real_param_list: List[str] = list(filter(lambda param: param != '', constructor[left_brace_index + 1: -1].split(','))) # get corresponding param list
             form_param_list: List[str] = param_map[constructor_name] # get constructor param list
 
-            for i, real_param in enumerate(real_param_list):
-                item_map[form_param_list[i]] = real_param # map form param to real param
+            # ? I am not sure if default value is allowed in UPPAAL
+            assert len(real_param_list) == len(form_param_list), f"Invalid UPPAAL template file" # When the `.xml` file is invalid.
 
-            source_map[name] = item_map
+            if len(real_param_list) != 0:
+                item_map: Dict[str, str] = dict()
+                for i, real_param in enumerate(real_param_list):
+                    item_map[form_param_list[i]] = real_param # map form param to real param
+
+                source_map[name] = item_map
 
         # print(source_map)
 
         for i, transition in enumerate(self.__transitions):
-            if transition.sync is not None and transition.start_process in source_map.keys():
+            if transition.sync is not None \
+                and transition.start_process in source_map.keys() \
+                and transition.sync in source_map[transition.start_process]:
                 # If not in the keys, then it does not have a parameter, so we just skip it
                 self.__transitions[i] = Transition(source_map[transition.start_process][transition.sync], 
                                         transition.start_process, transition.end_process)
