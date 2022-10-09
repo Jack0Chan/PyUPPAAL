@@ -125,10 +125,12 @@ class UModel:
             raise ValueError(f'-t must be set in verify_options, current verify_options: {verify_options}.')
         xtr_trace_path = self.model_path.replace('.xml', '.xtr')
         Verifyta().easy_verify(self.model_path, xtr_trace_path, verify_options=verify_options)
-        try:
-            return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
-        except:
-            return None
+
+        return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
+        # try:
+        #     return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
+        # except:
+        #     return None
 
     # ======== templates ========
     @property

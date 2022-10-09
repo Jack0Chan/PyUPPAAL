@@ -617,11 +617,5 @@ LV3Pedestrian1 = Pedestrian_NTL(pWantCrss, pGreen, pRed, pYellow, pCrss, pFinish
 
 system Cars, TrafficLights, LV1Pedestrian2;
 
-	</system>
-	<queries>
-		<query>
-			<formula>A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)</formula>
-			<comment />
-		</query>
-	</queries>
-</nta>
+</system>
+	<queries><query><formula>A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)</formula><comment /></query></queries></nta>
