@@ -510,15 +510,29 @@ class SimTrace:
             f.write(self.__str__())
 
     def trim_transitions(self, model_path: str) -> None:
+        """It reads the `.xml` file and gets the mapping from formal parameters to real parameters, then it
+        replaces the formal parameters in the transitions with the real parameters.
+
+        Args:
+            model_path (str): The path of the `.xml` file.
+
+        Raises:
+            ValueError: When the `.xml` file is invalid.
+        """
+
         element_tree_root: Element | None = ET.ElementTree(file=model_path).getroot()
         if element_tree_root is None:
-            raise ValueError(f"Invalid UPPAAL template file")
+            raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
 
         # Get template parameters from .xml file
         templates: Generator[Element, None, None] = element_tree_root.iterfind("template")
         param_map: Dict[str, List[str]] = dict()
         for template in templates:
-            name: str = template.find("name").text # uppaal guaranteed this to have only one         
+            name_element: Element | None = template.find("name")
+            if name_element is None:
+                raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
+
+            name: str = name_element.text # uppaal guaranteed this to have only one     
             param_elememt: Element | None = template.find("parameter") # uppaal guaranteed this to have only one
             if param_elememt is not None:
                 param_map[name] = list(map(lambda item: item.strip().split(' ')[-1].replace('&', ''), 
@@ -528,20 +542,21 @@ class SimTrace:
 
         
         # Get system components defination
+        system_element: Element | None = element_tree_root.find("system")
+        if system_element is None:
+            raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
+
         system_items: List[str] = list(filter(lambda line: len(line) > 0 and line.find("//") != 0, # remove comment and empty line
-                                    element_tree_root.find("system").text
-                                        .replace("\r\n", "\n") # unify "\n"
-                                        .replace('\t', '') # remove "\t"
-                                        .split("\n")))[:-1] # remove "system"
+                                    system_element.text.replace("\r\n", "\n").replace('\t', '') .split("\n")))[:-1] # unify "\n", remove "\t" and remove "system"
 
         source_map: Dict[str, Dict[str, str]] = dict()
         for item in system_items:
             name, constructor = item.replace(";", "").replace(" ", "").split('=') # remove ';' and ' '
             item_map: Dict[str, str] = dict()
-            left_brace_index = constructor.find('(')
-            constructor_name = constructor[:left_brace_index] # get the name of the constructor(template)
-            real_param_list = constructor[left_brace_index + 1: -1].split(',') # get corresponding param list
-            form_param_list = param_map[constructor_name] # get constructor param list
+            left_brace_index: int = constructor.find('(')
+            constructor_name: str = constructor[:left_brace_index] # get the name of the constructor(template)
+            real_param_list: List[str] = constructor[left_brace_index + 1: -1].split(',') # get corresponding param list
+            form_param_list: List[str] = param_map[constructor_name] # get constructor param list
 
             for i, real_param in enumerate(real_param_list):
                 item_map[form_param_list[i]] = real_param # map form param to real param
@@ -597,17 +612,31 @@ class SimTrace:
         Returns:
             SimTrace: _description_
         """
-        new_states = [self.__states[i] for i in range(len(self.__states)) if i in index_array]
-        new_clock_cons = [self.__clock_constraints[i] for i in range(len(self.__clock_constraints)) if i in index_array]
-        new_transitions = [self.__transitions[i] for i in range(len(self.__transitions)) if i in index_array]
-        new_global_var = [self.__global_variables[i] for i in range(len(self.__global_variables)) if i in index_array]
-        # new_simtrace = SimTrace(new_states, new_clock_cons, new_transitions, new_global_var)
-        new_simtrace = SimTrace("")
-        new_simtrace.__states = new_states
-        new_simtrace.__clock_constraints = new_clock_cons
-        new_simtrace.__transitions = new_transitions
-        new_simtrace.__global_variables = new_global_var
-        return new_simtrace
+        return self[index_array]
+
+    def __getitem__(self, index: int | slice | List[int]) -> SimTrace:
+        """Get the corresponding `SimTrace` by index.
+
+        Args:
+            index (int | slice): The indexs for slicing.
+
+        Returns:
+            SimTrace: The corresponding sliced SimTrace.
+        """
+        if isinstance(index, (int, slice)):
+            new_trace: SimTrace = SimTrace("")
+            new_trace.__states = self.__states[index]
+            new_trace.__clock_constraints = self.__clock_constraints[index]
+            new_trace.__transitions = self.__transitions[index]
+            new_trace.__global_variables = self.__global_variables[index]
+            return new_trace
+        else:
+            new_trace: SimTrace = SimTrace("")
+            new_trace.__states = [self.__states[i] for i in index]
+            new_trace.__clock_constraints = [self.__clock_constraints[i] for i in index]
+            new_trace.__transitions = [self.__transitions[i] for i in index]
+            new_trace.__global_variables = [self.__global_variables[i] for i in index]
+            return new_trace
 
     def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
         """Filter the transitions by actions.
@@ -622,7 +651,7 @@ class SimTrace:
             return self
         
         index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
-        return self.filter_by_index(index_array)
+        return self[index_array]
 
 
 class Tracer:
