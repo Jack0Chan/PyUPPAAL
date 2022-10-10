@@ -1,11 +1,8 @@
 """_summary_
 """
 import os
-from pyuppaal.tracer import SimTrace
+from pyuppaal import Tracer, UModel, Verifyta
 import verifyta_path
-from pyuppaal import Tracer, UModel
-from pyuppaal import Verifyta
-
 
 
 def test_tracer_basic():
@@ -32,9 +29,12 @@ def test_tracer_basic():
     os.remove(sim_trace_path)
 
 def test_tracer_trim_transitions():
+    """_summary_
+    """
     Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
     model_path = verifyta_path.bring_to_root('M0_AVNRT_5_4.xml')
     umod = UModel(model_path)
     print(umod.easy_verify())
+    os.remove(verifyta_path.bring_to_root('M0_AVNRT_5_4-1.xtr'))
 
 test_tracer_trim_transitions()
