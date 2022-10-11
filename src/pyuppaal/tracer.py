@@ -425,7 +425,7 @@ class SimTrace:
         return res
 
     def __repr__(self):
-        return self.__str__()
+        return f'SimTrace(...)'
 
     def __parse_raw(self):
         """Parse raw string to components.
