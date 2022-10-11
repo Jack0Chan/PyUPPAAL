@@ -5,7 +5,14 @@ class TimedActions:
     """
     Need to
     """
-    def __init__(self, actions: List[str], lb: List[int] = None, ub: List[str] = None):
+    def __init__(self, actions: List[str], lb: List[str] = None, ub: List[str] = None):
+        """_summary_
+
+        Args:
+            actions (List[str]): ['sigOut!', 'sigOut!']
+            lb (List[str], optional): ['gclk>=20', 'x>=30']. Defaults to None.
+            ub (List[str], optional): ['gclk<=20', 'x<=30']. Defaults to None.
+        """
         self.__actions: List[str] = actions
         self.lb = lb
         self.ub = ub
