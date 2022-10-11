@@ -396,8 +396,6 @@ class UModel:
         
         self.__add_template_to_system(monitor_name)
 
-        return None
-
     def __parse_signals(self, signals: TimedActions, default_name: str="input_clk") -> Tuple[str, TimedActions]:
         """Parse the signals, if the signal name is not specified, then use the default name.
 
@@ -430,7 +428,7 @@ class UModel:
         return clock_name, signals        
 
 
-    def __find_a_pattern(self, focused_action: List[str]=None, hold: bool=True, options: str=None) -> Tuple[List[str], List[str]] | Tuple[None, None]:
+    def __find_a_pattern(self, focused_action: List[str]=None, hold: bool=True, options: str=None) -> SimTrace | None:
         """Find a pattern in the current model.
 
         Args:
@@ -439,7 +437,7 @@ class UModel:
             options (str, optional): options for the verifier. Defaults to None.
 
         Returns:
-            Tuple[List[str], List[str]] | Tuple[None, None]: the query and the pattern.
+            SimTrace | None: the founded patterns. None if no pattern is found.
         """
         self.save()
         if options is not None:
@@ -448,7 +446,7 @@ class UModel:
             sim_trace = self.easy_verify()
 
         if sim_trace is None:
-            return None, None
+            return None
 
         trace_path = os.path.splitext(self.model_path)[0] + '-1.xtr'
         pattern_seq = sim_trace.filter_by_actions(focused_action)
@@ -457,10 +455,10 @@ class UModel:
             os.remove(trace_path)
             os.remove(self.model_path)
         
-        return self.queries, pattern_seq.actions
+        return pattern_seq
 
 
-    def find_all_patterns(self, focused_actions: List[str] = None, hold: bool = True, max_patterns: int = None) -> List[List[str]]:
+    def find_all_patterns(self, focused_actions: List[str] = None, hold: bool = True, max_patterns: int = None) -> List[SimTrace]:
         """Find all patterns of the first query in the model.
 
         Args:
@@ -469,7 +467,7 @@ class UModel:
             max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
 
         Returns:
-            List[List[str]]: the list of patterns.
+            List[SimTrace]: the list of patterns.
         """
         queries = self.queries
         if len(queries) == 0:
@@ -480,9 +478,7 @@ class UModel:
         return all_patterns
 
     def __find_all_patterns_of_a_query(self, query: str = None, focused_actions: List[str] = None, 
-# 
-# 
-                                     hold: bool = True, max_patterns: int = None) -> List[List[str]] | None:
+                                     hold: bool = True, max_patterns: int = None) -> List[SimTrace] | None:
         """Find all patterns that satisfy the query
 
         Args:
@@ -495,7 +491,7 @@ class UModel:
             NotImplementedError: only support E<> and A[] queries. Raise when other queries are given
 
         Returns:
-            List[List[str]] | None: a list of patterns that satisfy the query. If no pattern is found, return None
+            List[SimTrace]: a list of patterns that satisfy the query.
         """
 
         
@@ -519,10 +515,10 @@ class UModel:
         new_umodel = self.copy_as(new_model_path=new_model_path)
 
         new_umodel.set_queries(default_query)
-        _, new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) # Keep the temp files until the end
+        new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) # Keep the temp files until the end
 
         if new_patterns is None:
-            return None
+            return []
 
         monitor_pass_str = default_query
         # 根据初始的pattern构建monitor并循环, 初始Moniter为0
@@ -530,14 +526,14 @@ class UModel:
         monitor_id = 0
         iter = 1
         while len(new_patterns) != 0:
-            all_patterns.append((monitor_pass_str, new_patterns))
+            all_patterns.append(new_patterns)
 
             if max_patterns is not None and iter >= max_patterns:
                 break
 
             monitor_id += 1
             # 将pattern[List] -> TimedActions
-            new_observes = TimedActions(new_patterns)
+            new_observes = TimedActions(new_patterns.actions)
             new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes,
                                    focused_actions=focused_actions, strict=True, allpattern=True)
 
@@ -549,7 +545,7 @@ class UModel:
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
 
             new_umodel.set_queries(monitor_pass_str)
-            _, new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) 
+            new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) 
             # Keep the temp files until the end
             
             if new_patterns is None:
