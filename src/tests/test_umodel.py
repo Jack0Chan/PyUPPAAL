@@ -40,11 +40,16 @@ def test_cg():
     os.remove(tmp_file)
     print('==== after beautify ====\n', m)
 
-def test_verify():
+def test_all_patterns():
     """_summary_
     """
-    u = UModel(bring_to_root('pedestrian.xml'))
-    u.find_all_patterns_with_query('A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)')
+    query = f'E<> (PPedestrian.Crossing and PCar.Crossing)' # property query
+    focused_actions = ["pCheckLight", "pGreen", "pRed", "pYellow", "pCrss", "cCrss"]
+    u = UModel(bring_to_root('pedestrian_new.xml'))
+    res = u.find_all_patterns_with_query(query, focused_actions=focused_actions, hold=False)
+    assert len(res) == 4
+    # print(len(res), res)
+
 
 
 def test_add_input_template():
@@ -53,4 +58,4 @@ def test_add_input_template():
     signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
     u.add_input(signals)
 
-test_verify()
+# test_all_patterns()
