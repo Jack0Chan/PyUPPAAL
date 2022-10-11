@@ -22,7 +22,7 @@ def check_is_verifyta_path_empty(func):
             return func(*args, **kwargs)
         else:
             error_info = 'Verifyta path is not set.'
-            error_info += ' Please use "Verifyta().set_verifyta_path(verifyta_path: str)" to set the path of verifyta.'
+            error_info += ' Please use "pyuppaal.set_verifyta_path(verifyta_path: str)" to set the path of verifyta.'
             raise ValueError(error_info)
     return checker_wrapper
 
