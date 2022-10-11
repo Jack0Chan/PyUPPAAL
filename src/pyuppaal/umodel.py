@@ -472,7 +472,8 @@ class UModel:
         return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
 
     def find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
-                          observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
+                          observe_actions: List[str] = None, focused_actions: List[str] = None, 
+                          hold: bool = False, max_patterns: int = None):
         """
         注意这里的input已经在模型中，并且原模型不包含任何Monitor
 
@@ -517,7 +518,8 @@ class UModel:
 
             new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
             if len(new_patterns_raw) == 0:
-                return []
+                # return []
+                return all_patterns
             else:
                 _, new_patterns = new_patterns_raw
 
@@ -565,7 +567,8 @@ class UModel:
 
         return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
 
-    def find_all_patterns_with_query(self, query: str = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
+    def find_all_patterns_with_query(self, query: str = None, focused_actions: List[str] = None, 
+                                     hold: bool = False, max_patterns: int = None):
         """
         注意这里的input已经在模型中, 并且原模型不包含任何Monitor
 
@@ -590,8 +593,8 @@ class UModel:
                 default_query = "E<> ! " + default_query.strip()
         else:
             default_query = query
-        _, new_patterns = self.find_a_pattern_with_query(
-            default_query, focused_actions, hold=True)
+
+        _, new_patterns = self.find_a_pattern_with_query(default_query, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         new_umodel = UModel(new_model_path)
         monitor_pass_str = default_query
@@ -612,8 +615,7 @@ class UModel:
             # 构造验证语句
             # 构造monitor.pass
             # E<> Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = ' && '.join(
-                [f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
 
