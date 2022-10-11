@@ -295,6 +295,8 @@ class UFactory:
 
         # 如果是strict，需要给每个location创建fail location，并且构建对应transitions边指向对应的fail location
         if strict:
+            pruned_observation_action = list(set(observe_action))
+
             # 构建指向fail的transitions
             for i in range(len(signals)):
                 # 构建一个fail location
@@ -304,19 +306,19 @@ class UFactory:
                 location = UFactory.location(fail_location_id, 300 * i, -200, inv=inv,
                                                   name='fail' + str(i))
                 locations.append(location)
-                actions_length = 200 // len(observe_action)
+                actions_length = 200 // len(pruned_observation_action)
                 # 需要对每一个observe action指向fail transitions
-                for j in range(len(observe_action)):
+                for j in range(len(pruned_observation_action)):
                     # 指向fail，注意guard是大于
                     guard = None if allpattern else signals[i - 1][1].replace('>=', '>')
-                    if allpattern and (observe_action[j] == signals[i][0]):
+                    if allpattern and (pruned_observation_action[j] == signals[i][0]):
                         continue
                     if i == 0:
-                        transition = UFactory.transition(init_id + i, fail_location_id, i * 300 + (j-len(observe_action)//2) * actions_length, -100,
-                                                         guard=None, sync=observe_action[j]+'?',nail=True)
+                        transition = UFactory.transition(init_id + i, fail_location_id, i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -100,
+                                                         guard=None, sync=pruned_observation_action[j]+'?',nail=True)
                     else:
-                        transition = UFactory.transition(init_id + i, fail_location_id, i * 300 + (j-len(observe_action)//2) * actions_length, -100,
-                                                         guard=guard, sync=observe_action[j]+'?',nail=True)
+                        transition = UFactory.transition(init_id + i, fail_location_id, i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -100,
+                                                         guard=guard, sync=pruned_observation_action[j]+'?',nail=True)
 
                     transitions.append(transition)
         # 获得clock name并创建declaration
