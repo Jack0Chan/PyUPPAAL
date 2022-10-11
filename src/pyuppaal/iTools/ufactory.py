@@ -262,7 +262,7 @@ class UFactory:
         Generate a new linear model of.
 
         :param str monitor_name: the name of monitor
-        :param List[Tuple[str, int, int]] signals: this data type is updated in `umodel.TymedActions`
+        :param List[Tuple[str, int, int]] signals: this data type is updated in `umodel.TimedActions`
         :param int init_id: set the minimum `<init ref='xxx'/>` of monitor
         :param bool strict: determine whethe the observation is strict, which indicates other observations will be forbidden
 

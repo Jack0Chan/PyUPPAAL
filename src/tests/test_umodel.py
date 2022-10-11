@@ -45,8 +45,9 @@ def test_all_patterns():
     """
     query = f'E<> (PPedestrian.Crossing and PCar.Crossing)' # property query
     focused_actions = ["pCheckLight", "pGreen", "pRed", "pYellow", "pCrss", "cCrss"]
-    u = UModel(bring_to_root('pedestrian_new.xml'))
-    res = u.find_all_patterns_with_query(query, focused_actions=focused_actions, hold=False)
+    u = UModel(bring_to_root('pedestrian_new.xml'), auto_save=False)
+    u.set_queries([query])
+    res = u.find_all_patterns(focused_actions)
     assert len(res) == 4
     # print(len(res), res)
 
@@ -56,6 +57,6 @@ def test_add_input_template():
     u = UModel(bring_to_root('AVNRT_Fake_GroundTruth.xml'))
     u.save_as(bring_to_root('AVNRT_Fake_GroundTruth_copy.xml'))
     signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
-    u.add_input(signals)
+    u.add_input_template(signals)
 
 # test_all_patterns()
