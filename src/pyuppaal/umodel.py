@@ -3,6 +3,7 @@
 # support return typing UModel
 from __future__ import annotations
 from enum import auto
+from multiprocessing.sharedctypes import Value
 
 # system powershell
 from subprocess import run
@@ -285,7 +286,7 @@ class UModel:
         return list(set(broadcast_chan))
 
     # TODO: change the methods below
-    def add_observer_template(self, observations: TimedActions, template_name: str='observer', is_strict_observer: bool = True):
+    def add_observer_template(self, observations: TimedActions, template_name: str='Observer', is_strict: bool = True) -> None:
         """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         An observer is xxx.
@@ -293,7 +294,7 @@ class UModel:
         Args:
             observations (TimedActions): observed actions, observed time lower_bound, observed time upper_bound.
             template_name (str, optional): the name of the template. Defaults to 'observer'.
-            is_strict_observer (bool, optional): if strict, any other observations will be illegal. 
+            is_strict (bool, optional): if strict, any other observations will be illegal. 
                 For example, assume you set observations `a1, gclk=1, a2, gclk=3`, and there exists trace T: `a1, gclk=1, a2, gclk=2, a2, gclk=3`.
                 If `is_strict_observer` is True, then T is invalid. Defaults to True.
 
@@ -302,7 +303,7 @@ class UModel:
         """
         raise NotImplementedError
 
-    def add_pattern_template(self, pattern_list: List[str], template_name: str):
+    def add_pattern_template(self, pattern_list: List[str], template_name: str) -> None:
         """Add a pattern template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
         
         Args:
@@ -314,12 +315,12 @@ class UModel:
         """
         raise NotImplementedError
     
-    def add_input_template(self, signals: TimedActions, template_name: str='input'):
+    def add_input_template(self, signals: TimedActions, template_name: str='Input') -> None:
         """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         Args:
             signals (TimedActions): _description_
-            template_name (str, optional): _description_. Defaults to 'input'.
+            template_name (str, optional): _description_. Defaults to 'Input'.
 
         Returns:
             _type_: _description_
@@ -387,8 +388,6 @@ class UModel:
         """
 
         """
-        
-
         :param str monitor_name: the name of monitor
         :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
         :param List[str] observe_actions: observe actions @yhc is there any observe_actions in Timed actions?
@@ -471,11 +470,26 @@ class UModel:
 
         return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
 
-    def find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
+    def find_all_patterns(self, focused_actions: List[str] = None, max_patterns: int = None, hold: bool = True) -> List[SimTrace]:
+        """对当前模型的第一个验证语句找到所有可能的pattern。
+
+        Args:
+            focused_actions (List[str], optional): All patterns里关注的actions, 默认是None, 会自动捕获所有的broad cast channels. Defaults to None.
+            max_patterns (int, optional): 查找到max_patterns数量个patterns就返回. Defaults to None.
+            hold (bool, optional): 是否保留中间文件`xxx_patterns.xml`. Defaults to True.
+
+        Returns:
+            List[SimTrace]: You can get actions by `SimTrace.untime_pattern` or `SimTrace.actions`.
+        """
+        if len(self.queries) != 1:
+            raise ValueError(f'Num queries must be 1. Current len(self.queries)={len(self.queries)}.')
+
+
+    def _find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
                           observe_actions: List[str] = None, focused_actions: List[str] = None, 
                           hold: bool = False, max_patterns: int = None):
         """
-        注意这里的input已经在模型中，并且原模型不包含任何Monitor
+        注意这里的input已经在模型中,并且原模型不包含任何Monitor
 
         observable_events: List[Tuple[str, str, str]]
         在给定input和observation的情况下寻找所有可能的counter example
@@ -492,8 +506,7 @@ class UModel:
         :return: query, pattern_seq.actions @yhc SimTrace？
         """
         # 首先
-        monitor_pass_str, new_patterns = self.find_a_pattern(
-            inputs, observes, observe_actions, focused_actions, hold=True)
+        monitor_pass_str, new_patterns = self.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
         new_umodel = UModel(new_model_path)
 
@@ -518,8 +531,8 @@ class UModel:
 
             new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
             if len(new_patterns_raw) == 0:
-                # return []
-                return all_patterns
+                return []
+                # return all_patterns
             else:
                 _, new_patterns = new_patterns_raw
 

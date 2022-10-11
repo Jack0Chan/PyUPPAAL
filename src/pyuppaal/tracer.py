@@ -605,6 +605,10 @@ class SimTrace:
     def actions(self) -> List[str]:
         return [x.action for x in self.transitions if x.action is not None]
 
+    @property
+    def untime_pattern(self) -> List[str]:
+        return self.actions
+
     def get_untime_pattern(self) -> List[str]:
         return self.actions
 
