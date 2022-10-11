@@ -385,12 +385,12 @@ class UModel:
         if focused_actions is None:
             focused_actions = self.broadcast_chan
 
-        _, signals = self.__parse_signals(signals)
+        clock_name, signals = self.__parse_signals(signals)
 
         start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
         self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), focused_actions, start_id, strict, allpattern)
+        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(clock_name), focused_actions, start_id, strict, allpattern)
         self.__root_elem.insert(-2, monitor)
         # 将新到monitor加入到system中
         
