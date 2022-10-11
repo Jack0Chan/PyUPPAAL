@@ -2,12 +2,10 @@
 """
 # support return typing UModel
 from __future__ import annotations
-from enum import auto
-from multiprocessing.sharedctypes import Value
+from hashlib import new
 
 # system powershell
-from subprocess import run
-from typing import List
+from typing import List, Tuple
 import xml.etree.cElementTree as ET
 
 from .datastruct import TimedActions
@@ -15,17 +13,15 @@ from .verifyta import Verifyta
 from .iTools import UFactory, build_cg ,Mermaid
 from .tracer import SimTrace, Tracer
 import os
-import warnings
-
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
     """
-    def __init__(self, model_path: str, auto_save = True):
+    def __init__(self, model_path: str, auto_save = False):
         """_summary_
 
         Args:
             model_path (str): _description_
-            auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
+            auto_save (bool, optional): whether auto save the model after each operation. Defaults to False.
         """
         self.__model_path: str = model_path
         self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
@@ -191,12 +187,17 @@ class UModel:
         if self.auto_save: self.save()
         return True
 
-    def set_queries(self, queries: List[str]) -> None:
-        """Set the queries of current model.
-
+    def set_queries(self, queries: List[str] | str) -> None:
+        """Delete all the queries in the model and then inserts the new queries into the model
+        
         Args:
-            queries (List[str]): `List` of queries to be set.
+            queries (List[str] | str): A list of queries or a single query
+
         """
+
+        if isinstance(queries, str):
+            queries = [queries]
+
         # 首先删除所有的queries
         self.clear_queries()
         # 然后构造queries并插入到模型中
@@ -223,7 +224,8 @@ class UModel:
         """
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
-        if self.auto_save: self.save()
+        if self.auto_save: 
+            self.save()
 
     # ======== declaration ========
     @property
@@ -285,7 +287,7 @@ class UModel:
         start_index = 0
         return list(set(broadcast_chan))
 
-    # TODO: change the methods below
+
     def add_observer_template(self, observations: TimedActions, template_name: str='Observer', is_strict: bool = True) -> None:
         """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
@@ -301,7 +303,7 @@ class UModel:
         Returns:
             _type_: _description_
         """
-        raise NotImplementedError
+        self.add_monitor_template(template_name, observations, observations.actions, strict=is_strict)
 
     def add_pattern_template(self, pattern_list: List[str], template_name: str) -> None:
         """Add a pattern template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
@@ -329,49 +331,41 @@ class UModel:
         # 删除相同名字的monitor
         self.remove_template(template_name)
 
-        # Drain clock name from signals
-        if len(signals) > 0 and type(signals.lb[0]) != str:
-            signals.lb = list(map(str, signals.lb))
-        
-        if len(signals) > 0 and type(signals.ub[0]) != str:
-            signals.ub = list(map(str, signals.ub))
-
-        if len(signals) > 0 and signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
-            # If the stmt has clk name, like 'a1 > 1', then use the clk name
-            # Only accept input like "a1 > 1" or "a1>1", not ">1" or "1"
-            clock_name = signals.lb[0].split('>')[0]
-        else: # Otherwise, we use the default clock name
-            # accept input like ">1" or "1"
-            clock_name = 'input_clk'
-        for i in range(len(signals.lb)): # Remove the clock name and operator
-            # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
-            signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
-            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()
+        clock_name, signals = self.__parse_signals(signals)
             
 
         input_model = UFactory.input(
             template_name, signals.convert_to_list_tuple(clock_name), start_id)
         self.__root_elem.insert(-2, input_model)
+
         # 将新到monitor加入到system中
-        cur_system = self.system
-        cur_system = cur_system.split('\n')
-        cur_system = [x.strip() for x in cur_system]
-        for i in range(len(cur_system)):
-            if cur_system[i].startswith('system'):
-                tmpl = cur_system[i][6:].split(',')
-                tmpl = [y.strip() for y in tmpl]
-                tmpl = [y.strip(';') for y in tmpl]
-                if template_name not in tmpl or template_name+';' not in tmpl:
-                    tmpl.insert(0, template_name)
-                cur_system[i] = 'system ' + ','.join(tmpl) + ';'
-                break
-        cur_system = '\n'.join(cur_system)
-        self.set_system(cur_system)
-        if self.auto_save: self.save()
+        self.__add_template_to_system(template_name)
+
         return None
 
+
+    def __add_template_to_system(self, template_name: str):
+        """Add a template to system declarations.
+
+        Args:
+            template_name (str): the name of the template.
+
+        """
+        system_lines: List[str] = self.system.split('\n')
+        system_lines: List[str] = list(map(lambda x: x.strip(), system_lines))
+        for i, line in enumerate(system_lines):
+            if line.strip().startswith('system'):
+                system_items = list(map(lambda s: s.strip(), line.strip()[6:-1].split(',')))
+                if template_name not in system_items:
+                    system_items.append(template_name)
+                system_lines[i] = f"system {', '.join(system_items)};"
+                break
+
+        self.set_system('\n'.join(system_lines))
+
+
     # all patterns
-    def add_monitor_template(self, monitor_name: str, signals: TimedActions, observe_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
+    def add_monitor_template(self, monitor_name: str, signals: TimedActions, focused_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
         """Add new linear monitor template, which will also be embedded in `system declarations`. 
         
         If `monitor_name` already exists in current templates, it will be overwritten.
@@ -379,27 +373,42 @@ class UModel:
         Args:
             monitor_name (str): the template name of the monitor.
             signals (TimedActions): actions, lower_bound, upper_bound.
-            observe_actions (List[str], optional): _description_. Defaults to None.
+            focused_actions (List[str], optional): _description_. Defaults to None.
             strict (bool, optional): _description_. Defaults to True.
             allpattern (bool, optional): _description_. Defaults to False.
 
         Returns:
             _type_: _description_
         """
-
-        """
-        :param str monitor_name: the name of monitor
-        :param TimedActions signals: specific data type `List[Tuple[signal, guard, inv]]`, `signal`, `guard` and `inv` are `str` type and can be `None`
-        :param List[str] observe_actions: observe actions @yhc is there any observe_actions in Timed actions?
-        :param bool strict: determine whether monitor is strict or not
-        :param bool allpattern: determine whether allpattern is enabled
-        """
         
-        # 处理observe_actions is None的情况
-        if observe_actions is None:
-            observe_actions = self.broadcast_chan
+        # 处理focused_actions is None的情况
+        if focused_actions is None:
+            focused_actions = self.broadcast_chan
 
-        # Drain clock name from signals
+        _, signals = self.__parse_signals(signals)
+
+        start_id = self.__max_location_id + 1
+        # 删除相同名字的monitor
+        self.remove_template(monitor_name)
+        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), focused_actions, start_id, strict, allpattern)
+        self.__root_elem.insert(-2, monitor)
+        # 将新到monitor加入到system中
+        
+        self.__add_template_to_system(monitor_name)
+
+        return None
+
+    def __parse_signals(self, signals: TimedActions, default_name: str="input_clk") -> Tuple[str, TimedActions]:
+        """Parse the signals, if the signal name is not specified, then use the default name.
+
+        Args:
+            signals (TimedActions): the signals to be parsed.
+            default_name (str): the default clock name for the signals.
+
+        Returns:
+            Tuple[str, TimedActions]: the clock name and the parsed signals.
+        """
+
         if len(signals) > 0 and type(signals.lb[0]) != str:
             signals.lb = list(map(str, signals.lb))
         
@@ -412,144 +421,26 @@ class UModel:
             clock_name = signals.lb[0].split('>')[0]
         else: # Otherwise, we use the default clock name
             # accept input like ">1" or "1"
-            clock_name = 'input_clk'
+            clock_name = default_name
         for i in range(len(signals.lb)): # Remove the clock name and operator
             # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
             signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
-            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()            
+            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()  
 
-        start_id = self.__max_location_id + 1
-        # 删除相同名字的monitor
-        self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(), observe_actions, start_id, strict, allpattern)
-        self.__root_elem.insert(-2, monitor)
-        # 将新到monitor加入到system中
-        cur_system = self.system
-        cur_system = cur_system.split('\n')
-        cur_system = [x.strip() for x in cur_system]
-        for i in range(len(cur_system)):
-            if cur_system[i].startswith('system'):
-                tmpl = cur_system[i][6:].split(',')
-                tmpl = [y.strip() for y in tmpl]
-                tmpl = [y.strip(';') for y in tmpl]
-                if monitor_name not in tmpl:
-                    tmpl.insert(0, monitor_name)
-                cur_system[i] = 'system ' + ','.join(tmpl) + ';'
-                break
-        cur_system = '\n'.join(cur_system)
-        self.set_system(cur_system)
-        if self.auto_save: self.save()
-        return None
+        return clock_name, signals        
 
-    def find_a_pattern(self, inputs: TimedActions, observes: TimedActions,
-                       observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
-        """
-        :param TimedActions inputs: TimedActions of input signal model
-        :param TimedActions observes: TimedActions of observe signal model
-        :param List[str] input_actions: list of input signal
-        :param List[str] observe_actions: list of observe signal
-        :param bool hold: whether save history files
-        :param str options: verifyta options
-        :return: query, pattern_seq.actions @yhc SimTrace？
-        """
-        # 设置路径
-        # 新模型路径，不覆盖原模型
-        new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        new_umodel = self.copy_as(new_model_path=new_model_path)
-        # 将要保存的path路径
-        # trace_path = f"{new_model_path.replace('.xml', '')}"
 
-        patterns = []
-        # 构建Monitor0
-
-        new_umodel.add_input_template(inputs, "input0")
-        new_umodel.add_monitor_template('Monitor0', observes,
-                               observe_actions=observe_actions, strict=True)
-        # 设置验证语句
-        query = 'E<> Monitor0.pass'
-
-        return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
-
-    def find_all_patterns(self, focused_actions: List[str] = None, max_patterns: int = None, hold: bool = True) -> List[SimTrace]:
-        """对当前模型的第一个验证语句找到所有可能的pattern。
+    def __find_a_pattern(self, focused_action: List[str]=None, hold: bool=True, options: str=None) -> Tuple[List[str], List[str]] | Tuple[None, None]:
+        """Find a pattern in the current model.
 
         Args:
-            focused_actions (List[str], optional): All patterns里关注的actions, 默认是None, 会自动捕获所有的broad cast channels. Defaults to None.
-            max_patterns (int, optional): 查找到max_patterns数量个patterns就返回. Defaults to None.
-            hold (bool, optional): 是否保留中间文件`xxx_patterns.xml`. Defaults to True.
+            focused_action (List[str], optional): the actions that we want to focus on. Defaults to None.
+            hold (bool, optional): whether to keep the temp file. Defaults to True.
+            options (str, optional): options for the verifier. Defaults to None.
 
         Returns:
-            List[SimTrace]: You can get actions by `SimTrace.untime_pattern` or `SimTrace.actions`.
+            Tuple[List[str], List[str]] | Tuple[None, None]: the query and the pattern.
         """
-        if len(self.queries) != 1:
-            raise ValueError(f'Num queries must be 1. Current len(self.queries)={len(self.queries)}.')
-
-
-    def _find_all_patterns(self, inputs: TimedActions, observes: TimedActions,
-                          observe_actions: List[str] = None, focused_actions: List[str] = None, 
-                          hold: bool = False, max_patterns: int = None):
-        """
-        注意这里的input已经在模型中,并且原模型不包含任何Monitor
-
-        observable_events: List[Tuple[str, str, str]]
-        在给定input和observation的情况下寻找所有可能的counter example
-        基本思路：
-        Monitor0: observable events
-        Monitor1: 基于Monitor0返回的trace
-
-        :param TimedActions inputs: TimedActions of input signal model
-        :param TimedActions observes: TimedActions of observe signal model
-        :param List[str] input_actions: list of input signal
-        :param List[str] observe_actions: list of observe signal
-        :param bool hold: whether save history files
-        :param str options: verifyta options
-        :return: query, pattern_seq.actions @yhc SimTrace？
-        """
-        # 首先
-        monitor_pass_str, new_patterns = self.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold=True)
-        new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        new_umodel = UModel(new_model_path)
-
-        # 根据初始的pattern构建monitor并循环, 初始Moniter为0
-        all_patterns = []
-        monitor_id = 0
-        iter = 1
-        while len(new_patterns) != 0 and (iter <= max_patterns if max_patterns is not None else True):
-            monitor_id += 1
-            all_patterns.append((monitor_pass_str, new_patterns))
-            # 将pattern[List] -> TimedActions
-            new_observes = TimedActions(new_patterns)
-            new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes, observe_actions=focused_actions, strict=True, allpattern=True)
-            
-            # 构造验证语句
-            # 构造monitor.pass
-            # !Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = ' && '.join(
-                [f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
-            # E<> !Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = f'E<> Monitor0.pass && {monitor_pass_str}'
-
-            new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
-            if len(new_patterns_raw) == 0:
-                return []
-                # return all_patterns
-            else:
-                _, new_patterns = new_patterns_raw
-
-            trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'         
-
-            iter = iter + 1
-            
-        if not hold:
-            os.remove(new_model_path)
-            os.remove(trace_path)
-
-        return all_patterns
-
-    def find_a_pattern_with_query_inplace(self, query: str, focused_action: List[str] = None, hold = False, options=None):
-        if query is not None:
-            self.set_queries(queries=[query])
-
         self.save()
         if options is not None:
             sim_trace = self.easy_verify(options)
@@ -557,7 +448,7 @@ class UModel:
             sim_trace = self.easy_verify()
 
         if sim_trace is None:
-            return []
+            return None, None
 
         trace_path = os.path.splitext(self.model_path)[0] + '-1.xtr'
         pattern_seq = sim_trace.filter_by_actions(focused_action)
@@ -568,29 +459,46 @@ class UModel:
         
         return self.queries, pattern_seq.actions
 
-    def find_a_pattern_with_query(self, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
-        """
-        :param str query: input query
-        :param List[str] focused_actions: actions you are interested in
-        """
-        # 设置路径
-        # 新模型路径，不覆盖原模型
-        new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        new_umodel = self.copy_as(new_model_path=new_model_path)
 
-        return new_umodel.find_a_pattern_with_query_inplace(query, focused_actions, hold, options)
+    def find_all_patterns(self, focused_actions: List[str] = None, hold: bool = True, max_patterns: int = None) -> List[List[str]]:
+        """Find all patterns of the first query in the model.
 
-    def find_all_patterns_with_query(self, query: str = None, focused_actions: List[str] = None, 
-                                     hold: bool = False, max_patterns: int = None):
-        """
-        注意这里的input已经在模型中, 并且原模型不包含任何Monitor
+        Args:
+            focused_actions (List[str], optional): the actions that we want to focus on. Defaults to None.
+            hold (bool, optional): whether to keep the temp files. Defaults to True.
+            max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
 
-        observable_events: List[Tuple[str, str, str]]
-        在给定input和observation的情况下寻找所有可能的counter example
-        基本思路：
-        Monitor0: observable events
-        Monitor1: 基于Monitor0返回的trace
+        Returns:
+            List[List[str]]: the list of patterns.
         """
+        queries = self.queries
+        if len(queries) == 0:
+            return []
+
+        all_patterns = self.__find_all_patterns_of_a_query(queries[0], focused_actions, hold, max_patterns)
+
+        return all_patterns
+
+    def __find_all_patterns_of_a_query(self, query: str = None, focused_actions: List[str] = None, 
+# 
+# 
+                                     hold: bool = True, max_patterns: int = None) -> List[List[str]] | None:
+        """Find all patterns that satisfy the query
+
+        Args:
+            query (str, optional): the query to be verified. Defaults to None.
+            focused_actions (List[str], optional): the actions that we want to focus on. Defaults to None.
+            hold (bool, optional): whether to keep the temp files. Defaults to True.
+            max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
+
+        Raises:
+            NotImplementedError: only support E<> and A[] queries. Raise when other queries are given
+
+        Returns:
+            List[List[str]] | None: a list of patterns that satisfy the query. If no pattern is found, return None
+        """
+
+        
         # 首先
         query = query.strip()
         if not (query.startswith('A[]') or query.startswith('E<>')):
@@ -607,9 +515,15 @@ class UModel:
         else:
             default_query = query
 
-        _, new_patterns = self.find_a_pattern_with_query(default_query, focused_actions, hold=True)
         new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        new_umodel = UModel(new_model_path)
+        new_umodel = self.copy_as(new_model_path=new_model_path)
+
+        new_umodel.set_queries(default_query)
+        _, new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) # Keep the temp files until the end
+
+        if new_patterns is None:
+            return None
+
         monitor_pass_str = default_query
         # 根据初始的pattern构建monitor并循环, 初始Moniter为0
         all_patterns = []
@@ -617,13 +531,15 @@ class UModel:
         iter = 1
         while len(new_patterns) != 0:
             all_patterns.append((monitor_pass_str, new_patterns))
+
             if max_patterns is not None and iter >= max_patterns:
                 break
+
             monitor_id += 1
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns)
             new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes,
-                                   observe_actions=focused_actions, strict=True, allpattern=True)
+                                   focused_actions=focused_actions, strict=True, allpattern=True)
 
             # 构造验证语句
             # 构造monitor.pass
@@ -632,12 +548,12 @@ class UModel:
             # E<> !Monitor0.pass & !Monitor1.pass
             monitor_pass_str = f'{default_query} && {monitor_pass_str}'
 
-
-            new_patterns_raw = new_umodel.find_a_pattern_with_query_inplace(monitor_pass_str, focused_actions, hold=True)
-            if len(new_patterns_raw) == 0:
-                return []
-            else:
-                _, new_patterns = new_patterns_raw 
+            new_umodel.set_queries(monitor_pass_str)
+            _, new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) 
+            # Keep the temp files until the end
+            
+            if new_patterns is None:
+                break
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
 
