@@ -648,6 +648,9 @@ class SimTrace:
             new_trace.__global_variables = [self.__global_variables[i] for i in index]
             return new_trace
 
+    def __len__(self):
+        return len(self.actions)
+
     def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
         """Filter the transitions by actions.
 

@@ -49,7 +49,7 @@ def test_all_patterns():
     u.set_queries([query])
     res = u.find_all_patterns(focused_actions)
     assert len(res) == 4
-    # print(len(res), res)
+    # print(len(res), list(map(lambda x: x.actions, res)))
 
 
 
