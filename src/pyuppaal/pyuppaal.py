@@ -56,64 +56,60 @@ def cmd(cmd: str):
     return Verifyta().cmd(cmd)
 
 
-def cmds_loop(cmds: List[str]):
+def cmds(self, cmds: List[str], num_threads: int = 1) -> List[str]:
+    """Run commands with terminal.
+
+    Args:
+        cmds (List[str]): commands to run
+        num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
+
+    Raises:
+        ValueError: Number of threads should ≥ 1.
+
+    Returns:
+        List[str]: return values of each command.
     """
-    run in sequence
-    """
-    return Verifyta().cmds_loop(cmds)
+    return Verifyta().cmds(cmds, num_threads)
 
 
-def cmds_threads(cmds: List[str], num_threads: int = None):
-    """
-    Run a list of commands and return results.
+# def get_communication_graph(model_path: str, save_path=None):
+#     """
+#     Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png | .pdf>` file.
 
-    if num_threads is not given, it will run with num cpu cores * 2.
-
-    if num_threads is 1, it's better run with `self.cmd`.
-
-    :return: running cmds and associated result
-    """
-    return Verifyta().cmds_threads(cmds, num_threads)
-
-
-def get_communication_graph(model_path: str, save_path=None):
-    """
-    Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png | .pdf>` file.
-
-    :param str model_path: path to the model file
-    :param str save_path: `<.md |d .svg | .png | .pdf>` the path to save graph file
-    :return: None
-    """
-    u = UModel(model_path)
-    return u.get_communication_graph(save_path)
+#     :param str model_path: path to the model file
+#     :param str save_path: `<.md |d .svg | .png | .pdf>` the path to save graph file
+#     :return: None
+#     """
+#     u = UModel(model_path)
+#     return u.get_communication_graph(save_path)
 
 
-def find_a_pattern(model_path: str, inputs: TimedActions, observes: TimedActions,
-                   observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
-    """
-    :param str model_path: path to the model file
-    :param TimedActions inputs: TimedActions of input signal model
-    :param TimedActions observes: TimedActions of observe signal model
-    :param List[str] input_actions: list of input signal
-    :param List[str] observe_actions: list of observe signal
-    :param bool hold: whether save history files
-    :param str options: verifyta options
-    :return: query, pattern_seq.actions @yhc SimTrace？
-    """
-    u = UModel(model_path)
-    return u.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold, options)
+# def find_a_pattern(model_path: str, inputs: TimedActions, observes: TimedActions,
+#                    observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
+#     """
+#     :param str model_path: path to the model file
+#     :param TimedActions inputs: TimedActions of input signal model
+#     :param TimedActions observes: TimedActions of observe signal model
+#     :param List[str] input_actions: list of input signal
+#     :param List[str] observe_actions: list of observe signal
+#     :param bool hold: whether save history files
+#     :param str options: verifyta options
+#     :return: query, pattern_seq.actions @yhc SimTrace？
+#     """
+#     u = UModel(model_path)
+#     return u.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold, options)
 
 
-def find_all_patterns(model_path: str, inputs: TimedActions, observes: TimedActions, observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
-    u = UModel(model_path)
-    return u.find_all_patterns(inputs, observes, observe_actions, focused_actions, hold, max_patterns)
+# def find_all_patterns(model_path: str, inputs: TimedActions, observes: TimedActions, observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
+#     u = UModel(model_path)
+#     return u.find_all_patterns(inputs, observes, observe_actions, focused_actions, hold, max_patterns)
 
 
-def find_a_pattern_with_query(model_path: str, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
-    u = UModel(model_path)
-    return u.find_a_pattern_with_query(query, focused_actions, hold, options)
+# def find_a_pattern_with_query(model_path: str, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
+#     u = UModel(model_path)
+#     return u.find_a_pattern_with_query(query, focused_actions, hold, options)
 
 
-def find_all_patterns_with_query(model_path, query, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
-    u = UModel(model_path)
-    return u.find_all_patterns_with_query(query, focused_actions, hold, max_patterns)
+# def find_all_patterns_with_query(model_path, query, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
+#     u = UModel(model_path)
+#     return u.find_all_patterns_with_query(query, focused_actions, hold, max_patterns)

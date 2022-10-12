@@ -376,7 +376,7 @@ clock t;</declaration>
 			<label kind="guard" x="-161" y="-161">t&gt;=8000</label>
 		</transition>
 	</template>
-	<template><name>Input</name><declaration>clock gclk ;</declaration><location id="id22" x="0" y="200"><label kind="invariant" x="0" y="160">gclk &lt;=0</label></location><location id="id23" x="300" y="200"><label kind="invariant" x="300" y="160">gclk &lt;=320</label></location><location id="id24" x="600" y="200"><name x="600" y="180">pass</name></location><init ref="id22" /><transition><source ref="id22" /><target ref="id23" /><label kind="guard" x="100" y="200">gclk &gt;=0</label><label kind="synchronisation" x="100" y="170">sigIn!</label></transition><transition><source ref="id23" /><target ref="id24" /><label kind="guard" x="400" y="200">gclk &gt;=320</label><label kind="synchronisation" x="400" y="170">sigIn!</label></transition></template><system>// ======== Node ========
+	<system>// ======== Node ========
 NHRA=NodeN(actNodeHRA,actPathHRA,tERPMinHRA,tERPMaxHRA);
 NSA=NodeN(actNodeSA,actPathSA,tERPMinSA,tERPMaxSA);
 NHisA=NodeN(actNodeHisA,actPathHisA,tERPMinHisA,tERPMaxHisA);
@@ -405,7 +405,7 @@ PHisHHisV=Path(actPathHisH,actPathHisV,actNodeHisH,actNodeHisV,tCondMinHisHHisV,
 PHisVRV=Path(actPathHisV,actPathRV,actNodeHisV,actNodeRV,tCondMinHisVRV,tCondMaxHisVRV);
 
 // List one or more processes to be composed into a system.
-system NHRA, PHRASA, NSA, PSAHisA, NHisA, PHisAOS, NOS, POSFP, NSP, POSSP, NFP, PFPAV, PSPAV, NAV, PAVHisH, NHisH, PHisHHisV, NHisV, PHisVRV, NRV, AVNRTInput, ConvertIn, ConvertOut, Timer, Input;
+system NHRA, PHRASA, NSA, PSAHisA, NHisA, PHisAOS, NOS, POSFP, NSP, POSSP, NFP, PFPAV, PSPAV, NAV, PAVHisH, NHisH, PHisHHisV, NHisV, PHisVRV, NRV,AVNRTInput,ConvertIn,ConvertOut,Timer;
 </system>
 	<queries>
 		<query>

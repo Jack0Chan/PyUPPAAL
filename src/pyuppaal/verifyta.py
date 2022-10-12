@@ -45,7 +45,6 @@ class Verifyta:
             return
         self.__is_first_init = False
 
-        # class properties
         self.__verifyta_path: str = None
         self.__is_windows: bool = platform.system() == 'Windows'
 
