@@ -121,9 +121,14 @@ class UModel:
         if not '-t' in verify_options:
             raise ValueError(f'-t must be set in verify_options, current verify_options: {verify_options}.')
         xtr_trace_path = self.model_path.replace('.xml', '.xtr')
-        Verifyta().easy_verify(self.model_path, xtr_trace_path, verify_options=verify_options)
 
-        return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
+        verify_cmd_res = Verifyta().easy_verify(self.model_path, xtr_trace_path, verify_options=verify_options)[0]
+        if 'Formula is satisfied' in verify_cmd_res:
+            res = Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
+        else:
+            return None
+
+        return res
         # try:
         #     return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
         # except:
@@ -472,9 +477,7 @@ class UModel:
         queries = self.queries
         if len(queries) == 0:
             return []
-
         all_patterns = self.__find_all_patterns_of_a_query(queries[0], focused_actions, hold, max_patterns)
-
         return all_patterns
 
     def __find_all_patterns_of_a_query(self, query: str = None, focused_actions: List[str] = None, 
@@ -493,8 +496,6 @@ class UModel:
         Returns:
             List[SimTrace]: a list of patterns that satisfy the query.
         """
-
-        
         # 首先
         query = query.strip()
         if not (query.startswith('A[]') or query.startswith('E<>')):
@@ -520,7 +521,7 @@ class UModel:
         if new_patterns is None:
             return []
 
-        monitor_pass_str = default_query
+        query_str = default_query
         # 根据初始的pattern构建monitor并循环, 初始Moniter为0
         all_patterns = []
         monitor_id = 0
@@ -540,11 +541,11 @@ class UModel:
             # 构造验证语句
             # 构造monitor.pass
             # E<> Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            query_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
             # E<> !Monitor0.pass & !Monitor1.pass
-            monitor_pass_str = f'{default_query} && {monitor_pass_str}'
+            query_str = f'{default_query} && {query_str}'
 
-            new_umodel.set_queries(monitor_pass_str)
+            new_umodel.set_queries(query_str)
             new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) 
             # Keep the temp files until the end
             

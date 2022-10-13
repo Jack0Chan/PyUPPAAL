@@ -36,3 +36,5 @@ def test_tracer_trim_transitions():
     umod = UModel(model_path)
     assert umod.easy_verify() is not None
     os.remove(verifyta_path.bring_to_root('M0_AVNRT_5_4-1.xtr'))
+
+test_tracer_basic()

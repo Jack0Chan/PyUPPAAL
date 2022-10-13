@@ -170,7 +170,7 @@ class Verifyta:
         if file_ext != '.xml':
             error_info = f'model_path {model_path} should be xml format file.'
             raise ValueError(error_info)
-
+ 
         # set uppaal environment variables
         # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
         cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
@@ -217,7 +217,12 @@ class Verifyta:
             ValueError: _description_
 
         Returns:
-            List[str]: verify results for each `.xml` model.
+            List[str]: terminal verify results for each `.xml` model. 
+            Example:
+            ['Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1665658616\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula
+             \n\x1b[2K -- Formula is satisfied.\n']
+            ['Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1665658616\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula
+             \n\x1b[2K -- Formula is NOT satisfied.\n']
         """
         num_threads = int(num_threads)
         if num_threads < 1:
@@ -260,7 +265,9 @@ class Verifyta:
             cmd = cmd_env+'&&'+f'{self.__verifyta_path} {model_i} {verify_options_i}'
             cmds.append(cmd)
         # print(cmds)
-        return self.cmds(cmds=cmds, num_threads=num_threads)
+        res = self.cmds(cmds=cmds, num_threads=num_threads)
+        # print(res)
+        return res
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
     def easy_verify(self, 
@@ -302,7 +309,7 @@ class Verifyta:
             ValueError: _description_
 
         Returns:
-            List[str]: verify results for each `.xml` model.
+            List[str]: terminal verify results for each `.xml` model. 
         """
         # num_threads will be checked in self.verify()
 
