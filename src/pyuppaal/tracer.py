@@ -330,7 +330,7 @@ class GlobalVar:
 class SimTrace:
     """_summary_
     """
-    def __init__(self, trace_string: str, parse_raw: bool = True):
+    def __init__(self, trace_string: str):
         """第i个state和第i个transition有相同的clock constraints
        
         第i个transition前面跟第i个state, 详情看__str__()
@@ -339,14 +339,14 @@ class SimTrace:
             trace_string (str): _description_
             parse_raw (bool, optional): whether parse the raw trace string to components. Defaults to True.
         """
+        self.__has_parse_raw = False
         self.__raw: str = trace_string
         self.__states: List[List[str]] = None
         self.__global_variables: List[GlobalVar] = None
         self.__clock_constraints: List[ClockZone] = None
         self.__transitions: List[Transition] = None
-        self.__is_parse_raw = parse_raw
-        if self.__is_parse_raw:
-            self.__parse_raw()
+        # ! 这一行不能删掉？
+        self.__parse_raw()
 
     def __str__(self):
         """_summary_
@@ -368,9 +368,7 @@ class SimTrace:
         Returns:
             _type_: _description_
         """
-        if not self.__is_parse_raw:
-            self.__is_parse_raw = True
-            self.__parse_raw()
+        self.__parse_raw()
 
         res = ''
         for i in range(len(self.__states)):
@@ -386,6 +384,7 @@ class SimTrace:
         return f'SimTrace(...)'
     
     def __len__(self):
+        self.__parse_raw()
         return len(self.actions)
 
     def __getitem__(self, index: int | slice | List[int]) -> SimTrace:
@@ -397,6 +396,7 @@ class SimTrace:
         Returns:
             SimTrace: The corresponding sliced SimTrace.
         """
+        self.__parse_raw()
         if isinstance(index, (int, slice)):
             new_trace: SimTrace = SimTrace("")
             new_trace.__states = self.__states[index]
@@ -430,23 +430,28 @@ class SimTrace:
 
     @property
     def states(self) -> List[List[str]]:
+        self.__parse_raw()
         return self.__states
 
     @property
     def clock_constraints(self) -> List[ClockZone]:
+        self.__parse_raw()
         return self.__clock_constraints
 
     @property
     def transitions(self) -> List[Transition]:
+        self.__parse_raw()
         return self.__transitions
 
     # 这个就是get_untimed_pattern
     @property
     def actions(self) -> List[str]:
+        self.__parse_raw()
         return [x.action for x in self.transitions if x.action is not None]
 
     @property
     def untime_pattern(self) -> List[str]:
+        self.__parse_raw()
         return self.actions
 
     def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
@@ -458,15 +463,17 @@ class SimTrace:
         Returns:
             SimTrace: _description_
         """
+        self.__parse_raw()
         if focused_actions is None:
             return self
-        
         index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
         return self[index_array]
 
-    def __parse_raw(self):
+    def __parse_raw(self) -> None:
         """Parse raw string to components.
         """
+        if self.__has_parse_raw:
+            return
         trace_text = self.__raw
         trace_text = trace_text.split('\n')
         clock_constraints, states, global_variables, transitions = [], [], [], []
@@ -527,6 +534,7 @@ class SimTrace:
         self.__clock_constraints = clock_constraints
         self.__transitions = transitions
         self.__global_variables = global_variables
+        self.__has_parse_raw = True
 
     def save_raw(self, file_name: str) -> None:
         """Save raw data to file.
@@ -544,6 +552,7 @@ class SimTrace:
             file_name (str): _description_
         """
         with open(file_name, 'w', encoding='utf-8') as f:
+            # 这里有parse_raw
             f.write(self.__str__())
 
     def trim_transitions(self, model_path: str) -> None:
@@ -556,7 +565,7 @@ class SimTrace:
         Raises:
             ValueError: When the `.xml` file is invalid.
         """
-
+        self.__parse_raw()
         element_tree_root: Element | None = ET.ElementTree(file=model_path).getroot()
         if element_tree_root is None:
             raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
@@ -639,22 +648,22 @@ class Tracer:
         Returns:
             SimTrace | None: if you want to save the parsed raw trace, you can use SimTrace.save_raw(file_name)
         """
-        try:
-            trace_path = xtr_trace_path
-            verifyta = Verifyta()
-            # use Verifta to compile model_path to if format file
-            if_file = verifyta.compile_to_if(model_path=model_path)
-            # .if 文件名和拓展名
-            # file_path, file_ext = os.path.splitext(if_file)
-            # construct command
-            cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path}'
-            # cmd result
-            trace_text = os.popen(cmd_command).read()
-            # remove .if file
-            os.remove(if_file)
-            res = SimTrace(trace_text)
-            res.trim_transitions(model_path)
-            return res
-        except:
-            return None
-            
+
+        trace_path = xtr_trace_path
+        verifyta = Verifyta()
+        # use Verifta to compile model_path to if format file
+        if_file = verifyta.compile_to_if(model_path=model_path)
+        # .if 文件名和拓展名
+        # file_path, file_ext = os.path.splitext(if_file)
+        # construct command
+        cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path}'
+        # cmd result
+        # print(if_file)
+        trace_text = os.popen(cmd_command).read()
+        # print(trace_text)
+        # remove .if file
+        # os.remove(if_file)
+        res = SimTrace(trace_text)
+        # print(111)
+        res.trim_transitions(model_path)
+        return res

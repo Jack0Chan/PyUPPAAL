@@ -5,19 +5,6 @@ from pyuppaal import UModel
 from verifyta_path import *
 from pyuppaal import TimedActions
 
-
-# pyuppaal.set_verifyta_path(VERIFYTA_PATH)
-
-# u = UModel(bring_to_root('pedestrian.xml'))
-# u.set_queries(['A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)'])
-# sim_trace = u.easy_verify()
-# sim_trace.save_raw(bring_to_root('pedestrian_raw.txt'))
-# print(sim_trace)
-# print('====')
-# print(u.templates)
-# print(u.queries)
-# print(u.broadcast_chan)
-
 pyuppaal.set_verifyta_path(VERIFYTA_PATH)
 
 
@@ -51,12 +38,11 @@ def test_all_patterns():
     assert len(res) == 4
     # print(len(res), list(map(lambda x: x.actions, res)))
 
-
-
 def test_add_input_template():
     u = UModel(bring_to_root('AVNRT_Fake_GroundTruth.xml'))
     u.save_as(bring_to_root('AVNRT_Fake_GroundTruth_copy.xml'))
     signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
     u.add_input_template(signals)
 
-# test_all_patterns()
+test_all_patterns()
+# pyuppaal.Tracer.get_timed_trace(bring_to_root('pedestrian_new_pattern.xml'), bring_to_root('test.if'))
