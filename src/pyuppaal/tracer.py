@@ -1,20 +1,4 @@
-"""tracer example:
-State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Idle Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
-State: Cars.Idle TrafficLights._id8 LV1Pedestrian2.CheckTL Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-Transition: TrafficLights._id8 -> TrafficLights.cRed_pGreen {1; pGreen!; 1;} LV1Pedestrian2.CheckTL -> LV1Pedestrian2._id27 {1; pGreen?; 1;}
-State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2._id27 Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-Transition: LV1Pedestrian2._id27 -> LV1Pedestrian2.Crossing {1; pCrss!; tp = 0;} Cars.Idle -> Cars.Idle {1; pCrss?; 1;}
-State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tp-tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-Transition: TrafficLights.cRed_pGreen -> TrafficLights.cRed_pYellow {tTL >= 55; 0; tTL = 0;}
-State: Cars.Idle TrafficLights.cRed_pYellow LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=-55 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=60 tTL-Cars.tc<=0 tTL-LV1Pedestrian2.tp<=55 Cars.tc-TrafficLights.tTL<=55 TrafficLights.tTL-LV1Pedestrian2.tTL<=-55 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0
-Transition: TrafficLights.cRed_pYellow -> TrafficLights.cGreen_pRed {tTL >= 5; 0; tTL = 0;}
-State: Cars.Idle TrafficLights.cGreen_pRed LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=-60 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-Cars.tc<=0 tTL-LV1Pedestrian2.tp<=55 Cars.tc-TrafficLights.tTL<=60 TrafficLights.tTL-LV1Pedestrian2.tTL<=-60 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0
-Transition: Cars.Idle -> Cars.CheckTL {tc >= 1; cWantCrss!; 1;} TrafficLights.cGreen_pRed -> TrafficLights._id5 {1; cWantCrss?; 1;}
-State: Cars.CheckTL TrafficLights._id5 LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=-60 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-Cars.tc<=0 tTL-LV1Pedestrian2.tp<=55 Cars.tc-TrafficLights.tTL<=60 TrafficLights.tTL-LV1Pedestrian2.tTL<=-60 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0
-Transition: TrafficLights._id5 -> TrafficLights.cGreen_pRed {1; cGreen!; 1;} Cars.CheckTL -> Cars.Crossing {1; cGreen?; tc = 0;}
-State: Cars.Crossing TrafficLights.cGreen_pRed LV1Pedestrian2.Crossing Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-TrafficLights.tTL<=60 tTL-LV1Pedestrian2.tp<=55 Cars.tc-t(0)<=1 Cars.tc-tTL<=-60 TrafficLights.tTL-LV1Pedestrian2.tTL<=-60 LV1Pedestrian2.tp-t(0)<=10 LV1Pedestrian2.tTL-tTL<=0 
-
+"""
 使用方法 ./trace_custom.exe xxx.if xxx.xtr your_output.txt
 注意输入要是LF行尾, 不能是CRLF, 否则会报错unknown section
 """
@@ -342,6 +326,7 @@ class GlobalVar:
     def __repr__(self):
         return self.__str__()
 
+
 class SimTrace:
     """_summary_
     """
@@ -379,33 +364,6 @@ class SimTrace:
             State [2]: ['Cars.Idle', 'TrafficLights.cRed_pGreen', 'LV1Pedestrian2._id27']
             global_variables [2]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
             Clock_constraints [2]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tp ≤ 0; LV1Pedestrian2.tp - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
-            transitions [2]: pCrss: LV1Pedestrian2 -> ['Cars']
-            -----------------------------------
-            State [3]: ['Cars.Idle', 'TrafficLights.cRed_pGreen', 'LV1Pedestrian2.Crossing']
-            global_variables [3]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
-            Clock_constraints [3]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tp - tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
-            transitions [3]: None: TrafficLights.cRed_pGreen -> TrafficLights.cRed_pYellow
-            -----------------------------------
-            State [4]: ['Cars.Idle', 'TrafficLights.cRed_pYellow', 'LV1Pedestrian2.Crossing']
-            global_variables [4]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
-            Clock_constraints [4]: [t(0) - tTL ≤ -55; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 60; tTL - Cars.tc ≤ 0; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - TrafficLights.tTL ≤ 55; TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -55; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
-            transitions [4]: None: TrafficLights.cRed_pYellow -> TrafficLights.cGreen_pRed
-            -----------------------------------
-            State [5]: ['Cars.Idle', 'TrafficLights.cGreen_pRed', 'LV1Pedestrian2.Crossing']
-            global_variables [5]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
-            Clock_constraints [5]: [t(0) - tTL ≤ -60; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - Cars.tc ≤ 0; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - TrafficLights.tTL ≤ 60; 
-            TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -60; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
-            transitions [5]: cWantCrss: Cars -> ['TrafficLights']
-            -----------------------------------
-            State [6]: ['Cars.CheckTL', 'TrafficLights._id5', 'LV1Pedestrian2.Crossing']
-            global_variables [6]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
-            Clock_constraints [6]: [t(0) - tTL ≤ -60; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - Cars.tc ≤ 0; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - TrafficLights.tTL ≤ 60; 
-            TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -60; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
-            transitions [6]: cGreen: TrafficLights -> ['Cars']
-            -----------------------------------
-            State [7]: ['Cars.Crossing', 'TrafficLights.cGreen_pRed', 'LV1Pedestrian2.Crossing']
-            global_variables [7]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
-            Clock_constraints [7]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - TrafficLights.tTL ≤ 60; tTL - LV1Pedestrian2.tp ≤ 55; Cars.tc - t(0) ≤ 1; Cars.tc - tTL ≤ -60; TrafficLights.tTL - LV1Pedestrian2.tTL ≤ -60; LV1Pedestrian2.tp - t(0) ≤ 10; LV1Pedestrian2.tTL - tTL ≤ 0; ]
 
         Returns:
             _type_: _description_
@@ -426,6 +384,85 @@ class SimTrace:
 
     def __repr__(self):
         return f'SimTrace(...)'
+    
+    def __len__(self):
+        return len(self.actions)
+
+    def __getitem__(self, index: int | slice | List[int]) -> SimTrace:
+        """Get the corresponding `SimTrace` by index.
+
+        Args:
+            index (int | slice): The indexs for slicing.
+
+        Returns:
+            SimTrace: The corresponding sliced SimTrace.
+        """
+        if isinstance(index, (int, slice)):
+            new_trace: SimTrace = SimTrace("")
+            new_trace.__states = self.__states[index]
+            new_trace.__clock_constraints = self.__clock_constraints[index]
+            new_trace.__transitions = self.__transitions[index]
+            new_trace.__global_variables = self.__global_variables[index]
+            return new_trace
+        else:
+            new_trace: SimTrace = SimTrace("")
+            new_trace.__states = [self.__states[i] for i in index]
+            new_trace.__clock_constraints = [self.__clock_constraints[i] for i in index]
+            new_trace.__transitions = [self.__transitions[i] for i in index]
+            new_trace.__global_variables = [self.__global_variables[i] for i in index]
+            return new_trace
+
+    @property
+    def raw(self) -> str:
+        """Original raw string of the trace.
+
+        State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Idle Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+        Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
+        State: Cars.Idle TrafficLights._id8 LV1Pedestrian2.CheckTL Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+        Transition: TrafficLights._id8 -> TrafficLights.cRed_pGreen {1; pGreen!; 1;} LV1Pedestrian2.CheckTL -> LV1Pedestrian2._id27 {1; pGreen?; 1;}
+        State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2._id27 Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+        Transition: LV1Pedestrian2._id27 -> LV1Pedestrian2.Crossing {1; pCrss!; tp = 0;} Cars.Idle -> Cars.Idle {1; pCrss?; 1;}
+
+        Returns:
+            str: Original raw string of the trace.
+        """
+        return self.__raw
+
+    @property
+    def states(self) -> List[List[str]]:
+        return self.__states
+
+    @property
+    def clock_constraints(self) -> List[ClockZone]:
+        return self.__clock_constraints
+
+    @property
+    def transitions(self) -> List[Transition]:
+        return self.__transitions
+
+    # 这个就是get_untimed_pattern
+    @property
+    def actions(self) -> List[str]:
+        return [x.action for x in self.transitions if x.action is not None]
+
+    @property
+    def untime_pattern(self) -> List[str]:
+        return self.actions
+
+    def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
+        """Filter the transitions by actions.
+
+        Args:
+            focused_actions (List[str], optional): actions that you take cares of.
+
+        Returns:
+            SimTrace: _description_
+        """
+        if focused_actions is None:
+            return self
+        
+        index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
+        return self[index_array]
 
     def __parse_raw(self):
         """Parse raw string to components.
@@ -578,95 +615,6 @@ class SimTrace:
                                         transition.start_process, transition.end_process)
 
 
-
-    @property
-    def raw(self) -> str:
-        """Original raw string of the trace.
-
-        Returns:
-            str: Original raw string of the trace.
-        """
-        return self.__raw
-
-    @property
-    def states(self) -> List[List[str]]:
-        return self.__states
-
-    @property
-    def clock_constraints(self) -> List[ClockZone]:
-        return self.__clock_constraints
-
-    @property
-    def transitions(self) -> List[Transition]:
-        return self.__transitions
-
-    # 这个就是get_untimed_pattern
-    @property
-    def actions(self) -> List[str]:
-        return [x.action for x in self.transitions if x.action is not None]
-
-    @property
-    def untime_pattern(self) -> List[str]:
-        return self.actions
-
-    def get_untime_pattern(self) -> List[str]:
-        return self.actions
-
-    def filter_by_index(self, index_array: List[int]) -> SimTrace:
-        # 用__slice__方法改写
-        """Filter the corresponding `SimTrace` by index.
-
-        Args:
-            index_array (List[int]): _description_
-
-        Returns:
-            SimTrace: _description_
-        """
-        return self[index_array]
-
-    def __getitem__(self, index: int | slice | List[int]) -> SimTrace:
-        """Get the corresponding `SimTrace` by index.
-
-        Args:
-            index (int | slice): The indexs for slicing.
-
-        Returns:
-            SimTrace: The corresponding sliced SimTrace.
-        """
-        if isinstance(index, (int, slice)):
-            new_trace: SimTrace = SimTrace("")
-            new_trace.__states = self.__states[index]
-            new_trace.__clock_constraints = self.__clock_constraints[index]
-            new_trace.__transitions = self.__transitions[index]
-            new_trace.__global_variables = self.__global_variables[index]
-            return new_trace
-        else:
-            new_trace: SimTrace = SimTrace("")
-            new_trace.__states = [self.__states[i] for i in index]
-            new_trace.__clock_constraints = [self.__clock_constraints[i] for i in index]
-            new_trace.__transitions = [self.__transitions[i] for i in index]
-            new_trace.__global_variables = [self.__global_variables[i] for i in index]
-            return new_trace
-
-    def __len__(self):
-        return len(self.actions)
-
-    def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
-        """Filter the transitions by actions.
-
-        Args:
-            focused_actions (List[str], optional): actions that you take cares of.
-
-        Returns:
-            SimTrace: _description_
-        """
-        if focused_actions is None:
-            return self
-        
-        index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
-        return self[index_array]
-
-
 class Tracer:
     """
     Analyze the `xtr` file generated by verification from command line
@@ -709,3 +657,4 @@ class Tracer:
             return res
         except:
             return None
+            
