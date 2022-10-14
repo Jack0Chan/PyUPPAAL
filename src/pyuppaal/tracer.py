@@ -12,6 +12,7 @@ from xml.etree.ElementTree import Element, ElementTree
 from .verifyta import Verifyta
 import xml.etree.cElementTree as ET
 from .config import TRACER_CUSTOM_PATH
+from .utap import utap_parser
 
 
 class OneClockZone:
@@ -610,9 +611,7 @@ class SimTrace:
                 item_map: Dict[str, str] = dict()
                 for i, real_param in enumerate(real_param_list):
                     item_map[form_param_list[i]] = real_param # map form param to real param
-
                 source_map[name] = item_map
-
         # print(source_map)
 
         for i, transition in enumerate(self.__transitions):
@@ -640,30 +639,12 @@ class Tracer:
         Args:
             model_path (str): the path of the `.xml` model file
             xtr_trace_path (str): the path of the `.xtr` trace file
-            save_raw (bool, optional): determine whether to save the raw trace text. Defaults to False.
-
-        Raises:
-            FileNotFoundError: _description_
 
         Returns:
             SimTrace | None: if you want to save the parsed raw trace, you can use SimTrace.save_raw(file_name)
         """
-
-        trace_path = xtr_trace_path
-        verifyta = Verifyta()
-        # use Verifta to compile model_path to if format file
-        if_file = verifyta.compile_to_if(model_path=model_path)
-        # .if 文件名和拓展名
-        # file_path, file_ext = os.path.splitext(if_file)
-        # construct command
-        cmd_command = f'{TRACER_CUSTOM_PATH} {if_file} {trace_path}'
-        # cmd result
-        # print(if_file)
-        trace_text = os.popen(cmd_command).read()
-        # print(trace_text)
-        # remove .if file
-        # os.remove(if_file)
+        if_str = Verifyta().compile_to_if(model_path=model_path)
+        trace_text = utap_parser(if_str, xtr_trace_path)
         res = SimTrace(trace_text)
-        # print(111)
         res.trim_transitions(model_path)
         return res

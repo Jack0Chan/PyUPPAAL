@@ -147,7 +147,7 @@ class Verifyta:
             return p.map(self.cmd, cmds)
 
     @check_is_verifyta_path_empty
-    def compile_to_if(self, model_path: str) -> str:
+    def _compile_to_if(self, model_path: str) -> str:
         """Compile the `.xml` model_path to a `.if` file and return the path to `.if` file.
 
         Args:
@@ -181,6 +181,37 @@ class Verifyta:
             error_info = f'if file {if_path} has not generated.'
             raise FileNotFoundError(error_info)
         return if_path
+    
+    @check_is_verifyta_path_empty
+    def compile_to_if(self, model_path: str) -> str:
+        """Compile the `.xml` model_path to a `.if` file and return the content of the `.if` file.
+
+        Args:
+            model_path (str): `.xml` model file.
+
+        Raises:
+            FileNotFoundError: `model_path` not found.
+            ValueError: `model_path` is not a `.xml`.
+            FileNotFoundError: _description_
+
+        Returns:
+            str: path to `.if` file.
+        """
+        if not os.path.exists(model_path):
+            error_info = f'model_path {model_path} not found.'
+            raise FileNotFoundError(error_info)
+        file_path, file_ext = os.path.splitext(model_path)
+
+        if file_ext != '.xml':
+            error_info = f'model_path {model_path} should be xml format file.'
+            raise ValueError(error_info)
+ 
+        # set uppaal environment variables
+        # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
+        cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
+        cmd = f'{cmd_env} && {self.__verifyta_path} {model_path}'
+        if_str = self.cmd(cmd=cmd)
+        return if_str
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
     def verify(self, 
