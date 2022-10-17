@@ -16,7 +16,7 @@ import os
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
     """
-    def __init__(self, model_path: str, auto_save = False):
+    def __init__(self, model_path: str, auto_save=True):
         """_summary_
 
         Args:
@@ -293,7 +293,7 @@ class UModel:
         return list(set(broadcast_chan))
 
 
-    def add_observer_template(self, observations: TimedActions, template_name: str='Observer', is_strict: bool = True) -> None:
+    def add_observer_template(self, observations: TimedActions, focused_actions: List[str] | None=None, template_name: str='Observer', is_strict: bool = True) -> None:
         """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         An observer is xxx.
@@ -308,7 +308,9 @@ class UModel:
         Returns:
             _type_: _description_
         """
-        self.add_monitor_template(template_name, observations, observations.actions, strict=is_strict)
+        if focused_actions is None:
+            focused_actions = list(map(lambda x: x.replace('!', '').replace('?', ''), observations.actions))
+        self.add_monitor_template(template_name, observations, focused_actions, strict=is_strict)
 
     def add_pattern_template(self, pattern_list: List[str], template_name: str) -> None:
         """Add a pattern template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
@@ -392,6 +394,9 @@ class UModel:
 
         clock_name, signals = self.__parse_signals(signals)
 
+        if '?' in "".join(focused_actions) or '!' in "".join(focused_actions):
+            raise ValueError(f"focused_actions should not contain '?' or '!', current focused_actions: {focused_actions}")
+
         start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
         self.remove_template(monitor_name)
@@ -411,6 +416,9 @@ class UModel:
         Returns:
             Tuple[str, TimedActions]: the clock name and the parsed signals.
         """
+        
+        parsed_actions = list(map(lambda x: x.replace('?', '').replace('!', ''), signals.actions))
+
 
         if len(signals) > 0 and type(signals.lb[0]) != str:
             signals.lb = list(map(str, signals.lb))
@@ -430,7 +438,7 @@ class UModel:
             signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
             signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()  
 
-        return clock_name, signals        
+        return clock_name, TimedActions(parsed_actions, signals.lb, signals.ub)        
 
 
     def __find_a_pattern(self, focused_action: List[str]=None, hold: bool=True, options: str=None) -> SimTrace | None:
