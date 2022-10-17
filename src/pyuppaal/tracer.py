@@ -273,7 +273,10 @@ class Transition:
         if self.sync is None:
             res = f'{self.sync}: {self.edges[0].start_location} -> {self.edges[0].end_location}'
         else:
-            res = f'{self.sync}: {self.start_process} -> {self.end_process}'
+            res = f'{self.sync}: {self.start_process} -> {self.end_process}; '
+            # if self.edges is not None:
+            for edge in self.edges:
+                res = res + f'{edge.start_location} -> {edge.end_location}; '
         return res
 
     def __repr__(self):
@@ -512,12 +515,18 @@ class SimTrace:
                 states.append(state_text)
                 global_variables.append(GlobalVar(globalvar_name, globalvar_val))
             elif trace_text[tr_ind].startswith('Transition'):
+                # Transition: PHisAAVFast.Retro -> PHisAAVFast._id15 {t >= tCondMin; actNode1!; t = 0;} NHisA.Rest -> NHisA._id7 {1; actNode?; 1;} 
+                # [PHisAAVFast.Retro -> PHisAAVFast._id15 {t >= tCondMin; actNode1!; t = 0; 
+                # NHisA.Rest -> NHisA._id7 {1; actNode?; 1;
+                # '']
                 tmp_trace_i = trace_text[tr_ind][12:].strip().split('}')[:-1]
                 edges_list = []
                 end_process = []
                 sync_symbol = None
                 start_process = None
                 for tr_sub in range(len(tmp_trace_i)):
+                    # [NHisA.Rest -> NHisA._id7,
+                    #  1; actNode?; 1;
                     trans_comp, edge_trans = tmp_trace_i[tr_sub].split('{')
                     start_location, end_location = [x.strip() for x in trans_comp.split('->')]
                     guard, sync, update = [x.strip() for x in edge_trans.split(';')[:-1]]
@@ -534,6 +543,9 @@ class SimTrace:
                     edges_list.append(tmp_edge)
                 transitions.append(Transition(sync=sync_symbol, start_process=start_process,
                                               end_process=end_process, edges=edges_list))
+                # print(transitions[-1].edges)
+                # assert transitions[-1].edges != []
+                # assert transitions[-1].edges is not None
             else:
                 pass
         self.__states = states
@@ -625,7 +637,7 @@ class SimTrace:
                 and transition.sync in source_map[transition.start_process]:
                 # If not in the keys, then it does not have a parameter, so we just skip it
                 self.__transitions[i] = Transition(source_map[transition.start_process][transition.sync], 
-                                        transition.start_process, transition.end_process)
+                                        transition.start_process, transition.end_process, transition.edges)
 
 
 class Tracer:
