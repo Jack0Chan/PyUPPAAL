@@ -1,6 +1,6 @@
 from .verifyta import Verifyta
 from .umodel import UModel
-# from .tracer import ClockZone, Transition, SimTrace, Tracer
+from .tracer import ClockZone, Transition, SimTrace, Tracer, GlobalVar
 # from .config import *
 from .pyuppaal import *
 from .iTools import Mermaid

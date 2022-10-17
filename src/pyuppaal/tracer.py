@@ -455,6 +455,11 @@ class SimTrace:
         self.__parse_raw()
         return self.actions
 
+    @property
+    def global_variables(self) -> List[GlobalVar]:
+        self.__parse_raw()
+        return self.__global_variables
+
     def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
         """Filter the transitions by actions.
 
