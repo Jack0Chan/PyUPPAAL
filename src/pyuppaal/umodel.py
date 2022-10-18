@@ -334,13 +334,13 @@ class UModel:
         Returns:
             _type_: _description_
         """
+        assert len(signals) > 0
+
         start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
         self.remove_template(template_name)
 
         clock_name, signals = self.__parse_signals(signals)
-            
-
         input_model = UFactory.input(
             template_name, signals.convert_to_list_tuple(clock_name), start_id)
         self.__root_elem.insert(-2, input_model)
