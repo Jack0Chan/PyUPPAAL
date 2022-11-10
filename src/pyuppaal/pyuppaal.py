@@ -1,10 +1,4 @@
 """_summary_
-
-Raises:
-    ValueError: _description_
-
-Returns:
-    _type_: _description_
 """
 from __future__ import annotations
 from typing import List
@@ -13,14 +7,14 @@ from .umodel import UModel
 
 
 def set_verifyta_path(verifyta_path: str):
-    """
-    Set verifyta path, and you will get tips if `verifyta_path` is invalid.
+    """Set verifyta path, and you will get tips if `verifyta_path` is invalid.
     This function will check whether `verifyta_path` is valid by following steps:
     1. run '{verifyta_path} -h' with cmd
     2. check whether '-h [ --help ]' is in the result
 
-    :param str verifyta_path: absolute path to `verifyta`
-    """
+    Args:
+        verifyta_path (str): absolute path to `verifyta`
+    """    
     Verifyta().set_verifyta_path(verifyta_path)
 
 
@@ -43,7 +37,6 @@ def easy_verify(model_path: str | List[str],
                 verify_options: str="-t 1",
                 num_threads=1) -> List[str]:
     """Easy verification with default options, return to the shortest diagnostic path.
-    
     Verify the model in model_path and save the verification results to trace_path.
 
     Args:

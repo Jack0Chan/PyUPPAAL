@@ -8,6 +8,7 @@ from .datastruct import TimedActions
 from .verifyta import Verifyta
 from .iTools import UFactory, build_cg ,Mermaid
 from .tracer import SimTrace, Tracer
+import xml.etree.ElementTree as ET
 
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.

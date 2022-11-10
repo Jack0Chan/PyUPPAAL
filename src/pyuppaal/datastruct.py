@@ -1,7 +1,4 @@
 """_summary_
-
-Returns:
-    _type_: _description_
 """
 from typing import List
 

@@ -5,7 +5,7 @@ import os
 # FILE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(FILE_ROOT_DIR.join('utap_39.pyd'))
 # sys.path.append(FILE_ROOT_DIR.join('utap_39.lib'))
-# python_version = platform.python_version()
+python_version = platform.python_version()
 
 utap_parser = None
 

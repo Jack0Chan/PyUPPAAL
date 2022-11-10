@@ -6,7 +6,7 @@ Before you start, you still need some preparation:
 ```python
 import time
 import pyuppaal as pyu
-pyu.set_verifyta_path(r'C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe')
+pyu.set_verifyta_path('your/path/to/verifyta')
 ```
 
 ## Verification
@@ -15,10 +15,10 @@ You can save the verification to `.xtr` file:
 
 
 ```python
-p1_model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo1.xml'
-p1_trace_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo1_trace.xml'
-p2_model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo2.xml'
-p2_trace_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo2_trace.xtr'
+p1_model_path = 'path/to/pyuppaal/src/tests/verifyta_demo1.xml'
+p1_trace_path = 'path/to/pyuppaal/src/tests/verifyta_demo1_trace.xml'
+p2_model_path = 'path/to/pyuppaal/src/tests/verifyta_demo2.xml'
+p2_trace_path = 'path/to/pyuppaal/src/tests/verifyta_demo2_trace.xtr'
 res2 = pyu.simple_verify(model_path=p2_model_path, trace_path=p2_trace_path)
 ```
 
@@ -65,7 +65,7 @@ You can assign a query to find a pattern:
 
 
 ```python
-model_path =  r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian_3.xml'
+model_path = 'path/to/pyuppaal/src/tests/Pedestrian_3.xml'
 query = f'A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)'
 pyu.find_a_pattern_with_query(model_path=model_path,query=query, focused_actions=None, hold=True)
 ```
@@ -82,7 +82,7 @@ All patterns with query is also available:
 
 
 ```python
-model_path= r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian_new.xml'
+model_path= 'path/to/pyuppaal/src/tests/Pedestrian_new.xml'
 query = f'E<> (PPedestrian.Crossing and PCar.Crossing)' # property query
 focused_actions = ["pCheckLight", "pGreen", "pRed", "pYellow", "pCrss", "cCrss"]
 pyu.find_all_patterns_with_query(model_path=model_path, query=query, focused_actions=focused_actions, hold=True)
@@ -108,6 +108,7 @@ You can quickly build a monitor without operating fussy GUI of UPPAAL:
 
 
 ```python
+# TODO: Replace this example with a less sensitive one
 model_path = r'C:\Users\22215\OneDrive\Coding\Lab\AVNRT_Complete_GroundTruth.xml'
 umod = pyu.UModel(model_path=model_path)
 ## The prama is one-to-one correspondent

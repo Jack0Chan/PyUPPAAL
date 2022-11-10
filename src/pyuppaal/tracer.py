@@ -1,5 +1,4 @@
-"""
-使用方法 ./trace_custom.exe xxx.if xxx.xtr your_output.txt
+"""使用方法 ./trace_custom.exe xxx.if xxx.xtr your_output.txt
 注意输入要是LF行尾, 不能是CRLF, 否则会报错unknown section
 """
 # 这一行的import能够指定class的method返回自身类
