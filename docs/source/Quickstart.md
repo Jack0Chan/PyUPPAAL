@@ -27,7 +27,7 @@ pip install pyuppaal
 
     Requirement already satisfied: pyuppaal in c:\python310\lib\site-packages (0.1.5)
     Note: you may need to restart the kernel to use updated packages.
-    
+
 
 ### Get started
 
@@ -62,7 +62,7 @@ print(res1)
 ```
 
     [('set UPPAAL_COMPILE_ONLY=&&C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe -t 1 -X C:\\Users\\22215\\OneDrive\\Coding\\Github\\pyuppaal\\src\\tests\\verifyta_demo1_trace C:\\Users\\22215\\OneDrive\\Coding\\Github\\pyuppaal\\src\\tests\\verifyta_demo1.xml', 'Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1662347315\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula\n\x1b[2K -- Formula is NOT satisfied.\nXMLTrace outputted to: C:\\Users\\22215\\OneDrive\\Coding\\Github\\pyuppaal\\src\\tests\\verifyta_demo1_trace1.xml\n')]
-    
+
 
 ## Get timed trace easily
 
@@ -89,8 +89,9 @@ print(simtracer)
     State [2]: ['P2.C']
     global_variables [2]: []
     Clock_constraints [2]: [t(0) - P2.t ≤ -10; P2.t - t(0) ≤ 20; ]
-    
-    
+
+
+​    
 
 ## Find a pattern
 
@@ -166,7 +167,7 @@ pyu.find_all_patterns(model_path=model_path,inputs=inputs, observes=observations
 
 
 
-## Generate communication graph
+## Generate communication graph(currently not supported)
 
 You can easily generate your communication graph to plentiful type, e.g., `.md`, `.png`, `.svg` and `.pdf`:
 

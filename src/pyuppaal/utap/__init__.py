@@ -1,8 +1,14 @@
 import platform
+import sys
+import os
 
-python_version = platform.python_version()
+# FILE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(FILE_ROOT_DIR.join('utap_39.pyd'))
+# sys.path.append(FILE_ROOT_DIR.join('utap_39.lib'))
+# python_version = platform.python_version()
 
 utap_parser = None
+
 if '3.6' in python_version:
     from .utap_36 import parse
 elif '3.7' in python_version:

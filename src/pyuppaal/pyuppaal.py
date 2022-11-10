@@ -1,9 +1,15 @@
+"""_summary_
+
+Raises:
+    ValueError: _description_
+
+Returns:
+    _type_: _description_
+"""
 from __future__ import annotations
-from .verifyta import Verifyta
-from .tracer import Tracer
-from .umodel import UModel
-from .datastruct import TimedActions
 from typing import List
+from .verifyta import Verifyta
+from .umodel import UModel
 
 
 def set_verifyta_path(verifyta_path: str):
@@ -18,30 +24,83 @@ def set_verifyta_path(verifyta_path: str):
     Verifyta().set_verifyta_path(verifyta_path)
 
 
-def easy_verify(model_path: str | List[str], trace_path: str | List[str], verify_options: str="-t 1", num_threads=1):
-    """
-    Easy verification with default options, return to the shortest diagnostic path. 
+# def load_model(model_path: str, auto_save=True) -> UModel:
+#     """Load a model with the given `model_path`, and return a `UModel` instance.
+
+#     Args:
+#         model_path (str): `.xml` model path.
+#         auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
+#     """
+#     if not model_path.endswith('.xml'):
+#         err_info = f'model_path should be in .xml format, ' \
+#                    f'current model_path is : {model_path}.'
+#         raise ValueError(err_info)
+#     return UModel(model_path, auto_save)
+
+
+def easy_verify(model_path: str | List[str],
+                trace_path: str | List[str],
+                verify_options: str="-t 1",
+                num_threads=1) -> List[str]:
+    """Easy verification with default options, return to the shortest diagnostic path.
+    
     Verify the model in model_path and save the verification results to trace_path.
 
-    :param str or List[str] model_path: model paths to be verified.
-    :param str or List[str] trace_path: trace paths to be saved. Both `.xtr` and `.xml` formats are supported.
-    :param str parallel: <'process'|'threads'>, select parallel method for accelerate verification, 
-        None(default): run in sequence, 'process':use multiprocessing, 'threads': use multithreads.
+    Args:
+        model_path (str | List[str]): model paths to be verified.
+        trace_path (str | List[str], optional): target trace paths, both `.xtr` and `.xml`(DBM) are supported.
+            Defaults to None, which will create `.xtr` path.
+        verify_options (str | List[str], optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
+            If `verify_options` is provides as a single string, all the models will be verified with the same options. Defaults to '-t 1', returning the shortest trace.
+        num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
+
+    Returns:
+        List[str]: terminal verify results for each `.xml` model.
     """
     return Verifyta().easy_verify(model_path, trace_path, verify_options, num_threads)
 
 
-def get_timed_trace(model_path: str, trace_path: str, hold: bool = False):
-    """
-    Get `trace` and its `dclk` interval of each transition state.
-    To emphasize, due to the limitation of verification return of `UPPAAL`, the trace is no longer a specific time, but a constraints of `gclk`, which makes it easier to generate a verification monitor, but is poor at dividing parameters.
+def verify(model_path: str | List[str],
+           verify_options: str | List[str] = None,
+           num_threads: int = 1) -> List[str]:
+        """Verify models and return the verify results as list.
 
-    :param str model_path: the path of model file
-    :param str trace_path: target trace file
-    :param bool hold: determine whether retain intermediate file, e.g., `.if` and `.txt` file
-    :return: a `SimTrace`
-    """
-    return Tracer.get_timed_trace(model_path, trace_path, hold)
+        This is designed for advanced UPPAAL user.
+        If you want to save a `.xtr` or `.xml`(DBM) path, you may want to check `Verifyta().easy_verify()`.
+        WARNING: Note that `-f xx.xtr` or `-X xx.xml` should be used together with `-t` options, otherwise you may fail to save the path files.
+        
+        Examples:
+        ```python
+        Verifyta().verify('test1.xml')
+        Verifyta().verify(['test1.xml', 'test2.xml'], verify_options = '-t 1 -o 0')
+        Verifyta().verify(['test1.xml', 'test1.xml'], verify_options = ['-t 1 -o 0', '-t 2 -o 0'])
+        # if you surely want to generate a trace file with Verifyta().verify()
+        # you should not add `.xtr` at the end of `xtr_trace`, or `.xml` at the end of `xtr_trace`
+        Verifyta().verify(['test1.xml', 'test1.xml'], verify_options = ['-f xtr_trace -t 1 -o 0', '-X xml_trace -t 2 -o 0'], num_threads=2)
+        ```
+
+        Args:
+            model_path (str | List[str]): model paths to be verified.
+            verify_options (str | List[str], optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
+                If `verify_options` is provided as a single `string`, all the models will be verified with the same options. Defaults to None.
+            num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
+
+        Raises:
+            ValueError: _description_
+            TypeError: _description_
+            ValueError: _description_
+            FileNotFoundError: _description_
+            ValueError: _description_
+
+        Returns:
+            List[str]: terminal verify results for each `.xml` model. 
+            Example:
+            ['Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1665658616\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula
+             \n\x1b[2K -- Formula is satisfied.\n']
+            ['Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1665658616\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula
+             \n\x1b[2K -- Formula is NOT satisfied.\n']
+        """
+        return Verifyta().verify(model_path, verify_options, num_threads)
 
 
 def cmd(cmd: str):
@@ -68,45 +127,3 @@ def cmds(self, cmds: List[str], num_threads: int = 1) -> List[str]:
     """
     return Verifyta().cmds(cmds, num_threads)
 
-
-# def get_communication_graph(model_path: str, save_path=None):
-#     """
-#     Get the communication graph of the uppaal model and save it to a `<.md | .svg | .png | .pdf>` file.
-
-#     :param str model_path: path to the model file
-#     :param str save_path: `<.md |d .svg | .png | .pdf>` the path to save graph file
-#     :return: None
-#     """
-#     u = UModel(model_path)
-#     return u.get_communication_graph(save_path)
-
-
-# def find_a_pattern(model_path: str, inputs: TimedActions, observes: TimedActions,
-#                    observe_actions: List[str] = None, focused_actions: List[str] = None, hold=False, options: str = None):
-#     """
-#     :param str model_path: path to the model file
-#     :param TimedActions inputs: TimedActions of input signal model
-#     :param TimedActions observes: TimedActions of observe signal model
-#     :param List[str] input_actions: list of input signal
-#     :param List[str] observe_actions: list of observe signal
-#     :param bool hold: whether save history files
-#     :param str options: verifyta options
-#     :return: query, pattern_seq.actions @yhc SimTrace？
-#     """
-#     u = UModel(model_path)
-#     return u.find_a_pattern(inputs, observes, observe_actions, focused_actions, hold, options)
-
-
-# def find_all_patterns(model_path: str, inputs: TimedActions, observes: TimedActions, observe_actions: List[str] = None, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
-#     u = UModel(model_path)
-#     return u.find_all_patterns(inputs, observes, observe_actions, focused_actions, hold, max_patterns)
-
-
-# def find_a_pattern_with_query(model_path: str, query: str = None, focused_actions: List[str] = None, hold=False, options=None):
-#     u = UModel(model_path)
-#     return u.find_a_pattern_with_query(query, focused_actions, hold, options)
-
-
-# def find_all_patterns_with_query(model_path, query, focused_actions: List[str] = None, hold: bool = False, max_patterns: int = None):
-#     u = UModel(model_path)
-#     return u.find_all_patterns_with_query(query, focused_actions, hold, max_patterns)
