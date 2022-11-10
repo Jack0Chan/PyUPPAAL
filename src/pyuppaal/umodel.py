@@ -2,17 +2,13 @@
 """
 # support return typing UModel
 from __future__ import annotations
-from hashlib import new
-
-# system powershell
+import os
 from typing import List, Tuple
-import xml.etree.cElementTree as ET
-
 from .datastruct import TimedActions
 from .verifyta import Verifyta
 from .iTools import UFactory, build_cg ,Mermaid
 from .tracer import SimTrace, Tracer
-import os
+
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
     """
@@ -21,7 +17,7 @@ class UModel:
 
         Args:
             model_path (str): _description_
-            auto_save (bool, optional): whether auto save the model after each operation. Defaults to False.
+            auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
         """
         self.__model_path: str = model_path
         self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
@@ -118,7 +114,7 @@ class UModel:
         Returns:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
         """
-        if not '-t' in verify_options:
+        if '-t' not in verify_options:
             raise ValueError(f'-t must be set in verify_options, current verify_options: {verify_options}.')
         xtr_trace_path = self.model_path.replace('.xml', '.xtr')
 
@@ -194,7 +190,7 @@ class UModel:
 
     def set_queries(self, queries: List[str] | str) -> None:
         """Delete all the queries in the model and then inserts the new queries into the model
-        
+
         Args:
             queries (List[str] | str): A list of queries or a single query
 
@@ -229,7 +225,7 @@ class UModel:
         """
         system_elem = self.__element_tree.find('system')
         system_elem.text = system_str
-        if self.auto_save: 
+        if self.auto_save:
             self.save()
 
     # ======== declaration ========
@@ -251,7 +247,8 @@ class UModel:
         """
         declaration_elem = self.__element_tree.find('declaration')
         declaration_elem.text = declaration_str
-        if self.auto_save: self.save()
+        if self.auto_save:
+            self.save()
 
     # ======== other ========
     @property
@@ -350,7 +347,6 @@ class UModel:
 
         return None
 
-
     def __add_template_to_system(self, template_name: str):
         """Add a template to system declarations.
 
@@ -369,7 +365,6 @@ class UModel:
                 break
 
         self.set_system('\n'.join(system_lines))
-
 
     # all patterns
     def add_monitor_template(self, monitor_name: str, signals: TimedActions, focused_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
@@ -420,10 +415,10 @@ class UModel:
         parsed_actions = list(map(lambda x: x.replace('?', '').replace('!', ''), signals.actions))
 
 
-        if len(signals) > 0 and type(signals.lb[0]) != str:
+        if len(signals) > 0 and not isinstance(signals.lb[0], str):
             signals.lb = list(map(str, signals.lb))
         
-        if len(signals) > 0 and type(signals.ub[0]) != str:
+        if len(signals) > 0 and not isinstance(signals.ub[0], str):
             signals.ub = list(map(str, signals.ub))
 
         if len(signals) > 0 and signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
@@ -433,12 +428,14 @@ class UModel:
         else: # Otherwise, we use the default clock name
             # accept input like ">1" or "1"
             clock_name = default_name
-        for i in range(len(signals.lb)): # Remove the clock name and operator
+
+        len_lb = len(signals.lb)
+        for i in range(len_lb): # Remove the clock name and operator
             # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
             signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
-            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()  
+            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()
 
-        return clock_name, TimedActions(parsed_actions, signals.lb, signals.ub)        
+        return clock_name, TimedActions(parsed_actions, signals.lb, signals.ub)
 
 
     def __find_a_pattern(self, focused_action: List[str]=None, hold: bool=True, options: str=None) -> SimTrace | None:
@@ -467,11 +464,12 @@ class UModel:
         if not hold:
             os.remove(trace_path)
             os.remove(self.model_path)
-        
+
         return pattern_seq
 
-
-    def find_all_patterns(self, focused_actions: List[str] = None, hold: bool = True, max_patterns: int = None) -> List[SimTrace]:
+    def find_all_patterns(self, focused_actions: List[str] = None,
+                          hold: bool = True,
+                          max_patterns: int = None) -> List[SimTrace]:
         """Find all patterns of the first query in the model.
 
         Args:
@@ -488,8 +486,10 @@ class UModel:
         all_patterns = self.__find_all_patterns_of_a_query(queries[0], focused_actions, hold, max_patterns)
         return all_patterns
 
-    def __find_all_patterns_of_a_query(self, query: str = None, focused_actions: List[str] = None, 
-                                     hold: bool = True, max_patterns: int = None) -> List[SimTrace] | None:
+    def __find_all_patterns_of_a_query(self, query: str = None,
+                                       focused_actions: List[str] = None,
+                                       hold: bool = True,
+                                       max_patterns: int = None) -> List[SimTrace] | None:
         """Find all patterns that satisfy the query
 
         Args:
@@ -524,7 +524,7 @@ class UModel:
         new_umodel = self.copy_as(new_model_path=new_model_path)
 
         new_umodel.set_queries(default_query)
-        new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) # Keep the temp files until the end
+        new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=hold) # Keep the temp files until the end
 
         if new_patterns is None:
             return []
@@ -533,11 +533,11 @@ class UModel:
         # 根据初始的pattern构建monitor并循环, 初始Moniter为0
         all_patterns = []
         monitor_id = 0
-        iter = 1
+        iter_ = 1
         while len(new_patterns) != 0:
             all_patterns.append(new_patterns)
 
-            if max_patterns is not None and iter >= max_patterns:
+            if max_patterns is not None and iter_ >= max_patterns:
                 break
 
             monitor_id += 1
@@ -554,7 +554,7 @@ class UModel:
             query_str = f'{default_query} && {query_str}'
 
             new_umodel.set_queries(query_str)
-            new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=True) 
+            new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=hold)
             # Keep the temp files until the end
             
             if new_patterns is None:
@@ -562,7 +562,7 @@ class UModel:
 
             trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
 
-            iter = iter + 1
+            iter_ = iter_ + 1
 
         if not hold:
             os.remove(new_model_path)

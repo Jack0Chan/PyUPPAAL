@@ -214,8 +214,8 @@ class Verifyta:
         return if_str
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
-    def verify(self, 
-                model_path: str | List[str], 
+    def verify(self,
+                model_path: str | List[str],
                 verify_options: str | List[str] = None,
                 num_threads: int = 1) -> List[str]:
         """Verify models and return the verify results as list.
@@ -301,23 +301,23 @@ class Verifyta:
         return res
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
-    def easy_verify(self, 
-                model_path: str | List[str], 
+    def easy_verify(self,
+                model_path: str | List[str],
                 trace_path: str | List[str] = None,
                 verify_options: str | List[str] = "-t 1",
                 num_threads: int = 1) -> List[str]:
         """Verify models and return the verify results as list.
 
-        For `trace_path` param, both `.xtr` and `.xml`(DBM) files are supported. 
+        For `trace_path` param, both `.xtr` and `.xml`(DBM) files are supported.
         WARNING: `-t` option must be set for `verify_options`, which is set by default `verify_options = '-t 1'`(shortest), otherwise counter-example file may not be created.
-        
+
         Examples:
         ```python
         Verifyta().set_verifyta_path(VERIFYTA_PATH)
-        model_paths = [os.path.join(ROOT_DIR, 'demo1.xml'), 
-                       os.path.join(ROOT_DIR, 'demo2.xml'), 
+        model_paths = [os.path.join(ROOT_DIR, 'demo1.xml'),
+                       os.path.join(ROOT_DIR, 'demo2.xml'),
                        os.path.join(ROOT_DIR, 'demo3.xml')]
-        trace_paths = [os.path.join(ROOT_DIR, 't1.xtr'), 
+        trace_paths = [os.path.join(ROOT_DIR, 't1.xtr'),
                        os.path.join(ROOT_DIR, 't2-.xml'),
                        os.path.join(ROOT_DIR, 't3-.xml')]
         Verifyta().easy_verify(model_paths, verify_options=['-t 1 -o 0', '-t 2 -o 0', '-t 2 -o 1'], num_threads=3)
@@ -332,15 +332,8 @@ class Verifyta:
                 If `verify_options` is provides as a single string, all the models will be verified with the same options. Defaults to '-t 1', returning the shortest trace.
             num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
 
-        Raises:
-            ValueError: _description_
-            TypeError: _description_
-            ValueError: _description_
-            FileNotFoundError: _description_
-            ValueError: _description_
-
         Returns:
-            List[str]: terminal verify results for each `.xml` model. 
+            List[str]: terminal verify results for each `.xml` model.
         """
         # num_threads will be checked in self.verify()
 
@@ -351,14 +344,11 @@ class Verifyta:
             else:
                 trace_path = [os.path.splitext(x)[0]+'.xtr' for x in model_path]
 
-        # check whether model_path and trace_path type is the same type
-        if type(model_path) != type(trace_path):
-            error_info = f'Type of model_path and trace_path are inconsistent. ' \
-                         f'model_path: {type(model_path)}, trace_path:{type(trace_path)}.'
-            raise TypeError(error_info)
         # check model_path is only one model, set parallel loop
-        elif isinstance(model_path, str):
-            model_path, trace_path = [model_path], [trace_path]
+        if isinstance(model_path, str):
+            model_path = [model_path]
+        if isinstance(trace_path, str):
+            trace_path = [trace_path]
 
         len_model_path = len(model_path)
         len_trace_path = len(trace_path)
@@ -379,18 +369,21 @@ class Verifyta:
             trace_i = trace_path[i]
             verify_options_i = verify_options[i]
             if '-t ' not in verify_options_i:
-                error_info = f"'-t' option must be set to save a counter example. If you do not want to save a counter example, please use `Verifyta.verify()`.\n" \
+                error_info = f"'-t' option must be set to save a counter example. " \
+                             f"If you do not want to save a counter example, " \
+                             f"please use `Verifyta.verify()`.\n" \
                              f"Current internal verify option: {verify_options_i}."
                 raise ValueError(error_info)
             # model_path existence will be checked in self.verity()
             # check trace_path format
             if trace_i.endswith('.xml'):
-                option = f"-X {trace_i.replace('.xml', '')} {verify_options_i}" 
+                option = f"-X {trace_i.replace('.xml', '')} {verify_options_i}"
                 options.append(option)
             elif trace_i.endswith('.xtr'):
                 option = f"-f {trace_i.replace('.xtr', '')} {verify_options_i}"
                 options.append(option)
             else:
-                error_info = f'trace_path should end with ".xml" or ".xtr", current trace_path = {trace_i}.'
+                error_info = f'trace_path should end with ".xml" or ".xtr", ' \
+                             f'current trace_path = {trace_i}.'
                 raise ValueError(error_info)
         return self.verify(model_path=model_path, verify_options=options, num_threads=num_threads)
