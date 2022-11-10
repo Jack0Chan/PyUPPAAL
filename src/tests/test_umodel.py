@@ -44,5 +44,5 @@ def test_add_input_template():
     signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
     u.add_input_template(signals)
 
-test_all_patterns()
+# test_all_patterns()
 # pyuppaal.Tracer.get_timed_trace(bring_to_root('pedestrian_new_pattern.xml'), bring_to_root('test.if'))
