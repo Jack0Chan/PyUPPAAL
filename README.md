@@ -1,12 +1,20 @@
 # Introduction
 
-[![](https://img.shields.io/badge/docs-passing-brightgreen)](https://pyuppaal.readthedocs.io/en/latest/index.html)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
+[![Documentation Status](https://readthedocs.org/projects/pyuppaal/badge/?version=latest)](https://pyuppaal.readthedocs.io/en/latest/?badge=latest)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
 
-`pyuppaal` is a research tool that can simulate, verify and modify UPPAAL models with python. With this package, you can do
+`pyuppaal` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
 
-1. run any UPPAAL commands with multi-process that is valid with verifyta, and return the proof trace (or counter-example).
-2. modify a `.xml`  model, including templates, declarations, system declarations, and queries. It has a powerful method `find_all_patterns`  that can get all different untimed traces that can explain current property.
-4. (todo) analyze the *SMC* simulation results.
+1. load a .xml model, just like you open a model in UPPAAL GUI;
+2. set the query, just like you edit the queries in UPPAAL GUI;
+3. verify a model with the query and options (e.g., shortest path), just like you click the "Verify" button in UPPAAL GUI.
+
+In addition to the above, you can also
+
+- load a .xtr trace, and get the formatted trace data;
+- modify templates, declaration and systems;
+- add built-in templates such as Input, Observer, and Monitors; 
+- find all patterns of the model with certain query.
+- [todo] analyze the *SMC* simulation results. 
 
 # Quickstart
 
@@ -144,6 +152,3 @@ model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestri
 save_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.png'
 pyu.get_communication_graph(model_path,save_path)
 ```
-
-
-
