@@ -39,6 +39,20 @@ def easy_verify(model_path: str | List[str],
     """
     return Verifyta().easy_verify(model_path, trace_path, verify_options, num_threads)
 
+def get_communication_graph(model_path: str, save_path=None, is_beautify=True) -> Mermaid:
+    """Get the communication graph of the UPPAAL model, and return a `Mermaid` instance.
+
+    Args:
+        model_path (str): path to the model.
+        save_path (_type_, optional): `<.md | .svg | .pdf | .png>`, the path to save the file. Defaults to None.
+        is_beautify (bool, optional): whether beautify the mermaid file by merging edges. Defaults to True.
+
+    Returns:
+        Mermaid: _description_
+    """
+    umod = UModel(model_path)
+    return umod.get_communication_graph(save_path, is_beautify)
+
 
 def verify(model_path: str | List[str],
            verify_options: str | List[str] = None,
