@@ -352,8 +352,8 @@ class SimTrace:
         self.__global_variables: List[GlobalVar] = None
         self.__clock_constraints: List[ClockZone] = None
         self.__transitions: List[Transition] = None
-        # ! 这一行不能删掉？
-        self.__parse_raw()
+
+        # self.__parse_raw()
 
     def __str__(self):
         """Convert the trace to string.
@@ -409,6 +409,7 @@ class SimTrace:
         self.__parse_raw()
         if isinstance(index, (int, slice)):
             new_trace: SimTrace = SimTrace("")
+            new_trace.__has_parse_raw = True
             new_trace.__states = self.__states[index]
             new_trace.__clock_constraints = self.__clock_constraints[index]
             new_trace.__transitions = self.__transitions[index]
@@ -416,6 +417,7 @@ class SimTrace:
             return new_trace
         else:
             new_trace: SimTrace = SimTrace("")
+            new_trace.__has_parse_raw = True
             new_trace.__states = [self.__states[i] for i in index]
             new_trace.__clock_constraints = [
                 self.__clock_constraints[i] for i in index]

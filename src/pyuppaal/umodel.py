@@ -549,7 +549,7 @@ class UModel:
         all_patterns = []
         monitor_id = 0
         iter_ = 1
-        while len(new_patterns) != 0:
+        while new_patterns is not None:
             all_patterns.append(new_patterns)
 
             if max_patterns is not None and iter_ >= max_patterns:
