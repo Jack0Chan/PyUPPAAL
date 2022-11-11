@@ -10,13 +10,13 @@ from typing import Dict, Generator, List
 from xml.etree.ElementTree import Element, ElementTree
 from .verifyta import Verifyta
 import xml.etree.cElementTree as ET
-from .config import TRACER_CUSTOM_PATH
 from .utap import utap_parser
 
 
 class OneClockZone:
     """_summary_
     """
+
     def __init__(self, clock1: str, clock2: str, is_equal: bool, bound_value: int):
         """clock1 - clock2 < or ≤ bound_value
 
@@ -79,6 +79,7 @@ class OneClockZone:
 class ClockZone:
     """Composed by `List` of `OneClockZone`.
     """
+
     def __init__(self, clockzones: List[OneClockZone]):
         """Composed by `List` of `OneClockZone`.
 
@@ -119,6 +120,7 @@ class Edges:
     A Transition looks like this:
     Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
     """
+
     def __init__(self, start_location: str, end_location: str, guard: str, sync: str, update: str):
         """process.start_location -> process.end_location: {guard, sync, update}
 
@@ -175,7 +177,7 @@ class Edges:
     @property
     def has_guard(self) -> bool:
         """Whether the edge has a gurad.
-        
+
         If `guard == '1'`, it means the edge does not have a guard.
 
         Returns:
@@ -253,6 +255,7 @@ class Transition:
     A Transition looks like this:
     Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
     """
+
     def __init__(self, sync: str, start_process: str, end_process: List[str], edges: List[Edges] = None):
         """_summary_
 
@@ -325,7 +328,7 @@ class GlobalVar:
                 res += f'{self.variables_name[i]}={self.variables_value[i]}; '
             res += ']'
             return res
-    
+
     def __repr__(self):
         return self.__str__()
 
@@ -333,9 +336,10 @@ class GlobalVar:
 class SimTrace:
     """_summary_
     """
+
     def __init__(self, trace_string: str):
         """第i个state和第i个transition有相同的clock constraints
-       
+
         第i个transition前面跟第i个state, 详情看__str__()
 
         Args:
@@ -385,7 +389,7 @@ class SimTrace:
 
     def __repr__(self):
         return f'SimTrace(...)'
-    
+
     def __len__(self):
         self.__parse_raw()
         return len(self.actions)
@@ -410,9 +414,11 @@ class SimTrace:
         else:
             new_trace: SimTrace = SimTrace("")
             new_trace.__states = [self.__states[i] for i in index]
-            new_trace.__clock_constraints = [self.__clock_constraints[i] for i in index]
+            new_trace.__clock_constraints = [
+                self.__clock_constraints[i] for i in index]
             new_trace.__transitions = [self.__transitions[i] for i in index]
-            new_trace.__global_variables = [self.__global_variables[i] for i in index]
+            new_trace.__global_variables = [
+                self.__global_variables[i] for i in index]
             return new_trace
 
     @property
@@ -474,7 +480,8 @@ class SimTrace:
         self.__parse_raw()
         if focused_actions is None:
             return self
-        index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
+        index_array = [i for i in range(
+            len(self.transitions)) if self.transitions[i].action in focused_actions]
         return self[index_array]
 
     def __parse_raw(self) -> None:
@@ -497,7 +504,8 @@ class SimTrace:
                         globalvar_val.append(var_val.strip())
                     elif ('<' in tmp_trace_i[tr_sub]) and ('-' in tmp_trace_i[tr_sub]):
                         # clockzones
-                        clocks, clk_bound = [x.strip() for x in tmp_trace_i[tr_sub].split('<')]
+                        clocks, clk_bound = [
+                            x.strip() for x in tmp_trace_i[tr_sub].split('<')]
                         clock1, clock2 = [x.strip() for x in clocks.split('-')]
                         if clk_bound[0] == '=':
                             clk_bound = clk_bound[1:]
@@ -505,17 +513,18 @@ class SimTrace:
                         else:
                             is_equal = False
                         clkzone = OneClockZone(clock1=clock1.strip(), clock2=clock2.strip(' '),
-                                            is_equal=is_equal, bound_value=clk_bound.strip(' '))
+                                               is_equal=is_equal, bound_value=clk_bound.strip(' '))
                         clockzones_text.append(clkzone)
                     else:
                         # state
                         state_text.append(tmp_trace_i[tr_sub].strip())
                 clock_constraints.append(ClockZone(clockzones_text))
                 states.append(state_text)
-                global_variables.append(GlobalVar(globalvar_name, globalvar_val))
+                global_variables.append(
+                    GlobalVar(globalvar_name, globalvar_val))
             elif trace_text[tr_ind].startswith('Transition'):
-                # Transition: PHisAAVFast.Retro -> PHisAAVFast._id15 {t >= tCondMin; actNode1!; t = 0;} NHisA.Rest -> NHisA._id7 {1; actNode?; 1;} 
-                # [PHisAAVFast.Retro -> PHisAAVFast._id15 {t >= tCondMin; actNode1!; t = 0; 
+                # Transition: PHisAAVFast.Retro -> PHisAAVFast._id15 {t >= tCondMin; actNode1!; t = 0;} NHisA.Rest -> NHisA._id7 {1; actNode?; 1;}
+                # [PHisAAVFast.Retro -> PHisAAVFast._id15 {t >= tCondMin; actNode1!; t = 0;
                 # NHisA.Rest -> NHisA._id7 {1; actNode?; 1;
                 # '']
                 tmp_trace_i = trace_text[tr_ind][12:].strip().split('}')[:-1]
@@ -527,10 +536,13 @@ class SimTrace:
                     # [NHisA.Rest -> NHisA._id7,
                     #  1; actNode?; 1;
                     trans_comp, edge_trans = tmp_trace_i[tr_sub].split('{')
-                    start_location, end_location = [x.strip() for x in trans_comp.split('->')]
-                    guard, sync, update = [x.strip() for x in edge_trans.split(';')[:-1]]
+                    start_location, end_location = [
+                        x.strip() for x in trans_comp.split('->')]
+                    guard, sync, update = [x.strip()
+                                           for x in edge_trans.split(';')[:-1]]
                     # strip
-                    tmp_edge = Edges(start_location, end_location, guard, sync, update)
+                    tmp_edge = Edges(
+                        start_location, end_location, guard, sync, update)
                     if tmp_edge.sync_type == 'send':
                         start_process = tmp_edge.process
                         sync_symbol = tmp_edge.sync_symbol
@@ -583,60 +595,72 @@ class SimTrace:
             ValueError: When the `.xml` file is invalid.
         """
         self.__parse_raw()
-        element_tree_root: Element | None = ET.ElementTree(file=model_path).getroot()
+        element_tree_root: Element | None = ET.ElementTree(
+            file=model_path).getroot()
         if element_tree_root is None:
-            raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
+            # When the `.xml` file is invalid.
+            raise ValueError(f"Invalid UPPAAL template file")
 
         # Get template parameters from .xml file
-        templates: Generator[Element, None, None] = element_tree_root.iterfind("template")
+        templates: Generator[Element, None,
+                             None] = element_tree_root.iterfind("template")
         param_map: Dict[str, List[str]] = dict()
         for template in templates:
             name_element: Element | None = template.find("name")
             if name_element is None:
-                raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
+                # When the `.xml` file is invalid.
+                raise ValueError(f"Invalid UPPAAL template file")
 
-            name: str = name_element.text # uppaal guaranteed this to have only one     
-            param_elememt: Element | None = template.find("parameter") # uppaal guaranteed this to have only one
+            name: str = name_element.text  # uppaal guaranteed this to have only one
+            param_elememt: Element | None = template.find(
+                "parameter")  # uppaal guaranteed this to have only one
             if param_elememt is not None:
-                param_map[name] = list(map(lambda item: item.strip().split(' ')[-1].replace('&', ''), 
-                                        param_elememt.text.split(','))) # remove type and ref annotation
+                param_map[name] = list(map(lambda item: item.strip().split(' ')[-1].replace('&', ''),
+                                           param_elememt.text.split(',')))  # remove type and ref annotation
             else:
                 param_map[name] = []
 
-        
         # Get system components defination
         system_element: Element | None = element_tree_root.find("system")
         if system_element is None:
-            raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
+            # When the `.xml` file is invalid.
+            raise ValueError(f"Invalid UPPAAL template file")
 
-        system_items: List[str] = list(filter(lambda line: len(line) > 0 and line.find("//") != 0, # remove comment and empty line
-                                    system_element.text.replace("\r\n", "\n").replace('\t', '') .split("\n")))[:-1] # unify "\n", remove "\t" and remove "system"
+        system_items: List[str] = list(filter(lambda line: len(line) > 0 and line.find("//") != 0,  # remove comment and empty line
+                                              system_element.text.replace("\r\n", "\n").replace('\t', '') .split("\n")))[:-1]  # unify "\n", remove "\t" and remove "system"
 
         source_map: Dict[str, Dict[str, str]] = dict()
         for item in system_items:
-            name, constructor = item.replace(";", "").replace(" ", "").split('=') # remove ';' and ' '            
+            name, constructor = item.replace(";", "").replace(
+                " ", "").split('=')  # remove ';' and ' '
             left_brace_index: int = constructor.find('(')
-            constructor_name: str = constructor[:left_brace_index] # get the name of the constructor(template)
-            real_param_list: List[str] = list(filter(lambda param: param != '', constructor[left_brace_index + 1: -1].split(','))) # get corresponding param list
-            form_param_list: List[str] = param_map[constructor_name] # get constructor param list
+            # get the name of the constructor(template)
+            constructor_name: str = constructor[:left_brace_index]
+            real_param_list: List[str] = list(filter(
+                lambda param: param != '', constructor[left_brace_index + 1: -1].split(',')))  # get corresponding param list
+            # get constructor param list
+            form_param_list: List[str] = param_map[constructor_name]
 
             # ? I am not sure if default value is allowed in UPPAAL
-            assert len(real_param_list) == len(form_param_list), f"Invalid UPPAAL template file" # When the `.xml` file is invalid.
+            # When the `.xml` file is invalid.
+            assert len(real_param_list) == len(
+                form_param_list), f"Invalid UPPAAL template file"
 
             if len(real_param_list) != 0:
                 item_map: Dict[str, str] = dict()
                 for i, real_param in enumerate(real_param_list):
-                    item_map[form_param_list[i]] = real_param # map form param to real param
+                    # map form param to real param
+                    item_map[form_param_list[i]] = real_param
                 source_map[name] = item_map
         # print(source_map)
 
         for i, transition in enumerate(self.__transitions):
             if transition.sync is not None \
-                and transition.start_process in source_map.keys() \
-                and transition.sync in source_map[transition.start_process]:
+                    and transition.start_process in source_map.keys() \
+                    and transition.sync in source_map[transition.start_process]:
                 # If not in the keys, then it does not have a parameter, so we just skip it
-                self.__transitions[i] = Transition(source_map[transition.start_process][transition.sync], 
-                                        transition.start_process, transition.end_process, transition.edges)
+                self.__transitions[i] = Transition(source_map[transition.start_process][transition.sync],
+                                                   transition.start_process, transition.end_process, transition.edges)
 
 
 class Tracer:

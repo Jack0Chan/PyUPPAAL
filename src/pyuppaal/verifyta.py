@@ -1,6 +1,5 @@
 """verifyta
 """
-
 # support typing str | List[str]
 # https://github.com/microsoft/pylance-release/issues/513
 from __future__ import annotations
@@ -107,7 +106,8 @@ class Verifyta:
                            "\nWindows: absolute_path_to_uppaal\\bin-Windows\\verifyta.exe" \
                            "\nLinux  : absolute_path_to_uppaal/bin-Linux/verifyta" \
                            "\nmacOS  : absolute_path_to_uppaal/bin-Darwin/verifyta"
-            raise ValueError(f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
+            raise ValueError(
+                f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
 
     @check_is_verifyta_path_empty
     def cmd(self, cmd: str) -> str:
@@ -171,7 +171,7 @@ class Verifyta:
         if file_ext != '.xml':
             error_info = f'model_path {model_path} should be xml format file.'
             raise ValueError(error_info)
- 
+
         # set uppaal environment variables
         # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
         cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
@@ -182,7 +182,7 @@ class Verifyta:
             error_info = f'if file {if_path} has not generated.'
             raise FileNotFoundError(error_info)
         return if_path
-    
+
     @check_is_verifyta_path_empty
     def compile_to_if(self, model_path: str) -> str:
         """Compile the `.xml` model_path to a `.if` file and return the content of the `.if` file.
@@ -206,7 +206,7 @@ class Verifyta:
         if file_ext != '.xml':
             error_info = f'model_path {model_path} should be xml format file.'
             raise ValueError(error_info)
- 
+
         # set uppaal environment variables
         # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
         cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
@@ -216,15 +216,15 @@ class Verifyta:
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
     def verify(self,
-                model_path: str | List[str],
-                verify_options: str | List[str] = None,
-                num_threads: int = 1) -> List[str]:
+               model_path: str | List[str],
+               verify_options: str | List[str] = None,
+               num_threads: int = 1) -> List[str]:
         """Verify models and return the verify results as list.
 
         This is designed for advanced UPPAAL user.
         If you want to save a `.xtr` or `.xml`(DBM) path, you may want to check `Verifyta().easy_verify()`.
         WARNING: Note that `-f xx.xtr` or `-X xx.xml` should be used together with `-t` options, otherwise you may fail to save the path files.
-        
+
         Examples:
         ```python
         Verifyta().verify('test1.xml')
@@ -249,7 +249,7 @@ class Verifyta:
             ValueError: _description_
 
         Returns:
-            List[str]: terminal verify results for each `.xml` model. 
+            List[str]: terminal verify results for each `.xml` model.
             Example:
             ['Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1665658616\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula
              \n\x1b[2K -- Formula is satisfied.\n']
@@ -258,7 +258,8 @@ class Verifyta:
         """
         num_threads = int(num_threads)
         if num_threads < 1:
-            raise ValueError(f"Number of threads should ≥ 1. Current value: {num_threads}.")
+            raise ValueError(
+                f"Number of threads should ≥ 1. Current value: {num_threads}.")
 
         # check model_path is only one model
         if isinstance(model_path, str):
@@ -294,7 +295,8 @@ class Verifyta:
                 error_info = f'model_path {model_i} not found.'
                 raise FileNotFoundError(error_info)
             # 构造命令
-            cmd = cmd_env+'&&'+f'{self.__verifyta_path} {model_i} {verify_options_i}'
+            cmd = cmd_env+'&&' + \
+                f'{self.__verifyta_path} {model_i} {verify_options_i}'
             cmds.append(cmd)
         # print(cmds)
         res = self.cmds(cmds=cmds, num_threads=num_threads)
@@ -303,10 +305,10 @@ class Verifyta:
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
     def easy_verify(self,
-                model_path: str | List[str],
-                trace_path: str | List[str] = None,
-                verify_options: str | List[str] = "-t 1",
-                num_threads: int = 1) -> List[str]:
+                    model_path: str | List[str],
+                    trace_path: str | List[str] = None,
+                    verify_options: str | List[str] = "-t 1",
+                    num_threads: int = 1) -> List[str]:
         """Verify models and return the verify results as list.
 
         For `trace_path` param, both `.xtr` and `.xml`(DBM) files are supported.
@@ -343,7 +345,8 @@ class Verifyta:
             if isinstance(model_path, str):
                 trace_path = os.path.splitext(model_path)[0] + '.xtr'
             else:
-                trace_path = [os.path.splitext(x)[0]+'.xtr' for x in model_path]
+                trace_path = [os.path.splitext(
+                    x)[0]+'.xtr' for x in model_path]
 
         # check model_path is only one model, set parallel loop
         if isinstance(model_path, str):

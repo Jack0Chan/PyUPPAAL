@@ -19,20 +19,6 @@ def set_verifyta_path(verifyta_path: str):
     Verifyta().set_verifyta_path(verifyta_path)
 
 
-# def load_model(model_path: str, auto_save=True) -> UModel:
-#     """Load a model with the given `model_path`, and return a `UModel` instance.
-
-#     Args:
-#         model_path (str): `.xml` model path.
-#         auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
-#     """
-#     if not model_path.endswith('.xml'):
-#         err_info = f'model_path should be in .xml format, ' \
-#                    f'current model_path is : {model_path}.'
-#         raise ValueError(err_info)
-#     return UModel(model_path, auto_save)
-
-
 def easy_verify(model_path: str | List[str],
                 trace_path: str | List[str],
                 verify_options: str = "-t 1",
@@ -55,13 +41,13 @@ def easy_verify(model_path: str | List[str],
 
 
 def verify(model_path: str | List[str],
-           verify_options: str | List[str]=None,
-           num_threads: int=1) -> List[str]:
+           verify_options: str | List[str] = None,
+           num_threads: int = 1) -> List[str]:
     """Verify models and return the verify results as list. This is designed for advanced UPPAAL user. 
     If you want to save a `.xtr` or `.xml`(DBM) path, you may want to check `Verifyta().easy_verify()`.
     WARNING: Note that `-f xx.xtr` or `-X xx.xml` should be used together with `-t` options, otherwise you may fail to save the path files.
-    
-    Examples:       
+
+    Examples:
         >>> Verifyta().verify('test1.xml')
         >>> Verifyta().verify(['test1.xml', 'test2.xml'], verify_options = '-t 1 -o 0')
         >>> Verifyta().verify(['test1.xml', 'test1.xml'], 
@@ -69,12 +55,12 @@ def verify(model_path: str | List[str],
         >>> # if you surely want to generate a trace file with Verifyta().verify()
         >>> # you should not add `.xtr` at the end of `xtr_trace`,
         >>> # or `.xml` at the end of `xtr_trace`
-        >>> Verifyta().verify(['test1.xml', 'test1.xml'], 
-        >>>     verify_options = ['-f xtr_trace -t 1 -o 0', '-X xml_trace -t 2 -o 0'], 
+        >>> Verifyta().verify(['test1.xml', 'test1.xml'],
+        >>>     verify_options = ['-f xtr_trace -t 1 -o 0', '-X xml_trace -t 2 -o 0'],
         >>>     num_threads=2)
         >>>
         >>> # return example
-        >>> # Options for the verification: 
+        >>> # Options for the verification:
         >>> #    Generating shortest trace
         >>> #    Search order is breadth first
         >>> #    Using conservative space optimisation
@@ -82,16 +68,16 @@ def verify(model_path: str | List[str],
         >>> #    State space representation uses minimal constraint systems
         >>> #    Verifying formula 1 at /nta/queries/query[1]/formula
         >>> #   -- Formula is satisfied.
-        >>> # Options for the verification: 
-        >>> #   Generating shortest trace  
+        >>> # Options for the verification:
+        >>> #   Generating shortest trace
         >>> #   Search order is breadth first
         >>> #   Using conservative space optimisation
-        >>> #   Seed is 1665658616  
+        >>> #   Seed is 1665658616
         >>> #   State space representation uses minimal constraint systems
         >>> #   Verifying formula 1 at /nta/queries/query[1]/formula
         >>> #   -- Formula is NOT satisfied.
 
-        
+
     Args:
         model_path (str | List[str]): model paths to be verified.
         verify_options (str | List[str], optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
@@ -119,11 +105,11 @@ def cmd(cmd: str) -> str:
 
     Returns:
         str: the running cmd and the command result
-    """    
+    """
     return Verifyta().cmd(cmd)
 
 
-def cmds(self, cmds: List[str], num_threads: int = 1) -> List[str]:
+def cmds(cmds: List[str], num_threads: int = 1) -> List[str]:
     """Run commands with terminal.
 
     Args:
