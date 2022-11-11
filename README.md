@@ -8,7 +8,7 @@
 2. set the query, just like you edit the queries in UPPAAL GUI;
 3. verify a model with the query and options (e.g., shortest path), just like you click the "Verify" button in UPPAAL GUI.
 
-In addition to the above, you can also
+In addition to the above functions, you can also
 
 - load a .xtr trace, and get the formatted trace data;
 - modify templates, declaration and systems;
@@ -16,139 +16,132 @@ In addition to the above, you can also
 - find all patterns of the model with certain query.
 - [todo] analyze the *SMC* simulation results. 
 
+A [MiniProject_PipeNet](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/Doc_MiniProject_PipeNet.ipynb) is provided to help understand how `pauppaal` can contribute to scientific research.
+
 # Quickstart
 
-## Something to prepare
-
-### Installation
-
+## Installation
 To install `pyuppaal`, simply run this simple command:
 
-```
-python -m pip install pyuppaal
+`pip install pyuppaal`
+
+## Before Coding
+
+Remember to set the `verifyta_path` in your first line of code.
+
+```python
+
+pyuppaal.set_verifyta_path("your/path/to/verifyta.exe")
+
 ```
 
-### Get started
 
-Begin by importing the `pyuppaal` module:
+## Verify a Model, and Get the Verifycation Result
+
+Lets take the following model P1 with query `A[] not deadlock` as the example. You can download this file via [this_link].
+
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/demo.png width=250 />
+
 
 ```python
 import pyuppaal as pyu
-# verifyta path is required before any other operations
-pyu.set_verifyta_path(r'C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe')
+
+VERIFYTA_PATH = "uppaal\\Win_Linux-uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+# set verifyta path
+pyu.set_verifyta_path(VERIFYTA_PATH)
+
+demo_path = 'demo.xml'
+
+# verify and return the terminal result
+terminal_res = pyu.verify(demo_path)
+print(terminal_res)
+
+# another method
+umod = pyu.UModel(demo_path)
+assert terminal_res[0] == umod.verify()
 ```
 
-## Try some simple verification!
+    ['Options for the verification:\n  Generating no trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1668171327\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula\n\x1b[2K -- Formula is NOT satisfied.\n']
 
-Choose the model file you want to verify, as well as the path you want to save the result, you can complete a simple verifivation:
+
+You can also edit the model and get all possible patterns that satisfy the query.
+
+The red line is pattern1, and the green line is pattern2.
+
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/demo_patterns.png width=250 />
+
 
 ```python
-# Two paths you choose
-p1_model_path = 'verifyta_demo1.xml'
-p1_trace_path = 'verifyta_demo1_trace.xml'
-# The result will be written in the target file, and the procedure information is saved in res1
-res1 = pyu.simple_verify(model_path=p1_model_path, trace_path=p1_trace_path)
-print(res1)
+# save as a new file because find_all_patterns will modify the file
+umod = umod.save_as('demo_new.xml')
+# set the queries of the xml model.
+umod.set_queries('E<> P1.pass')
 
-## OUTPUT:
-## [('set UPPAAL_COMPILE_ONLY=&&C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe -t 1 -X verifyta_demo1_trace verifyta_demo1.xml', 'Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1662285315\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula\n\x1b[2K -- Formula is NOT satisfied.\nXMLTrace outputted to: verifyta_demo1_trace1.xml\n')]
+print("broadcast channels: ", umod.broadcast_chan)
+print("queries: ", umod.queries)
+# get one trace
+print('\n', umod.easy_verify())
+# find all patterns
+all_patterns = umod.find_all_patterns()
+for i, pattern in enumerate(all_patterns):
+    print(f'pattern{i+1}: ', pattern.untime_pattern)
 ```
 
-## Get timed trace easily
+    broadcast channels:  ['a', 'd', 'b', 'c']
+    queries:  ['E<> P1.pass']
+    
+     State [0]: ['P1.start']
+    global_variables [0]: None
+    Clock_constraints [0]: [t(0) - P1.t ≤ 0; P1.t - t(0) ≤ 10; ]
+    transitions [0]: a: P1 -> []; P1.start -> P1._id2; 
+    -----------------------------------
+    State [1]: ['P1._id2']
+    global_variables [1]: None
+    Clock_constraints [1]: [t(0) - P1.t ≤ -10; ]
+    transitions [1]: b: P1 -> []; P1._id2 -> P1.pass; 
+    -----------------------------------
+    State [2]: ['P1.pass']
+    global_variables [2]: None
+    Clock_constraints [2]: [t(0) - P1.t ≤ -10; ]
+    
+    pattern1:  ['a', 'b']
+    pattern2:  ['c', 'd']
 
-You can also  get a timed trace with the same params:
+
+## Verify Models with Multi-threads
+
 
 ```python
-simtracer = pyu.get_timed_trace(p1_model_path, p1_trace_path,hold=True)
-print(simtracer)
+import pyuppaal as pyu
+import time
 
-## OUTPUT:
-## State [0]: ['P2.A']
-## global_variables [0]: []
-## Clock_constraints [0]: [t(0) - P2.t ≤ 0; P2.t - t(0) ≤ 10; ]
-## transitions [0]: None: P2.A -> P2.B
-## -----------------------------------
-## State [1]: ['P2.B']
-## global_variables [1]: []
-## Clock_constraints [1]: [t(0) - P2.t ≤ -10; P2.t - t(0) ≤ 10; ]
-## transitions [1]: None: P2.B -> P2.C
-## -----------------------------------
-## State [2]: ['P2.C']
-## global_variables [2]: []
-## Clock_constraints [2]: [t(0) - P2.t ≤ -10; P2.t - t(0) ≤ 20; ]
+# set verifyta path
+pyu.set_verifyta_path(VERIFYTA_PATH)
+
+model_path_list = ['demo.xml', 'demo_new.xml'] * 100
+trace_path_list = ['demo_trace.xtr', 'demo_new_grace.xtr'] * 100
+# for loop
+t0 = time.time()
+for model, trace in zip(model_path_list, trace_path_list):
+    pyu.easy_verify(model_path=model, trace_path=trace)
+print(f'Verify with for loop, time usage {time.time() - t0}')
+
+# multi-threads
+t0 = time.time()
+pyu.easy_verify(model_path=model_path_list, trace_path=trace_path_list, num_threads=20)
+print(f'Verify with multi-threads, time usage {time.time() - t0}')
 ```
 
-## Find a pattern
+    Verify with for loop, time usage 8.65420126914978
+    Verify with multi-threads, time usage 1.9333720207214355
 
-You can quickly find a pattern with plentiful params, e.g., inputs, observations, actions:
 
-```python
-model_path = 'pyuppaal_demo_PipeNet.xml'
-# input at 0 and 1000
-inputs = pyu.TimedActions(actions=['input_ball', 'input_ball'], lb=[0, 1000], ub=[0,1000])
-# observe at 500 and 1550
-observations = pyu.TimedActions(actions=['exit1', 'exit2'], lb=[500, 1550], ub=[500, 1550])
-# concerned actions
-hidden_actions = ['hidden_path1', 'hidden_path2', 'hidden_path3', 'hidden_path4', 'hidden_path5', 'hidden_path6']
-input_actions = ['input_ball']
-observe_actions = ['exit1','exit2','exit3']
-focused_actions = list(set(hidden_actions+input_actions+observe_actions))
-# find a pattern
-pyu.find_a_pattern(inputs, observations, observe_actions=observe_actions, focused_actions=None, hold=False)
+## Get Communication Graph
 
-## OUTPUT:
-## ('E<> Monitor0.pass',
-##  ['input_ball',
-##   'input_ball',
-##   'hidden_path1',
-##   'hidden_path3',
-##   'exit1',
-##   'input_ball',
-##   'input_ball',
-##   'hidden_path1',
-##   'hidden_path4',
-##   'exit2'])
-```
+For models with multiple processes, you can use `pyuppaal.get_communication_graph(model_path)` or `umod.get_communication_graph()` method to visualize the sturcture of the model.
 
-## Find all patterns
+An example communication graph of a complex model in [MiniProject_PipeNet](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/Doc_MiniProject_PipeNet.ipynb) is shown below:
 
-You can also find all patterns:
+[![](https://mermaid.ink/img/pako:eNpVjs0KwjAQhF-l7Lk56DEHT714UUGPC7JttjaQpCHdiFL67kYo_pxmmG8GZoZuNAwaboniUF0aDCcb-cCCYR9iLnJsJ053TmuglH3LtSXnlNp92qtRih9WtoV8d39o84OgBs_JkzXlwYyhqhBkYM8IuljDPWUnCBiWUqUs4_kZOtCSMteQoyHhxlL57kH35CZeXq-ESg8?type=png)](https://mermaid.live/edit#pako:eNpVjs0KwjAQhF-l7Lk56DEHT714UUGPC7JttjaQpCHdiFL67kYo_pxmmG8GZoZuNAwaboniUF0aDCcb-cCCYR9iLnJsJ053TmuglH3LtSXnlNp92qtRih9WtoV8d39o84OgBs_JkzXlwYyhqhBkYM8IuljDPWUnCBiWUqUs4_kZOtCSMteQoyHhxlL57kH35CZeXq-ESg8)
 
-```python
-pyu.find_all_patterns(inputs, observations, observe_actions=observe_actions, hold=False, max_patterns = 2)
 
-## OUTPUT
-## [('E<> Monitor0.pass',
-##   ['input_ball',
-##    'input_ball',
-##    'hidden_path1',
-##    'hidden_path3',
-##    'exit1',
-##    'input_ball',
-##    'input_ball',
-##    'hidden_path1',
-##    'hidden_path4',
-##    'exit2']),
-##  ('E<> Monitor0.pass && !Monitor1.pass',
-##   ['input_ball',
-##    'input_ball',
-##    'hidden_path1',
-##    'hidden_path3',
-##    'exit1',
-##    'input_ball',
-##    'input_ball',
-##    'hidden_path2',
-##    'hidden_path5',
-##    'exit2'])]
-```
-
-## Generate communication graph
-
-You can easily generate your communication graph to plentiful type, e.g., `.md`, `.png`, `.svg` and `.pdf`:
-
-```python
-model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.xml'
-# just take .png as an example
-save_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.png'
-pyu.get_communication_graph(model_path,save_path)
-```
