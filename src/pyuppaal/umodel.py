@@ -6,13 +6,15 @@ import os
 from typing import List, Tuple
 from .datastruct import TimedActions
 from .verifyta import Verifyta
-from .iTools import UFactory, build_cg ,Mermaid
+from .iTools import UFactory, build_cg, Mermaid
 from .tracer import SimTrace, Tracer
 import xml.etree.ElementTree as ET
+
 
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
     """
+
     def __init__(self, model_path: str, auto_save=True):
         """_summary_
 
@@ -21,12 +23,12 @@ class UModel:
             auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
         """
         self.__model_path: str = model_path
-        self.__element_tree: ET.ElementTree = ET.ElementTree(file=self.model_path)
+        self.__element_tree: ET.ElementTree = ET.ElementTree(
+            file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
         self.auto_save: bool = auto_save
         # if len(self.queries) >= 2:
         #     warnings.warn(f'Currently we only support models with only 1 query. If you want more queries, please split the models. Current queries: {self.queries}.')
-        
 
     @property
     def model_path(self) -> str:
@@ -47,7 +49,8 @@ class UModel:
             UModel: self.
         """
         with open(new_model_path, 'w', encoding='utf-8') as f:
-            self.__element_tree.write(new_model_path, encoding="utf-8", xml_declaration=True)
+            self.__element_tree.write(
+                new_model_path, encoding="utf-8", xml_declaration=True)
         self.__model_path = new_model_path
         return self
 
@@ -84,14 +87,14 @@ class UModel:
             Mermaid: _description_
         """
         mermaid_str = build_cg(self.model_path)
-        m=Mermaid(mermaid_str)
+        m = Mermaid(mermaid_str)
         if is_beautify:
             m.beautify()
         if save_path:
             m.export(save_path)
         return m
 
-    def verify(self, trace_path: str = None, verify_options: str=None) -> str:
+    def verify(self, trace_path: str = None, verify_options: str = None) -> str:
         """Verify and return the terminal output.
 
         Args:
@@ -106,7 +109,7 @@ class UModel:
         else:
             return Verifyta().verify(self.model_path, verify_options)[0]
 
-    def easy_verify(self, verify_options: str="-t 1") -> SimTrace | None:
+    def easy_verify(self, verify_options: str = "-t 1") -> SimTrace | None:
         """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return the SimTrace (if exists).
 
         Args:
@@ -116,12 +119,15 @@ class UModel:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
         """
         if '-t' not in verify_options:
-            raise ValueError(f'-t must be set in verify_options, current verify_options: {verify_options}.')
+            raise ValueError(
+                f'-t must be set in verify_options, current verify_options: {verify_options}.')
         xtr_trace_path = self.model_path.replace('.xml', '.xtr')
 
-        verify_cmd_res = Verifyta().easy_verify(self.model_path, xtr_trace_path, verify_options=verify_options)[0]
+        verify_cmd_res = Verifyta().easy_verify(
+            self.model_path, xtr_trace_path, verify_options=verify_options)[0]
         if 'Formula is satisfied' in verify_cmd_res:
-            res = Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
+            res = Tracer.get_timed_trace(
+                self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
         else:
             return None
 
@@ -156,10 +162,12 @@ class UModel:
                 template_elem = template
         # remove template
         if template_elem is None:
-            if self.auto_save: self.save()
+            if self.auto_save:
+                self.save()
             return False
         self.__root_elem.remove(template_elem)
-        if self.auto_save: self.save()
+        if self.auto_save:
+            self.save()
         return True
 
     # ======== queries ========
@@ -170,7 +178,8 @@ class UModel:
         Returns:
             List[str]: _description_
         """
-        query_formula_elems = self.__element_tree.findall('./queries/query/formula')
+        query_formula_elems = self.__element_tree.findall(
+            './queries/query/formula')
         queries = [query_elem.text for query_elem in query_formula_elems]
         return queries
 
@@ -183,10 +192,12 @@ class UModel:
         root = self.__root_elem
         queries_elem = root.find('queries')
         if queries_elem is None:
-            if self.auto_save: self.save()
+            if self.auto_save:
+                self.save()
             return False
         root.remove(queries_elem)
-        if self.auto_save: self.save()
+        if self.auto_save:
+            self.save()
         return True
 
     def set_queries(self, queries: List[str] | str) -> None:
@@ -205,7 +216,8 @@ class UModel:
         # 然后构造queries并插入到模型中
         queries_elem = UFactory.queries(queries)
         self.__root_elem.append(queries_elem)
-        if self.auto_save: self.save()
+        if self.auto_save:
+            self.save()
 
     # ======== system ========
     @property
@@ -283,15 +295,15 @@ class UModel:
             if start_index == -1:
                 break
             end_index = declarations.find(';', start_index, -1)
-            tmp_actions = declarations[start_index +15:end_index].strip().split(',')
+            tmp_actions = declarations[start_index +
+                                       15:end_index].strip().split(',')
             tmp_actions = [x.strip() for x in tmp_actions]
             broadcast_chan += tmp_actions
             start_index = end_index
         start_index = 0
         return list(set(broadcast_chan))
 
-
-    def add_observer_template(self, observations: TimedActions, focused_actions: List[str] | None=None, template_name: str='Observer', is_strict: bool = True) -> None:
+    def add_observer_template(self, observations: TimedActions, focused_actions: List[str] | None = None, template_name: str = 'Observer', is_strict: bool = True) -> None:
         """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         An observer is xxx.
@@ -307,12 +319,14 @@ class UModel:
             _type_: _description_
         """
         if focused_actions is None:
-            focused_actions = list(map(lambda x: x.replace('!', '').replace('?', ''), observations.actions))
-        self.add_monitor_template(template_name, observations, focused_actions, strict=is_strict)
+            focused_actions = list(map(lambda x: x.replace(
+                '!', '').replace('?', ''), observations.actions))
+        self.add_monitor_template(
+            template_name, observations, focused_actions, strict=is_strict)
 
     def add_pattern_template(self, pattern_list: List[str], template_name: str) -> None:
         """Add a pattern template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
-        
+
         Args:
             pattern_list (List[str]): pattern to be monitored.
             template_name (str): _description_
@@ -321,8 +335,8 @@ class UModel:
             _type_: _description_
         """
         raise NotImplementedError
-    
-    def add_input_template(self, signals: TimedActions, template_name: str='Input') -> None:
+
+    def add_input_template(self, signals: TimedActions, template_name: str = 'Input') -> None:
         """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         Args:
@@ -359,7 +373,8 @@ class UModel:
         system_lines: List[str] = list(map(lambda x: x.strip(), system_lines))
         for i, line in enumerate(system_lines):
             if line.strip().startswith('system'):
-                system_items = list(map(lambda s: s.strip(), line.strip()[6:-1].split(',')))
+                system_items = list(
+                    map(lambda s: s.strip(), line.strip()[6:-1].split(',')))
                 if template_name not in system_items:
                     system_items.append(template_name)
                 system_lines[i] = f"system {', '.join(system_items)};"
@@ -370,7 +385,7 @@ class UModel:
     # all patterns
     def add_monitor_template(self, monitor_name: str, signals: TimedActions, focused_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
         """Add new linear monitor template, which will also be embedded in `system declarations`. 
-        
+
         If `monitor_name` already exists in current templates, it will be overwritten.
 
         Args:
@@ -383,7 +398,7 @@ class UModel:
         Returns:
             _type_: _description_
         """
-        
+
         # 处理focused_actions is None的情况
         if focused_actions is None:
             focused_actions = self.broadcast_chan
@@ -391,18 +406,20 @@ class UModel:
         clock_name, signals = self.__parse_signals(signals)
 
         if '?' in "".join(focused_actions) or '!' in "".join(focused_actions):
-            raise ValueError(f"focused_actions should not contain '?' or '!', current focused_actions: {focused_actions}")
+            raise ValueError(
+                f"focused_actions should not contain '?' or '!', current focused_actions: {focused_actions}")
 
         start_id = self.__max_location_id + 1
         # 删除相同名字的monitor
         self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(clock_name), focused_actions, start_id, strict, allpattern)
+        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(
+            clock_name), focused_actions, start_id, strict, allpattern)
         self.__root_elem.insert(-2, monitor)
         # 将新到monitor加入到system中
-        
+
         self.__add_template_to_system(monitor_name)
 
-    def __parse_signals(self, signals: TimedActions, default_name: str="input_clk") -> Tuple[str, TimedActions]:
+    def __parse_signals(self, signals: TimedActions, default_name: str = "input_clk") -> Tuple[str, TimedActions]:
         """Parse the signals, if the signal name is not specified, then use the default name.
 
         Args:
@@ -412,13 +429,13 @@ class UModel:
         Returns:
             Tuple[str, TimedActions]: the clock name and the parsed signals.
         """
-        
-        parsed_actions = list(map(lambda x: x.replace('?', '').replace('!', ''), signals.actions))
 
+        parsed_actions = list(map(lambda x: x.replace(
+            '?', '').replace('!', ''), signals.actions))
 
         if len(signals) > 0 and not isinstance(signals.lb[0], str):
             signals.lb = list(map(str, signals.lb))
-        
+
         if len(signals) > 0 and not isinstance(signals.ub[0], str):
             signals.ub = list(map(str, signals.ub))
 
@@ -426,20 +443,21 @@ class UModel:
             # If the stmt has clk name, like 'a1 > 1', then use the clk name
             # Only accept input like "a1 > 1" or "a1>1", not ">1" or "1"
             clock_name = signals.lb[0].split('>')[0]
-        else: # Otherwise, we use the default clock name
+        else:  # Otherwise, we use the default clock name
             # accept input like ">1" or "1"
             clock_name = default_name
 
         len_lb = len(signals.lb)
-        for i in range(len_lb): # Remove the clock name and operator
+        for i in range(len_lb):  # Remove the clock name and operator
             # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
-            signals.lb[i] = signals.lb[i].replace(clock_name, '').replace('>=', '').replace('>', '').strip()
-            signals.ub[i] = signals.ub[i].replace(clock_name, '').replace('<=', '').replace('<', '').strip()
+            signals.lb[i] = signals.lb[i].replace(
+                clock_name, '').replace('>=', '').replace('>', '').strip()
+            signals.ub[i] = signals.ub[i].replace(
+                clock_name, '').replace('<=', '').replace('<', '').strip()
 
         return clock_name, TimedActions(parsed_actions, signals.lb, signals.ub)
 
-
-    def __find_a_pattern(self, focused_action: List[str]=None, hold: bool=True, options: str=None) -> SimTrace | None:
+    def __find_a_pattern(self, focused_action: List[str] = None, hold: bool = True, options: str = None) -> SimTrace | None:
         """Find a pattern in the current model.
 
         Args:
@@ -484,7 +502,8 @@ class UModel:
         queries = self.queries
         if len(queries) == 0:
             return []
-        all_patterns = self.__find_all_patterns_of_a_query(queries[0], focused_actions, hold, max_patterns)
+        all_patterns = self.__find_all_patterns_of_a_query(
+            queries[0], focused_actions, hold, max_patterns)
         return all_patterns
 
     def __find_all_patterns_of_a_query(self, query: str = None,
@@ -525,7 +544,8 @@ class UModel:
         new_umodel = self.copy_as(new_model_path=new_model_path)
 
         new_umodel.set_queries(default_query)
-        new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=hold) # Keep the temp files until the end
+        new_patterns = new_umodel.__find_a_pattern(
+            focused_actions, hold=hold)  # Keep the temp files until the end
 
         if new_patterns is None:
             return []
@@ -545,19 +565,21 @@ class UModel:
             # 将pattern[List] -> TimedActions
             new_observes = TimedActions(new_patterns.actions)
             new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes,
-                                   focused_actions=focused_actions, strict=True, allpattern=True)
+                                            focused_actions=focused_actions, strict=True, allpattern=True)
 
             # 构造验证语句
             # 构造monitor.pass
             # E<> Monitor0.pass & !Monitor1.pass
-            query_str = ' && '.join([f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            query_str = ' && '.join(
+                [f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
             # E<> !Monitor0.pass & !Monitor1.pass
             query_str = f'{default_query} && {query_str}'
 
             new_umodel.set_queries(query_str)
-            new_patterns = new_umodel.__find_a_pattern(focused_actions, hold=hold)
+            new_patterns = new_umodel.__find_a_pattern(
+                focused_actions, hold=hold)
             # Keep the temp files until the end
-            
+
             if new_patterns is None:
                 break
 
