@@ -11,10 +11,7 @@ Pyuppaal documentation
    :caption: Pyuppaal:
 
    Quickstart.md
-   AdvancedUsage.md
    Devloper Interface
-   Release history
-   Contributions Guide
 
 
 Indices and tables
