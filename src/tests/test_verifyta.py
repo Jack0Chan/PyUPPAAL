@@ -8,6 +8,7 @@ from pyuppaal import Verifyta
 
 Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
 
+
 def test_set_verifyta_path():
     """_summary_
     """
@@ -55,7 +56,8 @@ def test_easy_verify1():
     # ======== without trace_paths ========
     # the third model do not have counter-example
     # should automatically create .xtr counter-example
-    res = Verifyta().easy_verify(model_paths, verify_options=['-t 1 -o 0', '-t 2 -o 0', '-t 2 -o 1'], num_threads=3)
+    res = Verifyta().easy_verify(model_paths, verify_options=[
+        '-t 1 -o 0', '-t 2 -o 0', '-t 2 -o 1'], num_threads=3)
     target_trace_paths = [verifyta_path.bring_to_root('demo1-1.xtr'),
                           verifyta_path.bring_to_root('demo2-1.xtr')]
     for trace_path in target_trace_paths:
@@ -74,7 +76,8 @@ def test_easy_verify2():
     trace_paths = [verifyta_path.bring_to_root('t1.xtr'),
                    verifyta_path.bring_to_root('t2-.xml'),
                    verifyta_path.bring_to_root('t3-.xml')]
-    res = Verifyta().easy_verify(model_paths, trace_path=trace_paths, verify_options='-t 1 -o 0', num_threads=3)
+    res = Verifyta().easy_verify(model_paths, trace_path=trace_paths,
+                                 verify_options='-t 1 -o 0', num_threads=3)
     print(res)
     # the third model do not have counter-example
     target_trace_paths = [verifyta_path.bring_to_root('t1-1.xtr'),
@@ -82,20 +85,3 @@ def test_easy_verify2():
     for trace_path in target_trace_paths:
         assert os.path.exists(trace_path) is True
         os.remove(trace_path)
-
-# Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
-# model_paths = [verifyta_path.bring_to_root('demo1.xml'),
-#                 verifyta_path.bring_to_root('demo2.xml'),
-#                 verifyta_path.bring_to_root('demo3.xml')]
-# # ======== with trace_paths ========
-# trace_paths = [verifyta_path.bring_to_root('t1.xtr'),
-#                 verifyta_path.bring_to_root('t2-.xml'),
-#                 verifyta_path.bring_to_root('t3-.xml')]
-# res = Verifyta().easy_verify(model_paths, trace_path=trace_paths, verify_options='-t 1 -o 0', num_threads=3)
-# print(res)
-# # the third model do not have counter-example
-# target_trace_paths = [verifyta_path.bring_to_root('t1-1.xtr'),
-#                         verifyta_path.bring_to_root('t2-1.xml')]
-# for trace_path in target_trace_paths:
-#     assert os.path.exists(trace_path) is True
-#     os.remove(trace_path)

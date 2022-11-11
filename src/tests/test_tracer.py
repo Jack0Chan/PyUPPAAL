@@ -27,14 +27,3 @@ def test_tracer_basic():
     sim_trace.save(sim_trace_path)
     assert os.path.exists(sim_trace_path) is True
     os.remove(sim_trace_path)
-
-def test_tracer_trim_transitions():
-    """_summary_
-    """
-    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
-    model_path = verifyta_path.bring_to_root('M0_AVNRT_5_4.xml')
-    umod = UModel(model_path)
-    assert umod.easy_verify() is not None
-    os.remove(verifyta_path.bring_to_root('M0_AVNRT_5_4-1.xtr'))
-
-test_tracer_basic()
