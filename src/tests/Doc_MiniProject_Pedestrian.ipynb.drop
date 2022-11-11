@@ -52,8 +52,8 @@
     "\n",
     "#   --diagnostic 1: shortest trace\n",
     "# --search-order 0: breadth first\n",
-    "options = \"--diagnostic 1 --search-order 0\"\n",
-    "umod.find_all_patterns_with_query('E<> (PPedestrian.Crossing and PCar.Crossing)', [\"pCheckLight\", \"pGreen\", \"pRed\", \"pYellow\", \"pCrss\", \"cCrss\"], options = options, hold=True)"
+    "# options = \"--diagnostic 1 --search-order 0\"\n",
+    "# umod.find_all_patterns_with_query('E<> (PPedestrian.Crossing and PCar.Crossing)', [\"pCheckLight\", \"pGreen\", \"pRed\", \"pYellow\", \"pCrss\", \"cCrss\"], options = options, hold=True)"
    ]
   },
   {

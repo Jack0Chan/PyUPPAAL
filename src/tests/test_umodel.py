@@ -37,12 +37,3 @@ def test_all_patterns():
     res = u.find_all_patterns(focused_actions)
     assert len(res) == 4
     # print(len(res), list(map(lambda x: x.actions, res)))
-
-def test_add_input_template():
-    u = UModel(bring_to_root('AVNRT_Fake_GroundTruth.xml'))
-    u.save_as(bring_to_root('AVNRT_Fake_GroundTruth_copy.xml'))
-    signals = TimedActions(["sigIn", "sigIn"], ["gclk >= 0", "gclk >= 320"], ["gclk <= 0", "gclk <= 320"])
-    u.add_input_template(signals)
-
-# test_all_patterns()
-# pyuppaal.Tracer.get_timed_trace(bring_to_root('pedestrian_new_pattern.xml'), bring_to_root('test.if'))
