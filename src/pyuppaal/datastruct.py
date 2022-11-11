@@ -35,6 +35,9 @@ class TimedActions:
             >>>     ['gclk>=20', 'x>=30'], ['gclk<=20', 'x<=30'])
             >>> timed_actions.actions
             ['sigOut!', 'sigOut!']
+
+        Returns:
+            List[str]: a list of actions.
         """
         return self.__actions
 
@@ -47,6 +50,9 @@ class TimedActions:
             >>>     ['gclk>=20', 'x>=30'], ['gclk<=20', 'x<=30'])
             >>> timed_actions.is_patterns
             False
+
+        Returns:
+            bool: True if the timed actions are patterns.
         """
         return all(self.lb) == -1 and all(self.ub) == -1
 
@@ -58,6 +64,9 @@ class TimedActions:
             >>>     ['gclk>=20', 'x>=30'], ['gclk<=20', 'x<=30'])
             >>> timed_actions.convert_to_list_tuple()
             [('sigOut!', 'gclk>=20', 'gclk<=20'), ('sigOut!', 'x>=30', 'x<=30')]
+
+        Returns:
+            List[Tuple[str, str, str]]: a list of tuple, each tuple is a timed action.
         """
 
         self.clk_name = clk_name
@@ -74,6 +83,9 @@ class TimedActions:
             >>>     ['gclk>=20', 'x>=30'], ['gclk<=20', 'x<=30'])
             >>> timed_actions.convert_to_patterns()
             ['sigOut!', 'sigOut!']
+
+        Returns:
+            List[str]: a list of actions.
         """
         return self.actions
 
