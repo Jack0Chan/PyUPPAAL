@@ -10,7 +10,6 @@ from typing import Dict, Generator, List
 from xml.etree.ElementTree import Element, ElementTree
 from .verifyta import Verifyta
 import xml.etree.cElementTree as ET
-from .config import TRACER_CUSTOM_PATH
 from .utap import utap_parser
 
 
@@ -352,8 +351,11 @@ class SimTrace:
         self.__parse_raw()
 
     def __str__(self):
-        """_summary_
+        """Convert the trace to string.
 
+        Examples:
+            >>> trace = SimTrace(trace_from_pedestrian)
+            >>> str(trace)
             State [0]: ['Cars.Idle', 'TrafficLights.cRed_pGreen', 'LV1Pedestrian2.Idle']
             global_variables [0]: [Cars.tCCrssMax=4; Cars.tCCrssMin=1; LV1Pedestrian2.tPCrssMin=0; LV1Pedestrian2.tPCrssMax=10; ]
             Clock_constraints [0]: [t(0) - tTL ≤ 0; t(0) - Cars.tc ≤ 0; t(0) - TrafficLights.tTL ≤ 0; t(0) - LV1Pedestrian2.tp ≤ 0; t(0) - LV1Pedestrian2.tTL ≤ 0; tTL - t(0) ≤ 55; tTL - Cars.tc ≤ 0; Cars.tc - TrafficLights.tTL ≤ 0; TrafficLights.tTL - LV1Pedestrian2.tp ≤ 0; LV1Pedestrian2.tp - LV1Pedestrian2.tTL ≤ 0; LV1Pedestrian2.tTL - tTL ≤ 0; ]
@@ -419,12 +421,15 @@ class SimTrace:
     def raw(self) -> str:
         """Original raw string of the trace.
 
-        State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Idle Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-        Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
-        State: Cars.Idle TrafficLights._id8 LV1Pedestrian2.CheckTL Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-        Transition: TrafficLights._id8 -> TrafficLights.cRed_pGreen {1; pGreen!; 1;} LV1Pedestrian2.CheckTL -> LV1Pedestrian2._id27 {1; pGreen?; 1;}
-        State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2._id27 Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
-        Transition: LV1Pedestrian2._id27 -> LV1Pedestrian2.Crossing {1; pCrss!; tp = 0;} Cars.Idle -> Cars.Idle {1; pCrss?; 1;}
+        Examples:
+            >>> trace = SimTrace(trace_from_pedestrian)
+            >>> trace.raw
+            State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2.Idle Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+            Transition: LV1Pedestrian2.Idle -> LV1Pedestrian2.CheckTL {1; pWantCrss!; 1;} TrafficLights.cRed_pGreen -> TrafficLights._id8 {1; pWantCrss?; 1;}
+            State: Cars.Idle TrafficLights._id8 LV1Pedestrian2.CheckTL Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+            Transition: TrafficLights._id8 -> TrafficLights.cRed_pGreen {1; pGreen!; 1;} LV1Pedestrian2.CheckTL -> LV1Pedestrian2._id27 {1; pGreen?; 1;}
+            State: Cars.Idle TrafficLights.cRed_pGreen LV1Pedestrian2._id27 Cars.tCCrssMax=4 Cars.tCCrssMin=1 LV1Pedestrian2.tPCrssMin=0 LV1Pedestrian2.tPCrssMax=10 t(0)-tTL<=0 t(0)-Cars.tc<=0 t(0)-TrafficLights.tTL<=0 t(0)-LV1Pedestrian2.tp<=0 t(0)-LV1Pedestrian2.tTL<=0 tTL-t(0)<=55 tTL-Cars.tc<=0 Cars.tc-TrafficLights.tTL<=0 TrafficLights.tTL-LV1Pedestrian2.tp<=0 LV1Pedestrian2.tp-LV1Pedestrian2.tTL<=0 LV1Pedestrian2.tTL-tTL<=0
+            Transition: LV1Pedestrian2._id27 -> LV1Pedestrian2.Crossing {1; pCrss!; tp = 0;} Cars.Idle -> Cars.Idle {1; pCrss?; 1;}
 
         Returns:
             str: Original raw string of the trace.
@@ -609,7 +614,7 @@ class SimTrace:
         if system_element is None:
             raise ValueError(f"Invalid UPPAAL template file") # When the `.xml` file is invalid.
 
-        system_items: List[str] = list(filter(lambda line: len(line) > 0 and line.find("//") != 0, # remove comment and empty line
+        system_items: List[str] = list(filter(lambda line: len(line) > 0 and line.find("//") != 0 and line.count(' ') != len(line), # remove comment and empty line
                                     system_element.text.replace("\r\n", "\n").replace('\t', '') .split("\n")))[:-1] # unify "\n", remove "\t" and remove "system"
 
         source_map: Dict[str, Dict[str, str]] = dict()
