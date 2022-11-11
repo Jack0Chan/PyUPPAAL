@@ -1,5 +1,7 @@
 # author: Yining She
 
+import re
+
 def get_str_before(string: str, label: str):
     """
     :return: the substring of 'string' before the first occurrence of 'label'.
@@ -73,7 +75,7 @@ class XmlTemplate:
         """
         Using label "synchronisation" to find all signal names used in the template.
         """
-        lines = [i for i in self.code.split('\n') if "<label kind=\"synchronisation\"" in i]
+        lines = [i for i in re.findall(r'<label[^<]+</label>', self.code) if "<label kind=\"synchronisation\"" in i]
         self.signal_in = []
         self.signal_out = []
         for line in lines:
