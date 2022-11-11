@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// 971204, Arne, Fredrik, Kim &amp; Paul.
+// Fairmont Hotel, San Francisco.
+</declaration>
+	<template>
+		<name x="32" y="16">Door</name>
+		<parameter>bool &amp;activated, urgent chan &amp;pushed, urgent chan &amp;closed1, urgent chan &amp;closed2</parameter>
+		<declaration>clock x;</declaration>
+		<location id="id0" x="224" y="96">
+			<name x="248" y="104">wait</name>
+		</location>
+		<location id="id1" x="96" y="368">
+			<name x="24" y="352">closing</name>
+			<label kind="invariant" x="40" y="368">x&lt;=6</label>
+		</location>
+		<location id="id2" x="96" y="224">
+			<name x="120" y="208">closed</name>
+			<label kind="invariant" x="120" y="224">x&lt;=5</label>
+		</location>
+		<location id="id3" x="224" y="368">
+			<name x="248" y="352">open</name>
+			<label kind="invariant" x="248" y="368">x&lt;=8</label>
+		</location>
+		<location id="id4" x="224" y="224">
+			<name x="248" y="208">opening</name>
+			<label kind="invariant" x="248" y="224">x&lt;=6</label>
+		</location>
+		<location id="id5" x="96" y="96">
+			<name x="112" y="104">idle</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="24" y="192">closed1!</label>
+			<nail x="56" y="248"/>
+			<nail x="56" y="224"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="guard" x="56" y="152">x&gt;=5</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="40" y="264">x==6</label>
+			<label kind="assignment" x="40" y="288">x=0,
+activated=false</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="16" y="64">closed1!</label>
+			<nail x="56" y="120"/>
+			<nail x="56" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="128" y="48">pushed?</label>
+			<label kind="assignment" x="120" y="64">activated = true</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="guard" x="136" y="344">x&gt;=4</label>
+			<label kind="assignment" x="144" y="376">x=0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="guard" x="232" y="264">x==6</label>
+			<label kind="assignment" x="232" y="288">x=0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="232" y="136">closed2?</label>
+			<label kind="assignment" x="232" y="152">x=0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="280" y="80">closed1!</label>
+			<nail x="272" y="72"/>
+			<nail x="272" y="96"/>
+		</transition>
+	</template>
+	<template>
+		<name x="32" y="16">User</name>
+		<parameter>bool &amp;activated, urgent chan &amp;pushed</parameter>
+		<declaration>clock w;</declaration>
+		<location id="id6" x="192" y="160">
+		</location>
+		<location id="id7" x="96" y="96">
+			<name x="72" y="64">idle</name>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="guard" x="72" y="168">!activated</label>
+			<label kind="assignment" x="72" y="184">w=0</label>
+			<nail x="96" y="160"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="152" y="72">pushed!</label>
+			<nail x="192" y="96"/>
+		</transition>
+	</template>
+	<system>bool activated1, activated2;
+urgent chan pushed1, pushed2;
+urgent chan closed1, closed2;
+
+Door1 = Door(activated1, pushed1, closed1, closed2);
+Door2 = Door(activated2, pushed2, closed2, closed1);
+User1 = User(activated1, pushed1);
+User2 = User(activated2, pushed2);
+
+system Door1, Door2, User1, User2;</system>
+	<queries>
+		<query>
+			<formula>
+			</formula>
+			<comment>971204, Kim G. Larsen, Fredrik Larsson, Paul Pettersson &amp; Arne Skou,
+     at Fairmont Hotel, San Francisco, USA.
+971208, Paul, finalized, in the air between San Francisco and London.
+011015, Paul, added deadlock and livness properties.
+			</comment>
+		</query>
+		<query>
+			<formula>A[] not (Door1.open and Door2.open)
+			</formula>
+			<comment>Mutex: The two doors are never open at the same time.
+			</comment>
+		</query>
+		<query>
+			<formula>A[] (Door1.opening imply User1.w&lt;=31) and 
+    (Door2.opening imply User2.w&lt;=31)
+			</formula>
+			<comment>Bounded Liveness: A door will open within 31 seconds.
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Door1.open
+			</formula>
+			<comment>Door 1 can open.
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Door2.open
+			</formula>
+			<comment>Door 2 can open.
+			</comment>
+		</query>
+		<query>
+			<formula>Door1.wait --&gt; Door1.open
+			</formula>
+			<comment>Liveness: Whenever a button is pushed, the corresponding door will eventually open.
+			</comment>
+		</query>
+		<query>
+			<formula>Door2.wait --&gt; Door2.open
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock
+			</formula>
+			<comment>The system is deadlock-free.
+			</comment>
+		</query>
+	</queries>
+</nta>

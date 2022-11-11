@@ -1,38 +1,37 @@
-from pyuppaal import tracer
-from pyuppaal import Verifyta
+"""_summary_
+"""
+import os
+from pyuppaal import Tracer, UModel, Verifyta
+import verifyta_path
 
-if __name__ == '__main__':
-    v = Verifyta()
-    # You MUST set the verifyta path firstly!
-    # v.set_verifyta_path(r'D:/Softwares/uppaal64-4.1.25-5/bin-Windows/verifyta.exe')
-    v.set_verifyta_path(r'C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe')
+def _run_test_tracer(model_path, trace_path):
+    """_summary_
+    """
+    model_path = verifyta_path.bring_to_root(model_path)
+    trace_path = verifyta_path.bring_to_root(trace_path)
 
-    p1_model_path = 'verifyta_demo2.xml'
-    p1_trace_path = 'verifyta_demo2_trace-1.xtr'
-    simtracer = tracer.SimulationTrace()
-    simtracer.load_trace(p1_model_path, p1_trace_path, v)
+    Verifyta().easy_verify(model_path)
+    sim_trace = Tracer.get_timed_trace(model_path, trace_path)
+    assert os.path.exists(trace_path) is True
+    os.remove(trace_path)
+    return sim_trace
 
-# s
+def test_tracer_basic():
+    """_summary_
+    """
+    Verifyta().set_verifyta_path(verifyta_path.VERIFYTA_PATH)
+    sim_trace = _run_test_tracer("pedestrian.xml", "pedestrian-1.xtr")
+    # ==== save raw SimTrace ====
+    raw_sim_trace_path = verifyta_path.bring_to_root('pedestrian-raw.txt')
+    sim_trace.save_raw(raw_sim_trace_path)
+    assert os.path.exists(raw_sim_trace_path) is True
+    os.remove(raw_sim_trace_path)
 
-## [('E<> Monitor0.pass',
-##   ['input_ball',
-##    'input_ball',
-##    'hidden_path1',
-##    'hidden_path3',
-##    'exit1',
-##    'input_ball',
-##    'input_ball',
-##    'hidden_path1',
-##    'hidden_path4',
-##    'exit2']),
-##  ('E<> Monitor0.pass && !Monitor1.pass',
-##   ['input_ball',
-##    'input_ball',
-##    'hidden_path1',
-##    'hidden_path3',
-##    'exit1',
-##    'input_ball',
-##    'input_ball',
-##    'hidden_path2',
-##    'hidden_path5',
-##    'exit2'])]
+    # ==== save SimTrace ====
+    sim_trace_path = verifyta_path.bring_to_root('pedestrian.txt')
+    sim_trace.save(sim_trace_path)
+    assert os.path.exists(sim_trace_path) is True
+    os.remove(sim_trace_path)
+
+def test_tracer_trim():
+    _run_test_tracer("test1.xml", "test1-1.xtr")

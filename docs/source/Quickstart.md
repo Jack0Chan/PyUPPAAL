@@ -25,10 +25,6 @@ To install `pyuppaal`, simply run this simple command:
 pip install pyuppaal
 ```
 
-    Requirement already satisfied: pyuppaal in c:\python310\lib\site-packages (0.1.5)
-    Note: you may need to restart the kernel to use updated packages.
-    
-
 ### Get started
 
 Begin by importing the `pyuppaal` module:
@@ -44,7 +40,7 @@ You **MUST** set the verifyta path firstly before verification!
 
 
 ```python
-pyu.set_verifyta_path(r'C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe')
+pyu.set_verifyta_path('your/path/to/verifyta')
 ```
 
 ## Try some simple verification!
@@ -54,15 +50,15 @@ Choose the model file you want to verify, as well as the path you want to save t
 
 ```python
 # Two paths you choose
-p1_model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo1.xml'
-p1_trace_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo1_trace.xml'
+p1_model_path = 'path/to/pyuppaal/src/tests/verifyta_demo1.xml'
+p1_trace_path = 'path/to/pyuppaal/src/tests/verifyta_demo1_trace.xml'
 # The result will be written in the target file, and the procedure information is saved in res1
 res1 = pyu.simple_verify(model_path=p1_model_path, trace_path=p1_trace_path)
 print(res1)
 ```
 
     [('set UPPAAL_COMPILE_ONLY=&&C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe -t 1 -X C:\\Users\\22215\\OneDrive\\Coding\\Github\\pyuppaal\\src\\tests\\verifyta_demo1_trace C:\\Users\\22215\\OneDrive\\Coding\\Github\\pyuppaal\\src\\tests\\verifyta_demo1.xml', 'Options for the verification:\n  Generating shortest trace\n  Search order is breadth first\n  Using conservative space optimisation\n  Seed is 1662347315\n  State space representation uses minimal constraint systems\n\x1b[2K\nVerifying formula 1 at /nta/queries/query[1]/formula\n\x1b[2K -- Formula is NOT satisfied.\nXMLTrace outputted to: C:\\Users\\22215\\OneDrive\\Coding\\Github\\pyuppaal\\src\\tests\\verifyta_demo1_trace1.xml\n')]
-    
+
 
 ## Get timed trace easily
 
@@ -70,8 +66,8 @@ You can also  get a timed trace with the same params:
 
 
 ```python
-p1_model_path =  r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo2.xml'
-p1_trace_path =  r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\verifyta_demo2_trace-1.xtr'
+p1_model_path = 'path/to/pyuppaal/src/tests/verifyta_demo2.xml'
+p1_trace_path = 'path/to/pyuppaal/src/tests/verifyta_demo2_trace-1.xtr'
 simtracer = pyu.get_timed_trace(p1_model_path, p1_trace_path,hold=True)
 print(simtracer)
 ```
@@ -89,8 +85,9 @@ print(simtracer)
     State [2]: ['P2.C']
     global_variables [2]: []
     Clock_constraints [2]: [t(0) - P2.t ≤ -10; P2.t - t(0) ≤ 20; ]
-    
-    
+
+
+​    
 
 ## Find a pattern
 
@@ -98,7 +95,7 @@ You can quickly find a pattern with plentiful params, e.g., inputs, observations
 
 
 ```python
-model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\pyuppaal_demo_PipeNet.xml'
+model_path = 'path/to/pyuppaal/src/tests/pyuppaal_demo_PipeNet.xml'
 # input at 0 and 1000
 inputs = pyu.TimedActions(actions=['input_ball', 'input_ball'], lb=[0, 1000], ub=[0,1000])
 # observe at 500 and 1550
@@ -166,14 +163,14 @@ pyu.find_all_patterns(model_path=model_path,inputs=inputs, observes=observations
 
 
 
-## Generate communication graph
+## Generate communication graph(currently not supported)
 
 You can easily generate your communication graph to plentiful type, e.g., `.md`, `.png`, `.svg` and `.pdf`:
 
 
 ```python
-model_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.xml'
+model_path = 'path/to/pyuppaal/src/tests/Pedestrian.xml'
 # just take .png as an example
-save_path = r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.png'
+save_path = 'path/to/pyuppaal/src/tests/Pedestrian.png'
 pyu.get_communication_graph(model_path,save_path)
 ```

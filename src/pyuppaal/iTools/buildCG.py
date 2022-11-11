@@ -240,4 +240,3 @@ def build_cg(filename):
     code = build_cg_code(nodes)
     mermaid = """```mermaid\n{}```""".format(code)
     return mermaid
-

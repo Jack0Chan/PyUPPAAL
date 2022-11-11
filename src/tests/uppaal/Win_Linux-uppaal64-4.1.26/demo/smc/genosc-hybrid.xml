@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>
+/* Example used in
+ * Statistical Model Checking for Stochastic Hybrid Systems.
+ * Alexandre David, Dehui Du, Kim G. Larsen, Axel Legay,
+ * Marius Mikucionis, Danny Bøgsted Poulsen, and Sean Sedwards.
+ * 1st International Workshop on Hybrid Systems and Biology 2012,
+ * pages 122-136, EPTCS volume 92.
+ */
+
+clock D_A  = 1.0;
+clock Dp_A;
+clock D_R  = 1.0;
+clock Dp_R;
+clock M_A;
+clock A;
+clock R;
+clock M_R;
+clock C;
+
+const double alpha_A  = 50.0;
+const double alphap_A = 500.0;
+const double alpha_R  = 0.01;
+const double alphap_R = 50.0;
+const double beta_A   = 50.0;
+const double beta_R   = 5.0;
+const double delta_A  = 1.0;
+const double delta_R  = 0.2;
+const double delta_MA = 10.0;
+const double delta_MR = 0.5;
+const double gamma_A  = 1.0;
+const double gamma_R  = 1.0;
+const double gamma_C  = 2.0;
+const double theta_A  = 50.0;
+const double theta_R  = 100.0;
+</declaration>
+	<template>
+		<name x="5" y="5">P</name>
+		<declaration>// Place local declarations here.
+</declaration>
+		<location id="id0" x="224" y="-48">
+			<label kind="invariant" x="144" y="-32">D_A'== theta_A*Dp_A-gamma_A*D_A*A &amp;&amp;
+D_R'== theta_R*Dp_R-gamma_R*D_R*A &amp;&amp;
+Dp_A'== gamma_A*D_A*A-theta_A*Dp_A &amp;&amp;
+Dp_R'== gamma_R*D_R*A-theta_R*Dp_R &amp;&amp;
+M_A'== alphap_A*Dp_A+alpha_A*D_A-delta_MA*M_A &amp;&amp;
+A'== beta_A*M_A+theta_A*D_A+theta_R*Dp_R
+    -A*(gamma_A*D_A+gamma_R*D_R+gamma_C*R+delta_A) &amp;&amp;
+M_R'== alphap_R*Dp_R+alpha_R*D_R-delta_MR*M_R &amp;&amp;
+R'== beta_R*M_R-gamma_C*A*R+delta_A*C-delta_R*R &amp;&amp;
+C'== gamma_C*A*R-delta_A*C</label>
+		</location>
+		<init ref="id0"/>
+	</template>
+	<system>clock time;
+system P;
+</system>
+	<queries>
+		<query>
+			<formula>// This example requires discretization step size as small as 0.0001 (please set it in Options-&gt;Statistical parameters)</formula>
+			<comment>This example requires discretization step size as small as 0.0001 (please set it in Options-&gt;Statistical parameters)</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=100] { D_A, Dp_A, D_R, Dp_R, M_A, A, R, M_R, C }</formula>
+			<comment>Plot all concentrations.</comment>
+		</query>
+		<query>
+			<formula>simulate[R&lt;=1674] { C }</formula>
+			<comment>Plot C concentration in terms of R.</comment>
+		</query>
+		<query>
+			<formula></formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

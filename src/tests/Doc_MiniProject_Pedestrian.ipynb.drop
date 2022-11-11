@@ -1,0 +1,113 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Mini Project - Perdestrain"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pyuppaal as pyu"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "NameError",
+     "evalue": "name 'pyu' is not defined",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[1;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[1;32mc:\\Users\\ccc\\Documents\\GitHub\\pyuppaal\\src\\tests\\Doc_MiniProject_Pedestrian.ipynb Cell 3\u001b[0m in \u001b[0;36m<cell line: 2>\u001b[1;34m()\u001b[0m\n\u001b[0;32m      <a href='vscode-notebook-cell:/c%3A/Users/ccc/Documents/GitHub/pyuppaal/src/tests/Doc_MiniProject_Pedestrian.ipynb#W4sZmlsZQ%3D%3D?line=0'>1</a>\u001b[0m model_path \u001b[39m=\u001b[39m \u001b[39m'\u001b[39m\u001b[39mPedestrian.xml\u001b[39m\u001b[39m'\u001b[39m\n\u001b[1;32m----> <a href='vscode-notebook-cell:/c%3A/Users/ccc/Documents/GitHub/pyuppaal/src/tests/Doc_MiniProject_Pedestrian.ipynb#W4sZmlsZQ%3D%3D?line=1'>2</a>\u001b[0m umod \u001b[39m=\u001b[39m pyu\u001b[39m.\u001b[39mUModel(model_path\u001b[39m=\u001b[39mmodel_path, auto_save\u001b[39m=\u001b[39m\u001b[39mFalse\u001b[39;00m)\n\u001b[0;32m      <a href='vscode-notebook-cell:/c%3A/Users/ccc/Documents/GitHub/pyuppaal/src/tests/Doc_MiniProject_Pedestrian.ipynb#W4sZmlsZQ%3D%3D?line=2'>3</a>\u001b[0m query \u001b[39m=\u001b[39m \u001b[39mf\u001b[39m\u001b[39m'\u001b[39m\u001b[39mA[] not (LV1Pedestrian2.Crossing and Cars.Crossing)\u001b[39m\u001b[39m'\u001b[39m\n\u001b[0;32m      <a href='vscode-notebook-cell:/c%3A/Users/ccc/Documents/GitHub/pyuppaal/src/tests/Doc_MiniProject_Pedestrian.ipynb#W4sZmlsZQ%3D%3D?line=4'>5</a>\u001b[0m umod\u001b[39m.\u001b[39mset_queries(query)\n",
+      "\u001b[1;31mNameError\u001b[0m: name 'pyu' is not defined"
+     ]
+    }
+   ],
+   "source": [
+    "model_path = 'Pedestrian.xml'\n",
+    "umod = pyu.UModel(model_path=model_path, auto_save=False)\n",
+    "query = f'A[] not (LV1Pedestrian2.Crossing and Cars.Crossing)'\n",
+    "\n",
+    "umod.set_queries(query)\n",
+    "umod.easy_verify()\n",
+    "umod.broadcast_chan\n",
+    "umod.get_communication_graph()\n",
+    "umod.find_all_patterns(focused_actions=None, hold=True, max_patterns=2)\n",
+    "\n",
+    "query = f'E<> (PPedestrian.Crossing and PCar.Crossing)' # property query\n",
+    "focused_actions = [\"pCheckLight\", \"pGreen\", \"pRed\", \"pYellow\", \"pCrss\", \"cCrss\"] # focused actions\n",
+    "\n",
+    "umod.set_queries(query)\n",
+    "umod.find_all_patterns(focused_actions=focused_actions, hold=True)\n",
+    "\n",
+    "#   --diagnostic 1: shortest trace\n",
+    "# --search-order 0: breadth first\n",
+    "# options = \"--diagnostic 1 --search-order 0\"\n",
+    "# umod.find_all_patterns_with_query('E<> (PPedestrian.Crossing and PCar.Crossing)', [\"pCheckLight\", \"pGreen\", \"pRed\", \"pYellow\", \"pCrss\", \"cCrss\"], options = options, hold=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "umod.get_communication_graph()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[('E<> Monitor0.Obs2', ['input_ball', 'hidden_path1', 'hidden_path3', 'exit1', 'input_ball', 'hidden_path1', 'hidden_path4', 'exit2']), ('E<> Monitor0.Obs2 && !Monitor1.pass', ['input_ball', 'hidden_path1', 'hidden_path3', 'exit1', 'input_ball', 'hidden_path2', 'hidden_path5', 'exit2'])]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(umod.find_all_patterns(focused_actions=focused_actions, hold=True))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.9.12 ('base')",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.12"
+  },
+  "orig_nbformat": 4,
+  "vscode": {
+   "interpreter": {
+    "hash": "cbab80897c756e21206e83b1602264f7bed4b229d7a86fb97552ee165cb35ec2"
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

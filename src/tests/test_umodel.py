@@ -1,17 +1,39 @@
-# import os
-# import time
-import pyuppaal as pyu
-# import iTools/buildCG as cg // fault
+import os
+# from symbol import simple_stmt
+import pyuppaal
+from pyuppaal import UModel
+from verifyta_path import *
+from pyuppaal import TimedActions
 
-# pyu.get_communication_graph(r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.xml',r'C:\Users\22215\OneDrive\Coding\Github\pyuppaal\src\tests\Pedestrian.png')
-
-pyu.get_communication_graph(r'C:\Users\22215\OneDrive\Coding\Lab\AVRT_Complete_GroundTruth.xml',r'C:\Users\22215\OneDrive\Coding\Lab\AVRT_Complete_GroundTruth.png')
+pyuppaal.set_verifyta_path(VERIFYTA_PATH)
 
 
-# pyu.set_verifyta_path(r'C:/Users/22215/OneDrive/Software/UPPAAL/bin-Windows/verifyta.exe')
+def test_cg():
+    """Test communication graph.
+    """
+    u = UModel(bring_to_root('pedestrian.xml'))
+    # ==== before beautify ====
+    tmp_file = bring_to_root('cg_pedestrain.md')
+    m = u.get_communication_graph(save_path=tmp_file, is_beautify=False)
+    assert os.path.exists(tmp_file) is True
+    os.remove(tmp_file)
+    print('==== before beautify ====\n', m)
 
-# p1_model_path = 'verifyta_demo1.xml'
-# p1_trace_path = 'verifyta_demo1_trace.xml'
-# res1 = pyu.simple_verify(model_path=p1_model_path, trace_path=p1_trace_path)
-# print(res1)
+    # ==== after beautify ====
+    m.beautify()
+    tmp_file = bring_to_root('cg_pedestrain_beauty.md')
+    m.export(tmp_file)
+    assert os.path.exists(tmp_file) is True
+    os.remove(tmp_file)
+    print('==== after beautify ====\n', m)
 
+def test_all_patterns():
+    """_summary_
+    """
+    query = f'E<> (PPedestrian.Crossing and PCar.Crossing)' # property query
+    focused_actions = ["pCheckLight", "pGreen", "pRed", "pYellow", "pCrss", "cCrss"]
+    u = UModel(bring_to_root('pedestrian_new.xml'), auto_save=False)
+    u.set_queries([query])
+    res = u.find_all_patterns(focused_actions)
+    assert len(res) == 4
+    # print(len(res), list(map(lambda x: x.actions, res)))

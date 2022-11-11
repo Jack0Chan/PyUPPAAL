@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>broadcast chan head, tail;
+
+</declaration>
+	<template>
+		<name>Coin</name>
+		<parameter>broadcast chan &amp;flip, const int headw, const int tailw</parameter>
+		<location id="id0" x="-76" y="-25">
+			<committed/>
+		</location>
+		<location id="id1" x="42" y="17">
+			<name x="25" y="34">Tail</name>
+			<committed/>
+		</location>
+		<location id="id2" x="42" y="-76">
+			<name x="32" y="-110">Head</name>
+			<committed/>
+		</location>
+		<location id="id3" x="-153" y="-25">
+			<name x="-187" y="-59">Idle</name>
+		</location>
+		<branchpoint id="id4" x="-25" y="-25">
+		</branchpoint>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-75" y="0">tail!</label>
+			<nail x="-153" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-75" y="-93">head!</label>
+			<nail x="-153" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id1"/>
+			<label kind="probability" x="17" y="-17">tailw</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="probability" x="17" y="-51">headw</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-136" y="-42">flip?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Dice</name>
+		<parameter>broadcast chan &amp;flip, int &amp;val</parameter>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id5" x="476" y="331">
+			<name x="466" y="297">Six</name>
+		</location>
+		<location id="id6" x="382" y="331">
+		</location>
+		<location id="id7" x="476" y="263">
+			<name x="466" y="229">Five</name>
+		</location>
+		<location id="id8" x="476" y="187">
+			<name x="466" y="153">Four</name>
+		</location>
+		<location id="id9" x="382" y="221">
+		</location>
+		<location id="id10" x="297" y="332">
+			<name x="287" y="298">TT</name>
+			<urgent/>
+		</location>
+		<location id="id11" x="297" y="221">
+			<name x="287" y="187">TH</name>
+			<urgent/>
+		</location>
+		<location id="id12" x="476" y="136">
+			<name x="466" y="102">Three</name>
+		</location>
+		<location id="id13" x="476" y="51">
+			<name x="466" y="17">Two</name>
+		</location>
+		<location id="id14" x="382" y="93">
+		</location>
+		<location id="id15" x="476" y="-25">
+			<name x="466" y="-59">One</name>
+		</location>
+		<location id="id16" x="382" y="-25">
+		</location>
+		<location id="id17" x="221" y="272">
+		</location>
+		<location id="id18" x="297" y="93">
+			<name x="287" y="59">HT</name>
+			<urgent/>
+		</location>
+		<location id="id19" x="297" y="-26">
+			<name x="287" y="-60">HH</name>
+			<urgent/>
+		</location>
+		<location id="id20" x="220" y="34">
+		</location>
+		<location id="id21" x="127" y="272">
+			<name x="117" y="238">T</name>
+			<urgent/>
+		</location>
+		<location id="id22" x="127" y="34">
+			<name x="102" y="8">H</name>
+			<urgent/>
+		</location>
+		<location id="id23" x="42" y="136">
+		</location>
+		<location id="id24" x="-51" y="136">
+			<urgent/>
+		</location>
+		<init ref="id24"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="145" y="365">tail?</label>
+			<nail x="382" y="382"/>
+			<nail x="127" y="382"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="400" y="314">head?</label>
+			<label kind="assignment" x="400" y="331">val=6</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="315" y="314">flip!</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="400" y="225">tail?</label>
+			<label kind="assignment" x="400" y="242">val=5</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="400" y="187">head?</label>
+			<label kind="assignment" x="400" y="204">val=4</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="315" y="204">flip!</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="229" y="306">tail?</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="221" y="221">head?</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="400" y="106">tail?</label>
+			<label kind="assignment" x="400" y="123">val=3</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="400" y="55">head?</label>
+			<label kind="assignment" x="400" y="72">val=2</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="315" y="76">flip!</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="400" y="-42">tail?</label>
+			<label kind="assignment" x="400" y="-25">val=1</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="145" y="-93">head?</label>
+			<nail x="382" y="-76"/>
+			<nail x="127" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="315" y="-42">flip!</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="145" y="255">flip!</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="229" y="68">tail?</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="221" y="-17">head?</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="145" y="17">flip!</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="51" y="221">tail?</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="42" y="68">head?</label>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-16" y="119">flip!</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">DiceSimulator</name>
+		<parameter>const int headw, const int tailw, int &amp;val</parameter>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id25" x="476" y="323">
+			<name x="466" y="289">Six</name>
+		</location>
+		<location id="id26" x="476" y="255">
+			<name x="466" y="221">Five</name>
+		</location>
+		<location id="id27" x="476" y="187">
+			<name x="466" y="153">Four</name>
+		</location>
+		<location id="id28" x="297" y="324">
+			<name x="287" y="290">TT</name>
+			<urgent/>
+		</location>
+		<location id="id29" x="297" y="221">
+			<name x="287" y="187">TH</name>
+			<urgent/>
+		</location>
+		<location id="id30" x="476" y="127">
+			<name x="466" y="93">Three</name>
+		</location>
+		<location id="id31" x="476" y="59">
+			<name x="466" y="25">Two</name>
+		</location>
+		<location id="id32" x="476" y="-8">
+			<name x="466" y="-42">One</name>
+		</location>
+		<location id="id33" x="297" y="93">
+			<name x="287" y="59">HT</name>
+			<urgent/>
+		</location>
+		<location id="id34" x="297" y="-9">
+			<name x="287" y="-43">HH</name>
+			<urgent/>
+		</location>
+		<location id="id35" x="127" y="272">
+			<name x="117" y="238">T</name>
+			<urgent/>
+		</location>
+		<location id="id36" x="127" y="34">
+			<name x="102" y="8">H</name>
+			<urgent/>
+		</location>
+		<location id="id37" x="-34" y="136">
+			<urgent/>
+		</location>
+		<branchpoint id="id38" x="382" y="323">
+		</branchpoint>
+		<branchpoint id="id39" x="382" y="221">
+		</branchpoint>
+		<branchpoint id="id40" x="221" y="272">
+		</branchpoint>
+		<branchpoint id="id41" x="382" y="93">
+		</branchpoint>
+		<branchpoint id="id42" x="382" y="-8">
+		</branchpoint>
+		<branchpoint id="id43" x="221" y="34">
+		</branchpoint>
+		<branchpoint id="id44" x="34" y="136">
+		</branchpoint>
+		<init ref="id37"/>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id35"/>
+			<label kind="probability" x="145" y="374">tailw</label>
+			<nail x="382" y="374"/>
+			<nail x="127" y="374"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="400" y="306">val=6</label>
+			<label kind="probability" x="400" y="323">headw</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id38"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id26"/>
+			<label kind="assignment" x="400" y="238">val=5</label>
+			<label kind="probability" x="399" y="255">tailw</label>
+			<nail x="382" y="255"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id27"/>
+			<label kind="assignment" x="400" y="170">val=4</label>
+			<label kind="probability" x="400" y="187">headw</label>
+			<nail x="382" y="187"/>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id39"/>
+		</transition>
+		<transition>
+			<source ref="id40"/>
+			<target ref="id28"/>
+			<label kind="probability" x="229" y="323">tailw</label>
+			<nail x="221" y="323"/>
+		</transition>
+		<transition>
+			<source ref="id40"/>
+			<target ref="id29"/>
+			<label kind="probability" x="229" y="221">headw</label>
+			<nail x="221" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id40"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id30"/>
+			<label kind="assignment" x="400" y="110">val=3</label>
+			<label kind="probability" x="400" y="127">tailw</label>
+			<nail x="382" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id31"/>
+			<label kind="assignment" x="399" y="42">val=2</label>
+			<label kind="probability" x="399" y="59">headw</label>
+			<nail x="382" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id41"/>
+		</transition>
+		<transition>
+			<source ref="id42"/>
+			<target ref="id36"/>
+			<label kind="probability" x="170" y="-59">headw</label>
+			<nail x="382" y="-59"/>
+			<nail x="127" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id42"/>
+			<target ref="id32"/>
+			<label kind="assignment" x="399" y="-25">val=1</label>
+			<label kind="probability" x="399" y="-8">tailw</label>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id42"/>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id33"/>
+			<label kind="probability" x="229" y="93">tailw</label>
+			<nail x="221" y="93"/>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id34"/>
+			<label kind="probability" x="229" y="-8">headw</label>
+			<nail x="221" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id43"/>
+		</transition>
+		<transition>
+			<source ref="id44"/>
+			<target ref="id35"/>
+			<label kind="probability" x="42" y="272">tailw</label>
+			<nail x="34" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id44"/>
+			<target ref="id36"/>
+			<label kind="probability" x="42" y="34">headw</label>
+			<nail x="34" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id44"/>
+		</transition>
+	</template>
+	<template>
+		<name>Norm</name>
+		<parameter>int &amp;val, int &amp;out</parameter>
+		<declaration>clock x;</declaration>
+		<location id="id45" x="136" y="0">
+		</location>
+		<location id="id46" x="0" y="0">
+			<label kind="invariant" x="-10" y="17">x&lt;=1</label>
+		</location>
+		<init ref="id46"/>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id45"/>
+			<label kind="guard" x="25" y="-17">x&gt;0</label>
+			<label kind="assignment" x="25" y="0">out=2*val-7</label>
+		</transition>
+	</template>
+	<system>broadcast chan fairflip, badflip;
+int fairvalue, badvalue, simvalue, normalized=-10;
+
+faircoin = Coin(fairflip, 1, 1);
+fairdice = Dice(fairflip, fairvalue);
+
+badcoin = Coin(badflip, 1, 2);
+baddice = Dice(badflip, badvalue);
+
+simdice = DiceSimulator(1, 1, simvalue);
+
+norm = Norm(simvalue, normalized); // normalize around 0
+
+system faircoin, fairdice, badcoin, baddice, simdice, norm;
+    </system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=2; 1] { fairvalue, badvalue, simvalue, normalized }
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E[&lt;=2; 1000] (max: fairvalue)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E[&lt;=2; 1000] (max: badvalue)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E[&lt;=2; 1000] (max: simvalue)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E[&lt;=2; 1000] (max: normalized)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

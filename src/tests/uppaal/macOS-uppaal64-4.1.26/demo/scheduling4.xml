@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// ---------------- Configuration --------------------
+const int N = 4;          // Number of tasks.
+typedef int[0,N-1] pid_t; // Process IDs.
+
+const int T[pid_t] = { 18, 16, 16, 14 };// End-periods: From release to next cycle.
+const int E[pid_t] = {  0,  2,  2,  4 };// 
+const int L[pid_t] = {  0,  2,  2,  4 };// [ E[i] , L[i] ] Ready interval
+const int D[pid_t] = { 17, 14, 12,  6 };// Deadlines
+const int C[pid_t] = {  6,  2,  4,  5 };// Computation Times
+const int P[pid_t] = {  1,  2,  3,  4 };// Priorities
+
+// Shared resources - semaphores in fact.
+const int S = 2;             // Number of semaphores.
+typedef int[0,S-1] sid_t;    // Resource IDs.
+
+const int SP[sid_t][pid_t] = // For each task:
+          { {1, 0, 0, 2},    // Start sema 0.
+            {0, 0, 1, 3}};   // Start sema 1.
+const int SV[sid_t][pid_t] = // For each task:
+          { {5, 0, 0, 3},    // Stop sema 0.
+            {0, 0, 3, 4}};   // Stop sema 1.
+// -----------------------------------------------------
+
+chan	done, ready, run, stop;
+clock 	time;
+
+int p[pid_t]; // Dynamic priorities.
+pid_t queue[pid_t]; // Task queue
+int[0,N] len = 0;   // Length of the queue.
+
+// Could be const but easier to have it computed.
+int cp[sid_t];               // Ceiling priorities.
+
+// Computation intervals for every task.
+// At most (take + release)*S + C for every task.
+// [0] -&gt; bound, [1] -&gt; what to do
+// todo &gt;0 -&gt; take sema todo-1
+// todo &lt;0 -&gt; release sema -todo-1
+// todo ==0 -&gt; end of computation
+// These 2 variables could be const but it's error-prone
+// and not nice to write them manually.
+int ci[pid_t][2*S+1][2];
+int ns[pid_t]; // Number of resources per task.
+
+void initialize()
+{
+  // Initialize dynamic priorities.
+  p = P;
+  // Ceiling priorities.
+  for(i : sid_t)
+  {
+    int max = 0;
+    for(j : pid_t)
+    {
+      if (SV[i][j]) // Task j is using semaphore i.
+      {
+        max = P[j] &gt;? max;
+      }
+    }
+    cp[i] = max;
+  }
+  for(i : pid_t)
+  {
+    // Fill.
+    int a,b,elem[2];
+    ns[i] = 0;
+    for(j : sid_t)
+    {
+      if (SV[j][i])
+      {
+        ci[i][ns[i]][0] = SP[j][i];
+        ci[i][ns[i]][1] = 1+j;
+        ns[i]++;
+        ci[i][ns[i]][0] = SV[j][i];
+        ci[i][ns[i]][1] = -1-j;
+        ns[i]++;
+      }
+    }
+    ci[i][ns[i]][0] = C[i];
+    ci[i][ns[i]][1] = 0;
+    // C[i] always last, no need for ns[i]++ &amp; we count resources.
+    // Insertion-sort.
+    for(a = 1; a &lt; ns[i]; ++a)
+    {
+      elem = ci[i][a];
+      for(b = a-1; b &gt;= 0 &amp;&amp; ci[i][b][0] &gt; elem[0]; --b)
+      {
+        ci[i][b+1] = ci[i][b];
+      }
+      ci[i][b+1] = elem;
+    }
+  }
+}
+
+pid_t head()   { return queue[0]; }
+bool isEmpty() { return len == 0; }
+
+void remove()
+{
+  int i;
+  for(i = 0; i+1 &lt; N; ++i) { queue[i] = queue[i+1]; }
+  queue[--len] = 0;
+}
+</declaration>
+	<template>
+		<name x="40" y="16">Task</name>
+		<parameter>const pid_t id</parameter>
+		<declaration>clock ax, t, wcrt;
+int r = 0;
+bool sema[sid_t];
+
+void add()
+{
+  pid_t i, tmp;
+  queue[len] = id;
+  for(i = len ; i &gt; 0 &amp;&amp; p[queue[i]] &gt; p[queue[i-1]]; --i)
+  {
+    tmp = queue[i];
+    queue[i] = queue[i-1];
+    queue[i-1] = tmp;
+  }
+  len++;
+}
+
+void updatePriority(int s)
+{
+  if (s &gt; 0) // Take.
+  {
+    s = s-1;
+    sema[s] = true;
+    p[id] = cp[s] &gt;? p[id];
+  }
+  else // Release
+  {
+    int j, tmp;
+    s = -s-1;
+    sema[s] = false;
+    // Recompute priority.
+    p[id] = P[id];
+    for(i : sid_t) if (sema[i]) p[id] = cp[i] &gt;? p[id];
+    // Reorder.
+    for(j = 0; j+1 &lt; len &amp;&amp; p[queue[j]] &lt; p[queue[j+1]]; ++j)
+    {
+      tmp = queue[j];
+      queue[j] = queue[j+1];
+      queue[j+1] = tmp;
+    }
+  }
+}</declaration>
+		<location id="id0" x="-40" y="64">
+			<name x="-56" y="32">EndPeriod</name>
+			<label kind="invariant" x="-128" y="64">t&lt;=T[id] &amp;&amp;
+wcrt'==0</label>
+		</location>
+		<location id="id1" x="32" y="64">
+			<name x="22" y="34">Idle</name>
+			<label kind="invariant" x="48" y="48">t&lt;=L[id] &amp;&amp;
+wcrt'==0</label>
+		</location>
+		<location id="id2" x="32" y="192">
+			<name x="40" y="152">Ready</name>
+		</location>
+		<location id="id3" x="32" y="320">
+			<name x="8" y="288">Running</name>
+			<label kind="invariant" x="-16" y="336">ax&lt;=ci[id][r][0]</label>
+		</location>
+		<location id="id4" x="32" y="480">
+			<name x="16" y="448">Blocked</name>
+			<label kind="invariant" x="8" y="496">ax'==0</label>
+		</location>
+		<location id="id5" x="192" y="320">
+			<name x="152" y="328">Error</name>
+			<committed/>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-24" y="64">t==T[id]</label>
+			<label kind="assignment" x="-24" y="80">t=0,
+wcrt=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-208" y="296">r &lt; ns[id] &amp;&amp; ax == ci[id][r][0]</label>
+			<label kind="synchronisation" x="-208" y="312">ready!</label>
+			<label kind="assignment" x="-208" y="328">updatePriority(ci[id][r][1]),
+r++</label>
+			<nail x="-32" y="296"/>
+			<nail x="-32" y="344"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="48" y="80">t&gt;=E[id]</label>
+			<label kind="synchronisation" x="48" y="96">ready!</label>
+			<label kind="assignment" x="48" y="112">t=0, wcrt = 0,
+add()</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="40" y="208">head()==id</label>
+			<label kind="synchronisation" x="40" y="224">run?</label>
+			<label kind="assignment" x="40" y="240">ax=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-24" y="392">stop?</label>
+			<nail x="-32" y="352"/>
+			<nail x="-32" y="448"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="guard" x="104" y="392">head()==id</label>
+			<label kind="synchronisation" x="104" y="376">run?</label>
+			<nail x="96" y="448"/>
+			<nail x="96" y="352"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-144" y="144">head() == id &amp;&amp;
+ax&gt;=C[id] &amp;&amp;
+r == ns[id]</label>
+			<label kind="synchronisation" x="-144" y="192">done!</label>
+			<label kind="assignment" x="-144" y="208">remove(),
+r = 0</label>
+			<nail x="-40" y="288"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="guard" x="112" y="168">t&gt;D[id]</label>
+			<nail x="192" y="192"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="112" y="296">t&gt;D[id]</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="guard" x="112" y="480">t&gt;D[id]</label>
+			<nail x="192" y="480"/>
+		</transition>
+	</template>
+	<template>
+		<name x="40" y="16">Scheduler</name>
+		<location id="id6" x="32" y="56">
+			<name x="22" y="26">Init</name>
+			<committed/>
+		</location>
+		<location id="id7" x="32" y="144">
+			<name x="40" y="112">Free</name>
+			<committed/>
+		</location>
+		<location id="id8" x="32" y="216">
+		</location>
+		<location id="id9" x="32" y="288">
+			<name x="-16" y="256">Select</name>
+			<committed/>
+		</location>
+		<location id="id10" x="32" y="400">
+			<name x="40" y="368">Occ</name>
+		</location>
+		<location id="id11" x="-40" y="344">
+			<committed/>
+		</location>
+		<init ref="id6"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="assignment" x="40" y="72">initialize()</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-40" y="168">isEmpty()</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-16" y="232">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-64" y="120">!isEmpty()</label>
+			<nail x="-64" y="144"/>
+			<nail x="-64" y="288"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-48" y="368">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="104" y="240">done?</label>
+			<nail x="96" y="400"/>
+			<nail x="96" y="144"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="40" y="328">run!</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-48" y="304">stop!</label>
+		</transition>
+	</template>
+	<system>system Task, Scheduler;
+
+gantt {
+  Task(i : pid_t): Task(i).Ready -&gt; 1,
+                   Task(i).Running -&gt; 2,
+                   Task(i).Blocked -&gt; 3,
+                   Task(i).Error -&gt; 0,
+                   for(j : sid_t) Task(i).sema[j] -&gt; 6;
+}
+</system>
+	<queries>
+		<query>
+			<formula>inf {Task(0).EndPeriod}: Task(0).wcrt
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>inf {Task(1).EndPeriod}: Task(1).wcrt
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>inf {Task(2).EndPeriod}: Task(2).wcrt
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>inf {Task(3).EndPeriod}: Task(3).wcrt
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] forall(i : sid_t) sum(j : pid_t) Task(j).sema[i] &lt;= 1
+			</formula>
+			<comment>Check that semaphores are taken by at most one process at a time.
+			</comment>
+		</query>
+		<query>
+			<formula>sup: Task(0).wcrt , Task(1).wcrt, Task(2).wcrt, Task(3).wcrt
+			</formula>
+			<comment>Worst-case response times.
+			</comment>
+		</query>
+		<query>
+			<formula>A[] forall(i : pid_t) not Task(i).Error
+			</formula>
+			<comment>Check that the system is schedulable.
+			</comment>
+		</query>
+	</queries>
+</nta>

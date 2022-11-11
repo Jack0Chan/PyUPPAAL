@@ -1,10 +1,14 @@
+"""A research tool that can simulate, verify or modify UPPAAL models with 
+python. It can also help to analyze counter-examples in .xml format
+"""
+
 from .verifyta import Verifyta
 from .umodel import UModel
-from .tracer import ClockZone, Transition, SimTrace, Tracer
-from .config import *
+from .tracer import ClockZone, Transition, SimTrace, Tracer, GlobalVar
+# from .config import *
 from .pyuppaal import *
+from .iTools import Mermaid
+from .utap import utap_parser
+from .datastruct import TimedActions
 
 __version__='0.1.14'
-
-
-# __all__ = [ROOT_DIR, TRACER_CUSTOM_WINDOWS,TRACER_CUSTOM_LINUX]
