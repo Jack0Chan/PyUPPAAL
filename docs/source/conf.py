@@ -20,10 +20,14 @@ release = '0.1.12'
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
     'myst_parser']
+
+napoleon_use_rtype = False
 
 source_suffix = ['.rst', '.md']
 
