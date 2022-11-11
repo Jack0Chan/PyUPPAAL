@@ -6,20 +6,7 @@ broadcast chan input_ball, observe_ball;
 broadcast chan hidden_path1, hidden_path2, hidden_path3, hidden_path4, hidden_path5, hidden_path6;
 broadcast chan exit1, exit2, exit3;
 
-clock gclk;
-
-const int T1_Min = 200;
-const int T1_Max = 300;
-const int T2_Min = 200;
-const int T2_Max = 300;
-const int T3_Min = 200;
-const int T3_Max = 300;
-const int T4_Min = 200;
-const int T4_Max = 300;
-const int T5_Min = 200;
-const int T5_Max = 300;
-const int T6_Min = 200;
-const int T6_Max = 300;</declaration>
+clock gclk;</declaration>
 	<template>
 		<name x="5" y="5">PipeNet</name>
 		<declaration>// Place local declarations here.
@@ -76,42 +63,70 @@ clock t;</declaration>
 		<transition>
 			<source ref="id3"/>
 			<target ref="id6"/>
+<<<<<<< HEAD
 			<label kind="guard" x="59" y="17">t&gt;=T6_Min and
 t&lt;=T6_Max</label>
+=======
+			<label kind="guard" x="59" y="17">t&gt;=200 and
+t&lt;=300</label>
+>>>>>>> main
 			<label kind="synchronisation" x="59" y="51">hidden_path6!</label>
 		</transition>
 		<transition>
 			<source ref="id3"/>
 			<target ref="id5"/>
+<<<<<<< HEAD
 			<label kind="guard" x="-68" y="17">t&gt;=T5_Min and
 t&lt;=T5_Max</label>
+=======
+			<label kind="guard" x="-68" y="17">t&gt;=200 and
+t&lt;=300</label>
+>>>>>>> main
 			<label kind="synchronisation" x="-68" y="51">hidden_path5!</label>
 		</transition>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id3"/>
+<<<<<<< HEAD
 			<label kind="guard" x="-42" y="-85">t&gt;=T2_Min and t&lt;=T2_Max</label>
+=======
+			<label kind="guard" x="-42" y="-85">t&gt;=200 and t&lt;=300</label>
+>>>>>>> main
 			<label kind="synchronisation" x="-25" y="-68">hidden_path2!</label>
 			<label kind="assignment" x="-8" y="-51">t=0</label>
 		</transition>
 		<transition>
 			<source ref="id2"/>
 			<target ref="id5"/>
+<<<<<<< HEAD
 			<label kind="guard" x="-187" y="17">t&gt;=T4_Min and
 t&lt;=T4_Max</label>
+=======
+			<label kind="guard" x="-187" y="17">t&gt;=200 and
+t&lt;=300</label>
+>>>>>>> main
 			<label kind="synchronisation" x="-187" y="51">hidden_path4!</label>
 		</transition>
 		<transition>
 			<source ref="id2"/>
 			<target ref="id4"/>
+<<<<<<< HEAD
 			<label kind="guard" x="-314" y="17">t&gt;=T3_Min and
 t&lt;=T3_Max</label>
+=======
+			<label kind="guard" x="-314" y="17">t&gt;=200 and
+t&lt;=300</label>
+>>>>>>> main
 			<label kind="synchronisation" x="-314" y="51">hidden_path3!</label>
 		</transition>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id2"/>
+<<<<<<< HEAD
 			<label kind="guard" x="-297" y="-85">t&gt;=T1_Min and t&lt;=T1_Max</label>
+=======
+			<label kind="guard" x="-229" y="-85">t&gt;=200 and t&lt;=300</label>
+>>>>>>> main
 			<label kind="synchronisation" x="-221" y="-68">hidden_path1!</label>
 			<label kind="assignment" x="-170" y="-51">t=0</label>
 		</transition>
@@ -127,5 +142,12 @@ t&lt;=T3_Max</label>
 // List one or more processes to be composed into a system.
 system PipeNet;</system>
 	<queries>
+<<<<<<< HEAD
+=======
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+>>>>>>> main
 	</queries>
 </nta>
