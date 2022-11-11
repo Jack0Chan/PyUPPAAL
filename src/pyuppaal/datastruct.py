@@ -6,6 +6,7 @@ from typing import List
 class TimedActions:
     """ A serie of actions with lower bounds and upper bounds.
     """
+
     def __init__(self, actions: List[str], lb: List[str] = None, ub: List[str] = None):
         """_summary_
 
@@ -58,7 +59,7 @@ class TimedActions:
 
     def convert_to_list_tuple(self, clk_name='monitor_clk'):
         """Convert to a list of tuple, each tuple is a timed action.
-        
+
         Examples:
             >>> timed_actions = TimedActions(['sigOut!', 'sigOut!'], 
             >>>     ['gclk>=20', 'x>=30'], ['gclk<=20', 'x<=30'])
@@ -72,12 +73,13 @@ class TimedActions:
         self.clk_name = clk_name
         res = []
         for i in range(len(self.actions)):
-            res.append((self.actions[i], f'{clk_name}>={self.lb[i]}', f'{clk_name}<={self.ub[i]}'))
+            res.append(
+                (self.actions[i], f'{clk_name}>={self.lb[i]}', f'{clk_name}<={self.ub[i]}'))
         return res
 
     def convert_to_patterns(self):
         """Convert to patterns.
-        
+
         Examples:
             >>> timed_actions = TimedActions(['sigOut!', 'sigOut!'],
             >>>     ['gclk>=20', 'x>=30'], ['gclk<=20', 'x<=30'])
@@ -91,4 +93,3 @@ class TimedActions:
 
     def __len__(self):
         return len(self.actions)
-    

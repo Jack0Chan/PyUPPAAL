@@ -3,12 +3,12 @@
 # support return typing UModel
 from __future__ import annotations
 import os
+import xml.etree.ElementTree as ET
 from typing import List, Tuple
 from .datastruct import TimedActions
 from .verifyta import Verifyta
 from .iTools import UFactory, build_cg, Mermaid
 from .tracer import SimTrace, Tracer
-import xml.etree.ElementTree as ET
 
 
 class UModel:
@@ -27,8 +27,6 @@ class UModel:
             file=self.model_path)
         self.__root_elem: ET.Element = self.__element_tree.getroot()
         self.auto_save: bool = auto_save
-        # if len(self.queries) >= 2:
-        #     warnings.warn(f'Currently we only support models with only 1 query. If you want more queries, please split the models. Current queries: {self.queries}.')
 
     @property
     def model_path(self) -> str:
@@ -94,15 +92,15 @@ class UModel:
             m.export(save_path)
         return m
 
-    def verify(self, trace_path: str = None, verify_options: str = None) -> str:
-        """Verify and return the terminal output.
+    def verify(self, trace_path: str = None, verify_options: str = None) -> List[str]:
+        """Verify and return the verify result. If `trace_path` is not given, it wll return the list of terminal result.
 
         Args:
             trace_path (str, optional): _description_. Defaults to None.
             verify_options (str, optional): _description_. Defaults to None.
 
         Returns:
-            str: _description_
+            List[str]: _description_
         """
         if trace_path:
             return Verifyta().easy_verify(self.model_path, trace_path, verify_options)[0]
@@ -119,8 +117,9 @@ class UModel:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
         """
         if '-t' not in verify_options:
-            raise ValueError(
-                f'-t must be set in verify_options, current verify_options: {verify_options}.')
+            err_info = '"-t" must be set in verify_options, '
+            err_info += f'current verify_options: {verify_options}.'
+            raise ValueError(err_info)
         xtr_trace_path = self.model_path.replace('.xml', '.xtr')
 
         verify_cmd_res = Verifyta().easy_verify(
@@ -130,12 +129,7 @@ class UModel:
                 self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
         else:
             return None
-
         return res
-        # try:
-        #     return Tracer.get_timed_trace(self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
-        # except:
-        #     return None
 
     # ======== templates ========
     @property
