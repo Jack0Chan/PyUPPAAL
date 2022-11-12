@@ -10,7 +10,7 @@ Pyuppaal documentation
    :maxdepth: 2
    :caption: Pyuppaal:
 
-   Quickstart.md
+   README.md
    Devloper Interface
 
 
