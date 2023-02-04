@@ -37,7 +37,7 @@ pyuppaal.set_verifyta_path("your/path/to/verifyta.exe")
 
 ## 3. Verify a Model
 
-Lets take the following model P1 with query `A[] not deadlock` as the example. You can download this file via [this_link].
+Lets take the following model P1 with query `A[] not deadlock` as the example. You can download this file via [this_link](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/demo.xml).
 
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/demo.png width=250 />
 
@@ -156,9 +156,9 @@ You want to know what happends to the balls -- all possible paths that can lead 
 
 ### 2. Modeling the PipeNet
 
-We have modeled the PipeNet with UPPAAL, you can download via [this link].
+We have modeled the PipeNet with UPPAAL, you can download via [this link](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/demo_PipeNet.xml).
 
-As shown in the figure below, the guard on the edge is the falling time for each path, e.g., if a ball goes through hidden_path1, it will take `T1_Min` to `T1_Max` seconds.
+As shown in the figure below, the guard on the edge is the falling time for each path, e.g., if a ball goes through `hidden_path1`, it will take `200` to `300` seconds.
 
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetModel.png width=400 />
 
@@ -166,7 +166,7 @@ As shown in the figure below, the guard on the edge is the falling time for each
 
 Now we will 
 1. add an `Input` template that puts the balls into the `Entry` at `gclk==0` and `gclk==1000`.
-2. add an `Observet` template that indicates the observations from `Exit1` at `gclk==500`, and `Exit2` at `gclk==1550`.
+2. add an `Observer` template that indicates the observations from `Exit1` at `gclk==500`, and `Exit2` at `gclk==1550`.
 3. Get one possible pattern that simulates the inputs & observations.
 
 In pyuppaal, inputs & observations are described by `TimedActions`, which is a class with three lists:
@@ -206,14 +206,13 @@ print("pattern:", trace.untime_pattern)
 
     pattern: ['input_ball', 'hidden_path1', 'hidden_path3', 'exit1', 'input_ball', 'hidden_path1', 'hidden_path4', 'exit2']
 
-
 The `Input` and `Observation` template created by `pyuppaal`. The cache file `*_pattern.xml` can be found in the same directory of the input model.
 <br><br>
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetInput.png width=300 />
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetObserver.png width=350 />
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetModel.png width=350 />
 <br><br>
-In This example, we know the exact time of the inputs & observations, and thus `lower_bounds == upper_bounds`. If you are not sure about the exact time, or you just want to add uncertainty, e.g., the first ball goes from `Exit1` at gclk $\in$ [490, 510], you can just set the lower bound to 490, and the upper bound to 510.
+In this example, we know the exact time of the inputs & observations, and thus `lower_bounds == upper_bounds`. If you are not sure about the exact time, or you just want to add uncertainty, e.g., the first ball goes from `Exit1` at gclk $\in$ [490, 510], you can just set the lower bound to 490, and the upper bound to 510.
 
 ### 4. Visualize the Architecture
 
@@ -247,6 +246,7 @@ You can get all possible patterns by the following code, and all possible patter
 1. The first observation at `Exit1` is suggested by the red line. 
 2. The second observation at `Exit2` is suggested by 2 the green and yellow line, meaning there are two possible patterns for this observation.
    
+
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetPatterns.png width=300 />
 
 
