@@ -642,10 +642,11 @@ class SimTrace:
             name, constructor = item.replace(";", "").replace(
                 " ", "").split('=')  # remove ';' and ' '
             left_brace_index: int = constructor.find('(')
+            right_brace_index: int = constructor.find(')')
             # get the name of the constructor(template)
             constructor_name: str = constructor[:left_brace_index]
             real_param_list: List[str] = list(filter(
-                lambda param: param != '', constructor[left_brace_index + 1: -1].split(',')))  # get corresponding param list
+                lambda param: param != '', constructor[left_brace_index + 1: right_brace_index].split(',')))  # get corresponding param list
             # get constructor param list
             form_param_list: List[str] = param_map[constructor_name]
 

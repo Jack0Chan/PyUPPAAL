@@ -11,4 +11,4 @@ from .iTools import Mermaid
 from .utap import utap_parser
 from .datastruct import TimedActions
 
-__version__='1.0.0'
+__version__='1.0.1'
