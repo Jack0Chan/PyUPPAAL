@@ -1,5 +1,7 @@
 # Introduction
 
+`We are implementing basic editor that can help to edit xml with Declarations, Systems, Templates(Locations, Edges, Nails, BranchPoints), Queries, etc., which will come soon in later 2023 with support of UPPAAL 5.0.0.`
+
 [![Documentation Status](https://readthedocs.org/projects/pyuppaal/badge/?version=latest)](https://pyuppaal.readthedocs.io/en/latest/?badge=latest)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
 
 `pyuppaal` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
