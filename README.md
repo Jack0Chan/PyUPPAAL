@@ -48,26 +48,26 @@ const int rec_end = 10;\n"""
     
     # 构造edges
     e0 = Edge(source_location_id=2,source_location_pos=(-42,-93),
-                                                 target_location_id=5,target_location_pos=(34,-93),
-                                                 sync="param2?",sync_pos=(-24,-110),
-                                                 update="t=888",update_pos=(-24,-93))
+             target_location_id=5,target_location_pos=(34,-93),
+             sync="param2?",sync_pos=(-24,-110),
+             update="t=888",update_pos=(-24,-93))
     e1 = Edge(source_location_id=3,source_location_pos=(-76,-212),
-                                                 target_location_id=4,target_location_pos=(25,-212),
-                                                 sync="param1?",sync_pos=(-58,-229),
-                                                 update="t=999",update_pos=(-51,-212))
+             target_location_id=4,target_location_pos=(25,-212),
+             sync="param1?",sync_pos=(-58,-229),
+             update="t=999",update_pos=(-51,-212))
     e2 = Edge(source_location_id=6,source_location_pos=(-119,-144),
-                                                 target_location_id=3,target_location_pos=(-76,-212),
-                                                 probability_weight=0.2,prob_weight_pos=(-93,-178))
+             target_location_id=3,target_location_pos=(-76,-212),
+             probability_weight=0.2,prob_weight_pos=(-93,-178))
     e3 = Edge(source_location_id=6,source_location_pos=(-119,-144),
-                                                 target_location_id=2,target_location_pos=(-42,-93),
-                                                 probability_weight=0.8,prob_weight_pos=(-93,-119))
+             target_location_id=2,target_location_pos=(-42,-93),
+             probability_weight=0.8,prob_weight_pos=(-93,-119))
     e4 = Edge(source_location_id=1,source_location_pos=(-178,-102),
-                                                 target_location_id=6,target_location_pos=(-119,-144))
+             target_location_id=6,target_location_pos=(-119,-144))
     e5 = Edge(source_location_id=0,source_location_pos=(-391,-102),
-                                                 target_location_id=1,target_location_pos=(-178,-102),
-                                                 guard="t>= guard_start",guard_pos=(-331,-102),
-                                                 update="count ++",update_pos=(-306,-85),
-                                                 test_code="count == -1;")
+             target_location_id=1,target_location_pos=(-178,-102),
+             guard="t>= guard_start",guard_pos=(-331,-102),
+             update="count ++",update_pos=(-306,-85),
+             test_code="count == -1;")
     template0.edges = [e0, e1, e2, e3, e4, e5]
     # template0.branch_points = [bp0]
     # endregion
