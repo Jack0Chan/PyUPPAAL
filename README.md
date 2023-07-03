@@ -1,8 +1,151 @@
+<font color='red'>NOTICE:</font>
+We are implementing **basic editor** that can help to edit xml with `Declarations`, `Systems`, `Templates(Locations, Edges, Nails, BranchPoints)`, `Queries`, etc., which will come soon in later 2023 with support of UPPAAL 5.0.0. Currently these functions are developed and under test. Note that we are working hard on making an easy, concept-clear uppaal tool with python, the code below is not the final api.
+<details><summary>Click Me to Preview the Code</summary>
+<p>
+
+```python
+def test_construct_model():
+    model_path = bring_to_root('constructed_model.xml')
+    os.remove(model_path)
+    umodel = pyuppaal.UModel.new(model_path)
+
+    umodel.declaration = """// Place global declarations here.
+broadcast chan a, b, c;
+int count = 0;
+int sender_count = 0;
+const int rec_end = 10;\n"""
+    
+# region: 构建tempaltes，一共两个
+    # region: 构建第1个template
+    template0 = Template(name = "Receiver",
+                locations=[], 
+                init_ref=0,
+                edges=[],
+                params="broadcast chan &param1, broadcast chan &param2, int inv_start, int guard_start",
+                declaration="""// Place local declarations here.\nclock t;""")
+    # 构造locations
+    # l0 是initial location
+    l0 = Location(location_id=0,location_pos=(-391,-102),
+                name = "Start", name_pos=(-401,-136),
+                invariant="t<=inv_start", invariant_pos=(-401,-85),
+                test_code_on_enter="count ++;", test_code_on_exit="count = 10;", 
+                is_initial=True)
+    l1 = Location(location_id=1, location_pos=(-178,-102),
+                invariant="t<=200", invariant_pos=(-188,-85),
+                rate_of_exponential=0.8, rate_of_exp_pos=(-187,-93))
+    l2 = Location(location_id=2, location_pos=(-42,-93),is_urgent=True)
+    l3 = Location(location_id=3, location_pos=(-76,-212),is_committed=True)
+    l4 = Location(location_id=4, location_pos=(25,-212),
+                 name = "End1", name_pos=(15,-246))
+    l5 = Location(location_id=5, location_pos=(34,-93),
+                name = "End2", name_pos=(24,-127),
+                comments="备注End2", comments_pos=(25,-34))
+    
+    # 构造branch points
+    bp0 = Location(location_id= 6, location_pos=(-119, -144), is_branchpoint=True)
+    
+    template0.locations = [l0, l1, l2, l3, l4, l5, bp0]
+    
+    # 构造edges
+    e0 = Edge(source_location_id=2,source_location_pos=(-42,-93),
+                                                 target_location_id=5,target_location_pos=(34,-93),
+                                                 sync="param2?",sync_pos=(-24,-110),
+                                                 update="t=888",update_pos=(-24,-93))
+    e1 = Edge(source_location_id=3,source_location_pos=(-76,-212),
+                                                 target_location_id=4,target_location_pos=(25,-212),
+                                                 sync="param1?",sync_pos=(-58,-229),
+                                                 update="t=999",update_pos=(-51,-212))
+    e2 = Edge(source_location_id=6,source_location_pos=(-119,-144),
+                                                 target_location_id=3,target_location_pos=(-76,-212),
+                                                 probability_weight=0.2,prob_weight_pos=(-93,-178))
+    e3 = Edge(source_location_id=6,source_location_pos=(-119,-144),
+                                                 target_location_id=2,target_location_pos=(-42,-93),
+                                                 probability_weight=0.8,prob_weight_pos=(-93,-119))
+    e4 = Edge(source_location_id=1,source_location_pos=(-178,-102),
+                                                 target_location_id=6,target_location_pos=(-119,-144))
+    e5 = Edge(source_location_id=0,source_location_pos=(-391,-102),
+                                                 target_location_id=1,target_location_pos=(-178,-102),
+                                                 guard="t>= guard_start",guard_pos=(-331,-102),
+                                                 update="count ++",update_pos=(-306,-85),
+                                                 test_code="count == -1;")
+    template0.edges = [e0, e1, e2, e3, e4, e5]
+    # template0.branch_points = [bp0]
+    # endregion
+    
+    # region: 构建第2个template
+    template1 = Template(name="Sender",
+                        locations=[],
+                        init_ref=7,
+                        edges=[],
+                        params="broadcast chan &param1, broadcast chan &param2",
+                        declaration=None)
+    
+    # 构造locations
+    l7 = Location(location_id=7, location_pos=(-459,-34),
+            name = "Start", name_pos=(-493,-68),
+            test_code_on_enter="sender_count = 10;",
+            test_code_on_exit="sender_count = -1;",
+            comments="""Start:\nTestCode""", comments_pos=(-469,25),
+            is_initial=True)
+    l8 = Location(location_id=8,location_pos=(-187,-102))
+    l9 = Location(location_id=9,location_pos=(-178,17))
+    # l10 = Location(location_id=10,location_pos=(-323,-34))
+    
+    # 构造branch points
+    bp1 = Location(location_id=10, location_pos=(-323, -34), is_branchpoint=True)
+    
+    template1.locations = [l7, l8, l9, bp1]
+    
+    # 构造edges
+    e6 = Edge(source_location_id=10,source_location_pos=(-323,-34),
+            target_location_id=9,target_location_pos=(-178,17),
+            sync="param2!", sync_pos=(-305,-34))
+    e7 = Edge(source_location_id=10,source_location_pos=(-323,-34),
+            target_location_id=8,target_location_pos=(-187,-102),
+            sync="param1!", sync_pos=(-305,-80),
+            probability_weight=0.8, prob_weight_pos=(-305,-51))
+    e8 = Edge(source_location_id=7,source_location_pos=(-459,-34),
+            target_location_id=10,target_location_pos=(-323,-34),
+            nails=[(-382,-136)])
+    template1.edges = [e6, e7, e8]
+    # print(template1.edges)
+
+    # template1.branch_points = [bp1]
+    # endregion        
+# endregion 构造templates
+                     
+    umodel.templates = [template0, template1]
+    umodel.system = """// Place template instantiations here.
+rec = Receiver(a, b, 10, rec_end);
+sender = Sender(a, b);
+// List one or more processes to be composed into a system.
+system rec, sender;\n"""
+    umodel.queries = ["E<> sender_count == 10",
+                      "E<> count == 1",
+                      "E<> rec.End1",
+                      "E<> rec.t >= 10",
+                      "A[] not deadlock"]
+    
+    assert "E<> sender_count == 10" == umodel.queries[0]
+    
+    # assert umodel.xml == pyuppaal.UModel(bring_to_root("test_umodel_build.xml")).xml
+    target_model = pyuppaal.UModel(bring_to_root("test_umodel_build.xml"))
+    assert umodel.queries == target_model.queries
+    assert umodel.system == target_model.system
+    assert umodel.declaration == target_model.declaration
+    assert umodel.templates[0].xml == target_model.templates[0].xml
+    assert umodel.templates[1].xml == target_model.templates[1].xml
+    assert umodel.xml == target_model.xml
+    assert "Verifying formula" in umodel.verify()
+```
+
+</p>
+</details>
+
 # Introduction
 
-`We are implementing basic editor that can help to edit xml with Declarations, Systems, Templates(Locations, Edges, Nails, BranchPoints), Queries, etc., which will come soon in later 2023 with support of UPPAAL 5.0.0.`
-
 [![Documentation Status](https://readthedocs.org/projects/pyuppaal/badge/?version=latest)](https://pyuppaal.readthedocs.io/en/latest/?badge=latest)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
+
 
 `pyuppaal` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
 
@@ -180,7 +323,7 @@ In pyuppaal, inputs & observations are described by `TimedActions`, which is a c
 ```python
 import pyuppaal as pyu
 # set verifyta path
-VERIFYTA_PATH = "uppaal\\Win_Linux-uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+VERIFYTA_PATH = "C:\\Users\\T1\\Documents\\GitHub\\mcvsfd\\Win_Linux-uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
 pyu.set_verifyta_path(VERIFYTA_PATH)
 
 # Load the `xml` model
@@ -194,19 +337,69 @@ inputs = pyu.TimedActions(actions=['input_ball', 'input_ball'], lb=[0, 1000], ub
 observations = pyu.TimedActions(actions=['exit1', 'exit2'], lb=[500, 1550], ub=[500, 1550])
 # Add input template.
 pipeNet.add_input_template(inputs)
+
+# Focused Actions is xxxxxxxxx(if this comment is not completed, please report the issue :>, thanks)
+fc = ['exit1', 'exit2', 'exit3']
 # Add observation template.
-pipeNet.add_observer_template(observations)
+pipeNet.add_observer_template(observations, focused_actions=fc)
 
 # Query whether the model can simulate the inputs & observations
-pipeNet.set_queries('E<> Observer.pass')
+pipeNet.queries = 'E<> Observer.pass'
 # Get one possible trace.
 trace = pipeNet.easy_verify()
 print("pattern:", trace.untime_pattern)
-# Too long to show. Run it by yourself :)
-# print("trace:", trace)
+print("trace:", trace)
 ```
 
     pattern: ['input_ball', 'hidden_path1', 'hidden_path3', 'exit1', 'input_ball', 'hidden_path1', 'hidden_path4', 'exit2']
+    trace: State [0]: ['PipeNet.Idle', 'Input._id8', 'Observer._id11']
+    global_variables [0]: None
+    Clock_constraints [0]: [t(0) - gclk ≤ 0; t(0) - PipeNet.t ≤ 0; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - PipeNet.t ≤ 0; PipeNet.t - Input.input_clk ≤ 0; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - t(0) ≤ 0; ]
+    transitions [0]: input_ball: Input -> ['PipeNet']; Input._id8 -> Input._id9; PipeNet.Idle -> PipeNet.Cross1; 
+    -----------------------------------
+    State [1]: ['PipeNet.Cross1', 'Input._id9', 'Observer._id11']
+    global_variables [1]: None
+    Clock_constraints [1]: [t(0) - gclk ≤ 0; t(0) - PipeNet.t ≤ 0; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 500; gclk - PipeNet.t ≤ 0; PipeNet.t - Input.input_clk ≤ 0; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [1]: hidden_path1: PipeNet -> []; PipeNet.Cross1 -> PipeNet.Cross2; 
+    -----------------------------------
+    State [2]: ['PipeNet.Cross2', 'Input._id9', 'Observer._id11']
+    global_variables [2]: None
+    Clock_constraints [2]: [t(0) - gclk ≤ 0; t(0) - PipeNet.t ≤ 0; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 500; gclk - PipeNet.t ≤ 300; gclk - Input.input_clk ≤ 0; PipeNet.t - gclk ≤ -200; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [2]: hidden_path3: PipeNet -> []; PipeNet.Cross2 -> PipeNet.Exit1; 
+    -----------------------------------
+    State [3]: ['PipeNet.Exit1', 'Input._id9', 'Observer._id11']
+    global_variables [3]: None
+    Clock_constraints [3]: [t(0) - gclk ≤ 0; t(0) - PipeNet.t ≤ -200; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 500; gclk - Input.input_clk ≤ 0; PipeNet.t - gclk ≤ -200; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [3]: exit1: PipeNet -> ['Observer']; PipeNet.Exit1 -> PipeNet.Reset; Observer._id11 -> Observer._id12; 
+    -----------------------------------
+    State [4]: ['PipeNet.Reset', 'Input._id9', 'Observer._id12']
+    global_variables [4]: None
+    Clock_constraints [4]: [t(0) - gclk ≤ -500; t(0) - PipeNet.t ≤ -200; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - Input.input_clk ≤ 0; PipeNet.t - t(0) ≤ 300; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - t(0) ≤ 500; ]
+    transitions [4]: None: PipeNet.Reset -> PipeNet.Idle
+    -----------------------------------
+    State [5]: ['PipeNet.Idle', 'Input._id9', 'Observer._id12']
+    global_variables [5]: None
+    Clock_constraints [5]: [t(0) - gclk ≤ -500; t(0) - PipeNet.t ≤ 0; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 1000; gclk - PipeNet.t ≤ 300; gclk - Input.input_clk ≤ 0; PipeNet.t - gclk ≤ -200; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [5]: input_ball: Input -> ['PipeNet']; Input._id9 -> Input.pass; PipeNet.Idle -> PipeNet.Cross1; 
+    -----------------------------------
+    State [6]: ['PipeNet.Cross1', 'Input.pass', 'Observer._id12']
+    global_variables [6]: None
+    Clock_constraints [6]: [t(0) - gclk ≤ -1000; t(0) - PipeNet.t ≤ 0; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 1550; gclk - PipeNet.t ≤ 1000; PipeNet.t - Input.input_clk ≤ -1000; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [6]: hidden_path1: PipeNet -> []; PipeNet.Cross1 -> PipeNet.Cross2; 
+    -----------------------------------
+    State [7]: ['PipeNet.Cross2', 'Input.pass', 'Observer._id12']
+    global_variables [7]: None
+    Clock_constraints [7]: [t(0) - gclk ≤ 0; t(0) - PipeNet.t ≤ 0; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 1550; gclk - PipeNet.t ≤ 1300; gclk - Input.input_clk ≤ 0; PipeNet.t - gclk ≤ -1200; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [7]: hidden_path4: PipeNet -> []; PipeNet.Cross2 -> PipeNet.Exit2; 
+    -----------------------------------
+    State [8]: ['PipeNet.Exit2', 'Input.pass', 'Observer._id12']
+    global_variables [8]: None
+    Clock_constraints [8]: [t(0) - gclk ≤ 0; t(0) - PipeNet.t ≤ -200; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - t(0) ≤ 1550; gclk - PipeNet.t ≤ 1300; gclk - Input.input_clk ≤ 0; PipeNet.t - t(0) ≤ 300; PipeNet.t - gclk ≤ -1200; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - gclk ≤ 0; ]
+    transitions [8]: exit2: PipeNet -> ['Observer']; PipeNet.Exit2 -> PipeNet.Reset; Observer._id12 -> Observer.pass; 
+    -----------------------------------
+    State [9]: ['PipeNet.Reset', 'Input.pass', 'Observer.pass']
+    global_variables [9]: None
+    Clock_constraints [9]: [t(0) - gclk ≤ -1550; t(0) - PipeNet.t ≤ -250; t(0) - Input.input_clk ≤ 0; t(0) - Observer.input_clk ≤ 0; gclk - Input.input_clk ≤ 0; PipeNet.t - t(0) ≤ 300; Input.input_clk - Observer.input_clk ≤ 0; Observer.input_clk - t(0) ≤ 1550; ]
 
 The `Input` and `Observation` template created by `pyuppaal`. The cache file `*_pattern.xml` can be found in the same directory of the input model.
 <br><br>
@@ -274,7 +467,10 @@ While extracting all patterns, pyuppaal constructs Monitors based on historical 
 ```python
 import pyuppaal as pyu
 # set verifyta path
-VERIFYTA_PATH = "uppaal\\Win_Linux-uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+# 原来的 PATH
+# VERIFYTA_PATH = "uppaal\\Win_Linux-uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+VERIFYTA_PATH = "C:\\Users\\T1\\Documents\\GitHub\\mcvsfd\\Win_Linux-uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+
 pyu.set_verifyta_path(VERIFYTA_PATH)
 
 # Load the `xml` model
@@ -285,14 +481,16 @@ pipeNet = pipeNet.save_as("demo_PipeNet_new.xml")
 # Define the input.
 inputs = pyu.TimedActions(actions=['input_ball', 'input_ball'], lb=[0, 1000], ub=[0, 1000])
 # Define the observation.
+# observations = pyu.TimedActions(actions=['exit1', 'exit2'], lb=[500, 1550], ub=[500, 1550])
 observations = pyu.TimedActions(actions=['exit1', 'exit2'], lb=[500, 1550], ub=[500, 1550])
 # Add input template.
 pipeNet.add_input_template(inputs)
 # Add observation template.
-pipeNet.add_observer_template(observations)
+# raise ValueError("这里别忘了添加focused actions")
+pipeNet.add_observer_template(observations, focused_actions=['exit1', 'exit2', 'exit3'])
 
 # Query whether the model can simulate the inputs & observations
-pipeNet.set_queries('E<> Observer.pass')
+pipeNet.queries = 'E<> Observer.pass'
 # Get one possible trace.
 trace = pipeNet.easy_verify()
 print("pattern:", trace.untime_pattern)
