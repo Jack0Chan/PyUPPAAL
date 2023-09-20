@@ -124,10 +124,11 @@ class UModel:
 
         verify_cmd_res = Verifyta().easy_verify(
             self.model_path, xtr_trace_path, verify_options=verify_options)[0]
-        if 'Formula is satisfied' in verify_cmd_res:
+            
+        try:
             res = Tracer.get_timed_trace(
                 self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
-        else:
+        except:
             return None
         return res
 
