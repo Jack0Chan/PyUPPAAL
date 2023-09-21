@@ -124,13 +124,12 @@ class UModel:
 
         verify_cmd_res = Verifyta().easy_verify(
             self.model_path, xtr_trace_path, verify_options=verify_options)[0]
-            
-        try:
-            res = Tracer.get_timed_trace(
-                self.model_path, xtr_trace_path.replace('.xtr', '-1.xtr'))
-        except:
+
+        xtr_trace_path = xtr_trace_path.replace('.xtr', '-1.xtr')
+        if os.path.exists(xtr_trace_path):
+            return Tracer.get_timed_trace(self.model_path, xtr_trace_path)
+        else:
             return None
-        return res
 
     # ======== templates ========
     @property
