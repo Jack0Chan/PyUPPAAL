@@ -26,10 +26,21 @@ def utap_parser(if_str: str, xtr_file: str) -> str:
     # Prepare the command for executing tracer.out
     # use -s if pass if_str, use -i if pass the if file
 
-    cmd = (
-        ["./tracer.exe", "--trace=string", "-t", xtr_file, "-s", if_str] \
-        if platform.system() == "Windows" else ["./tracer", "--trace=string", "-t", xtr_file, "-s", if_str]
-    )
+    if platform.system() == "Windows":
+        cmd = (
+            ["./tracer.exe", "--trace=string", "-t", xtr_file, "-s", if_str]
+        )
+    elif platform.system() == "Linux":
+        cmd = (
+            ["./tracer", "--trace=string", "-t", xtr_file, "-s", if_str]
+        )
+    elif platform.system() == "Darwin":
+        cmd = (
+            ["./tracer.app", "--trace=string", "-t", xtr_file, "-s", if_str]
+        )
+    else:
+        raise ValueError(
+            f"Not currently supported platform: {platform.system()}")
 
     try:
         cmd_res = subprocess.get(cmd, capture_output=True, text=True)
