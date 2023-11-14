@@ -11,7 +11,7 @@ def _run_test_tracer(model_path, trace_path):
     trace_path = verifyta_path.bring_to_root(trace_path)
 
     Verifyta().easy_verify(model_path)
-    sim_trace = Tracer.get_timed_trace(model_path, trace_path)
+    sim_trace = Tracer.get_timed_trace(model_path, trace_path, False)
     assert os.path.exists(trace_path) is True
     os.remove(trace_path)
     return sim_trace

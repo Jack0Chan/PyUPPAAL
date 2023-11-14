@@ -1,0 +1,206 @@
+layout
+#index:const:value
+#index:clock:nr:name
+#index:var:min:max:init:nr:name
+#index:meta:min:max:init:nr:name
+#index:cost
+#index:location:flags:name
+#index:meta:min:max:name
+0:clock:0:t(0)
+1:const:1
+2:const:2
+3:const:0
+4:clock:1:aa.t
+5:location::_id0
+6:location::_id1
+7:const:1
+8:clock:2:bb.t
+9:location::_id2
+10:location::_id3
+11:const:2
+12:location::_id4
+13:location::_id5
+14:location::Pass
+
+instructions
+#address: opcode
+0: 0 1 			push 1
+2: 44 			halt
+3: 0 0 			push 0
+5: 44 			halt
+6: 0 1 			push 1
+8: 44 			halt
+9: 0 1 			push 1
+11: 44 			halt
+12: 0 0 		push 0
+14: 44 			halt
+15: 0 1 		push 1
+17: 44 			halt
+18: 0 1 		push 1
+20: 44 			halt
+21: 40 0 1 -10 		cexpri 0 1 -10
+25: 30 			copy
+26: 43 33 		jmpz 33
+28: 40 1 0 12 		cexpri 1 0 12
+32: 14 			and
+33: 44 			halt
+34: 0 1 		push 1
+36: 44 			halt
+37: 0 0 		push 0
+39: 44 			halt
+40: 0 6 		push 6
+42: 44 			halt
+43: 0 0 		push 0
+45: 44 			halt
+46: 0 1 		push 1
+48: 44 			halt
+49: 0 -5 		push -5
+51: 44 			halt
+52: 0 1 		push 1
+54: 44 			halt
+55: 0 1 		push 1
+57: 44 			halt
+58: 0 2 		push 2
+60: 44 			halt
+61: 0 0 		push 0
+63: 44 			halt
+64: 0 18 		push 18
+66: 44 			halt
+67: 0 1 		push 1
+69: 44 			halt
+70: 0 0 		push 0
+72: 44 			halt
+73: 0 2 		push 2
+75: 44 			halt
+76: 0 0 		push 0
+78: 44 			halt
+79: 0 18 		push 18
+81: 44 			halt
+82: 0 1 		push 1
+84: 44 			halt
+85: 0 1 		push 1
+87: 44 			halt
+88: 0 0 		push 0
+90: 44 			halt
+91: 0 1 		push 1
+93: 44 			halt
+94: 0 1 		push 1
+96: 44 			halt
+97: 40 0 2 -26 		cexpri 0 2 -26
+101: 44 		halt
+102: 0 0 		push 0
+104: 44 		halt
+105: 0 2 		push 2
+107: 44 		halt
+108: 0 -13 		push -13
+110: 44 		halt
+111: 0 1 		push 1
+113: 44 		halt
+114: 0 2 		push 2
+116: 44 		halt
+117: 0 1 		push 1
+119: 44 		halt
+120: 0 0 		push 0
+122: 44 		halt
+123: 0 1 		push 1
+125: 44 		halt
+126: 0 1 		push 1
+128: 44 		halt
+129: 0 0 		push 0
+131: 44 		halt
+132: 0 1 		push 1
+134: 44 		halt
+135: 0 1 		push 1
+137: 44 		halt
+138: 0 0 		push 0
+140: 44 		halt
+141: 0 1 		push 1
+143: 44 		halt
+144: 0 1 		push 1
+146: 44 		halt
+147: 0 1 		push 1
+149: 44 		halt
+150: 0 1 		push 1
+152: 44 		halt
+153: 0 1 		push 1
+155: 44 		halt
+156: 0 -2 		push -2
+158: 44 		halt
+159: 0 1 		push 1
+161: 44 		halt
+162: 0 1 		push 1
+164: 44 		halt
+165: 0 1 		push 1
+167: 44 		halt
+168: 0 1 		push 1
+170: 44 		halt
+171: 0 -1 		push -1
+173: 44 		halt
+
+processes
+#index:initial:name
+0:5:aa
+1:9:bb
+2:12:mm
+
+locations
+#index:process:invariant
+5:0:6
+6:0:15
+9:1:73
+10:1:91
+12:2:123
+13:2:132
+14:2:141
+
+edges
+#process:source:target:guard:sync:update
+0:5:6:21:55:52
+1:9:10:97:114:111
+2:13:14:147:156:153
+2:12:13:162:171:168
+
+expressions
+#address:reads:writes:text
+0:::1
+6:::1
+9:::1
+15:::1
+18:::1
+21:4::t > 5 && t < 6
+34:4::t
+40:::6
+46:4::t
+49:::-5
+52:::1
+55:::a!
+58:8::t
+64:::18
+67:::1
+73:8::t
+79:::18
+82:::1
+85:::1
+91:::1
+94:::1
+97:8::t > 13
+105:8::t
+108:::-13
+111:::1
+114:::b!
+117:::1
+123:::1
+126:::1
+132:::1
+135:::1
+141:::1
+144:::1
+147:::1
+150:::1
+153:::1
+156:::b?
+159:::1
+162:::1
+165:::1
+168:::1
+171:::a?
