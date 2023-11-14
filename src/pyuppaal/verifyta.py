@@ -128,7 +128,7 @@ class Verifyta:
             raise ValueError(f"Command: {' '.join(cmd)}\nErr: {cmd_res.stderr}")
 
         # Return stdout
-        return cmd_res.stdout
+        return cmd_res.stdout + cmd_res.stderr
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
     def cmds(self, cmds: List[str], num_threads: int = 1) -> List[str]:
