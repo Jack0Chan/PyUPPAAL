@@ -124,8 +124,11 @@ class Verifyta:
         cmd_res = subprocess.run(cmd,shell=True, capture_output=True, text=True)
 
         # Raise an error if there is stderr output that does not include "example"
-        if cmd_res.stderr and "Writing example trace to" not in cmd_res.stderr:
-            raise ValueError(f"Command: {' '.join(cmd)}\nErr: {cmd_res.stderr}")
+        if cmd_res.stderr and "-X" in cmd and "Writing example trace to" not in cmd_res.stderr:
+            raise ValueError(f"Command: {''.join(cmd)}\nErr: {cmd_res.stderr}")
+
+        if "Unknown identifier" in cmd_res.stderr:
+            raise ValueError(f"Model Error. Command: {''.join(cmd)}\nErr: {cmd_res.stderr}")
 
         # Return stdout
         return cmd_res.stdout + cmd_res.stderr
@@ -213,15 +216,17 @@ class Verifyta:
         if file_ext != '.xml':
             error_info = f'model_path {model_path} should be xml format file.'
             raise ValueError(error_info)
+        
+        if_path = file_path + '.if'
 
         # set uppaal environment variables
         # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
         # Unix系统设置环境变量没有set，也不需要指定编码
         cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'" \
             if self.__is_windows else "UPPAAL_COMPILE_ONLY=1'"
-        cmd = f'{cmd_env} && {self.__verifyta_path} {model_path}'
-        if_str = self.cmd(cmd=cmd)
-        return if_str
+        cmd = f'{cmd_env} && {self.__verifyta_path} {model_path} > {if_path}'
+        self.cmd(cmd=cmd)
+        return if_path
 
     # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
     def verify(self,

@@ -8,7 +8,7 @@ from .tracer import ClockZone, Transition, SimTrace, Tracer, GlobalVar
 # from .config import *
 from .pyuppaal import *
 from .iTools import Mermaid
-from .utap import utap_parser
+# from .utap import utap_parser
 from .datastruct import TimedActions
 
 __version__='1.0.3'
