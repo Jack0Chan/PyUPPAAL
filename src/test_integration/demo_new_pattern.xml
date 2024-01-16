@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<nta>
+<declaration>// Place global declarations here.</declaration><template><name>Template</name><declaration>// Place local declarations here.</declaration><location id="id0" x="0" y="0" /><init ref="id0" /></template><system>// Place template instantiations here.
+Process = Template();
+// List one or more processes to be composed into a system.
+system Process;
+    </system><queries><query><formula>E&lt;&gt; P1.pass</formula><comment /></query></queries></nta>

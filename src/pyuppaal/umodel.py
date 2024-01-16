@@ -5,28 +5,153 @@ from __future__ import annotations
 import os
 import xml.etree.ElementTree as ET
 from typing import List, Tuple
-from .datastruct import TimedActions
+from itertools import product
+import uuid
+
+# from anytree import PostOrderIter, NodeMixin
+
+# from pyuppaal.iTools.new_factory import Template, Location, Edge
 from .verifyta import Verifyta
-from .iTools import UFactory, build_cg, Mermaid
-from .tracer import SimTrace, Tracer
+from .build_cg import build_cg, Mermaid
+from .tracer import SimTrace
+from .nta import Template
+from .monitors import Monitors
+from .utap import utap_parser
 
 
 class UModel:
     """Load UPPAAL model for analysis, editing, verification and other operations.
+    queries: List[str], 只能填写验证语句CTL, 不能添加注释, 如果需要添加注释功能, 请在issues里详细说明需要的理由。
     """
 
-    def __init__(self, model_path: str, auto_save=True):
+    def __init__(self, model_path: str = None):
         """_summary_
 
         Args:
-            model_path (str): _description_
-            auto_save (bool, optional): whether auto save the model after each operation. Defaults to True.
+            model_path (str): model path. Defaults to None.
+
         """
+        self.__declaration: str = "// Place global declarations here."
+        self.__templates: List[Template] = []
+        self.__system: str = "system cannot be None"
+        self.__queries: List[str] | None = None
         self.__model_path: str = model_path
-        self.__element_tree: ET.ElementTree = ET.ElementTree(
-            file=self.model_path)
-        self.__root_elem: ET.Element = self.__element_tree.getroot()
-        self.auto_save: bool = auto_save
+
+        if model_path is None:
+            print(
+                "Warning: model_path is None, create a new model named 'untiteled.xml' in current directory"
+            )
+            model_path = "untitled.xml"
+            self.__model_path = model_path
+            self = UModel.new(model_path)
+
+        if not os.path.exists(model_path):
+            err_info = f"Model path: {model_path} does not exist.\n"
+            raise ValueError(err_info)
+        # 解构xml
+        self.__build()
+
+    # region 基础的 getter & setters
+    # region ======== declaration ========
+    @property
+    def declaration(self) -> str:
+        return self.__declaration
+
+    @declaration.setter
+    def declaration(self, value: str) -> None:
+        if not isinstance(value, str):
+            err_info = f"declaration requires string, current is: {type(value)}."
+            raise ValueError(err_info)
+        self.__declaration = value
+        self.save()
+
+    # endregion
+
+    # region ======== templates =======
+    @property
+    def templates(self) -> List[Template]:
+        return self.__templates
+
+    @templates.setter
+    def templates(self, value: List[Template]) -> None:
+        # if not isinstance(value, List[Template]):
+        #     err_info = f"declaration requires List[Template], current is: {type(value)}."
+        #     raise ValueError(err_info)
+        self.__templates = value
+        self.save()
+
+    # endregion
+
+    # region ======== system ========
+    @property
+    def system(self) -> str:
+        return self.__system
+
+    @system.setter
+    def system(self, value: str) -> None:
+        if not isinstance(value, str):
+            err_info = f"system requires string, current is: {type(value)}."
+            raise ValueError(err_info)
+        self.__system = value
+        self.save()
+
+    # endregion
+
+    # region ======== queries ========
+    @property
+    def queries(self) -> List[str] | None:
+        return self.__queries
+
+    @queries.setter
+    def queries(self, value: str | List[str] | None) -> None:
+        if isinstance(value, str):
+            value = [value]
+        self.__queries = value
+        self.save()
+
+    # endregion
+
+    # region ======== other properties ========
+    @property
+    def Element(self) -> ET.Element:
+        """导出模型的xml, xml基本属性包含
+        1. declaration
+        2. template(s)
+        3. system
+        4. query(s)
+        这4个属性都是<nta>标签内的属性
+        """
+        # 模型xml文件的标准模板
+        root = """<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+</nta>
+"""
+        root = ET.fromstring(root)
+        # nta = res.get("nta") seems to be wrong
+        # nta = res.get('nta')
+        # 1. 添加declaration
+        declaration_elem = ET.Element("declaration")
+        declaration_elem.text = self.declaration
+        root.append(declaration_elem)
+
+        # 2. 添加templates
+        for template in self.templates:
+            root.append(template.Element)
+
+        # 3. 添加system
+        system_elem = ET.Element("system")
+        system_elem.text = self.system
+        root.append(system_elem)
+
+        # 4. 添加queries
+        if self.queries is not None:
+            root.append(self.__queries_element)
+        return root
+
+    @property
+    def ElementTree(self) -> ET.ElementTree:
+        return ET.ElementTree(self.Element)
 
     @property
     def model_path(self) -> str:
@@ -37,19 +162,170 @@ class UModel:
         """
         return self.__model_path
 
-    def save_as(self, new_model_path: str) -> UModel:
+    @property
+    def max_location_id(self) -> int:
+        """Get the maximum location_id so as to make it easier to create a new template.
+
+        Returns:
+            int: max location id.
+        """
+        res = -1
+        for template in self.templates:
+            for location in template.locations:
+                if location.location_id > res:
+                    res = location.location_id
+        return res
+
+    # endregion
+    # endregion 基础 getter & setters
+
+    # region properties
+
+    @property
+    def broadcast_chan(self) -> List[str]:
+        """Get broadcast channels in Declaration.
+
+        Returns:
+            List[str]: List of broadcast channels.
+        """
+        declarations = self.declaration
+        # systems = self.system
+        start_index = 0
+        broadcast_chan = []
+        while True:
+            start_index = declarations.find("broadcast chan", start_index, -1)
+            if start_index == -1:
+                break
+            end_index = declarations.find(";", start_index, -1)
+            tmp_actions = declarations[start_index + 15 : end_index].strip().split(",")
+            tmp_actions = [x.strip() for x in tmp_actions]
+            broadcast_chan += tmp_actions
+            start_index = end_index
+        start_index = 0
+        return list(set(broadcast_chan))
+
+    # endregion
+
+    # region 解构(build)
+    @property
+    def __queries_element(self) -> ET.Element:
+        queries_elem = ET.Element("queries")
+        # 构建并加入多个queries element
+        for query in self.queries:
+            # ==== START: 构建单个query element ====
+            # 单个query element包含
+            # 1. formula
+            # 2. comment
+            query_elem = ET.Element("query")
+            # 添加 1. formula
+            formula_elem = ET.Element("formula")
+            formula_elem.text = query
+            query_elem.append(formula_elem)
+            # 添加 2. comment
+            query_elem.append(ET.Element("comment"))
+            # ==== END: 构建单个query element ====
+            queries_elem.append(query_elem)
+        return queries_elem
+
+    def __build(self) -> None:
+        """解构xml, 获得self的各种属性, 比如:
+        1. declaration,
+        2. templates,
+        3. system,
+        4. queries等.
+        """
+        element_tree = ET.ElementTree(file=self.model_path)
+
+        # 1. declaration
+        self.__declaration = element_tree.find("declaration").text
+
+        # 2. templates
+        template_elems = element_tree.findall("./template")
+        self.__templates = [Template.from_xml(t) for t in template_elems]
+
+        # 3. system
+        self.__system = element_tree.find("system").text
+
+        # 4. queries
+        query_formula_elems = element_tree.findall("./queries/query/formula")
+        self.__queries = [query_elem.text for query_elem in query_formula_elems]
+
+        self.save()
+
+    # endregion 解构(build)
+
+    # region 导出xml
+    @property
+    def xml(self) -> str:
+        return ET.tostring(self.Element, encoding="utf-8").decode("utf-8")
+
+    # endregion 导出xml
+
+    # region 基础的文件保存、创建等功能
+    @staticmethod
+    def new(model_path: str) -> UModel:
+        """创建一个新的uppaal xml文件
+
+        Args:
+            file_name (str): file name
+
+        Returns:
+            UModel:  a new UModel instance.
+        """
+        # 创建一个xml文件
+        # 检查输入的合法性
+        if not model_path.endswith(".xml"):
+            err_info = f"model path must ends with .xml, currently: {model_path}."
+            raise ValueError(err_info)
+        if os.path.exists(model_path):
+            err_info = f"file {model_path} already exists."
+            raise ValueError(err_info)
+
+        # 通用模板
+        xml_base = """<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.</declaration>
+	<template>
+		<name x="5" y="5">Template</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id0" x="0" y="0">
+		</location>
+		<init ref="id0"/>
+	</template>
+	<system>// Place template instantiations here.
+Process = Template();
+// List one or more processes to be composed into a system.
+system Process;
+    </system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
+"""
+        et = ET.fromstring(xml_base)
+        tree = ET.ElementTree(et)
+        with open(model_path, "w", encoding="utf-8") as f:
+            tree.write(model_path, encoding="utf-8", xml_declaration=True)
+        res = UModel(model_path=model_path)
+        return res
+
+    def save_as(self, new_path: str) -> UModel:
         """Save the model to a new path with `self.model_path` changed to `new_model_path`.
 
         Args:
-            new_model_path (str): target model path.
+            new_path (str): target model path.
 
         Returns:
             UModel: self.
         """
-        with open(new_model_path, 'w', encoding='utf-8') as f:
-            self.__element_tree.write(
-                new_model_path, encoding="utf-8", xml_declaration=True)
-        self.__model_path = new_model_path
+        with open(new_path, "w", encoding="utf-8") as f:
+            self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
+        self.__model_path = new_path
+
         return self
 
     def save(self) -> UModel:
@@ -60,19 +336,115 @@ class UModel:
         """
         return self.save_as(self.model_path)
 
-    def copy_as(self, new_model_path: str) -> UModel:
+    def copy_as(self, new_path: str) -> UModel:
         """Make a copy of the current model and return the copied instance.
 
         Args:
-            new_model_path (str): target copy file path.
+            new_path (str): target copy file path.
 
         Returns:
             UModel: copied instance.
         """
-        with open(new_model_path, 'w', encoding='utf-8') as f:
-            self.__element_tree.write(
-                new_model_path, encoding="utf-8", xml_declaration=True)
-        return UModel(new_model_path)
+        with open(new_path, "w", encoding="utf-8") as f:
+            self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
+        return UModel(new_path)
+
+    # endregion 基础的文件保存功能
+
+    # region 验证相关
+    def verify(self, trace_path: str = None, verify_options: str = None, keep_tmp_file = True) -> str:
+        """Verify and return the verify result. If `trace_path` is not given, it wll return the terminal result.
+
+        Args:
+            trace_path (str, optional): the path to save the trace file. Defaults to None.
+            verify_options (str, optional):  verify options. Defaults to None.
+
+        Returns:
+            str:  verify result.
+        """
+        return Verifyta().verify(self.model_path, trace_path, verify_options, keep_tmp_file)
+
+    def easy_verify(
+        self, verify_options: str = "-t 1", keep_tmp_file=True
+    ) -> SimTrace | None:
+        """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return the SimTrace (if exists).
+
+        Args:
+            verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
+
+        Returns:
+            SimTrace | None: if exists a counter example, return a SimTrace, else return None.
+        """
+        if "-t" not in verify_options:
+            err_info = '"-t" must be set in verify_options, '
+            err_info += f"current verify_options: {verify_options}."
+            raise ValueError(err_info)
+        
+        if Verifyta().get_uppaal_version() == 4:
+            xtr_trace_path = self.model_path.replace(".xml", ".xtr")
+            verify_cmd_res = Verifyta().verify(
+                self.model_path, xtr_trace_path, verify_options=verify_options
+            )
+
+            xtr_trace_path = xtr_trace_path.replace(".xtr", "-1.xtr")
+            if "Writing example trace to" in verify_cmd_res:
+                res = self.load_xtr_trace(xtr_trace_path)
+                if not keep_tmp_file:
+                    os.remove(xtr_trace_path)
+                return res
+            
+        else:
+            xtr_trace_path = self.model_path.replace(".xml", "_xtr")
+            verify_cmd_res = Verifyta().verify(
+                self.model_path, xtr_trace_path, verify_options=verify_options
+            )
+
+            xtr_trace_path = xtr_trace_path.replace("_xtr", "_xtr-1")
+            if "Writing witness trace" in verify_cmd_res:
+                res = self.load_xtr_trace(xtr_trace_path)
+                if not keep_tmp_file:
+                    os.remove(xtr_trace_path)
+                return res
+        # print("Warning: umodel.py: easy_verify returned None!!!")
+        return None
+
+    # endregion
+
+    def __check_unique_id(self) -> bool:
+        """check 是否有id重复, 如果没有重复id 则返回True, 有重复id 则打印重复id 并 raise error
+
+        Raises:
+            ValueError: 如果有重复id, 则 raise error
+
+        Returns:
+            bool: True if no duplicate id, else raise error.
+        """
+        id_set = set()
+        id_set_len = 0
+        for template in self.templates:
+            for location in template.locations:
+                l_id = location.location_id
+                id_set.add(l_id)
+                if len(id_set) != id_set_len + 1:
+                    err_info = f"Location id{l_id} is not unique. Related Template name: {template.name}. "
+                    hint_info = "Hint: You can get the max location id by `UModel.max_location_id()`."
+                    raise ValueError(err_info + hint_info)
+                else:
+                    id_set_len += 1
+        return True
+
+    def __check_unique_init_ref(self) -> str:
+        init_ref_set = set()
+        for template in self.templates:
+            init_ref_set.add(template.init_ref)
+            if len(init_ref_set) != 1:
+                err_info = (
+                    f'Template "{template.name}" should have unique initial location. '
+                )
+                hint_info = "Make sure every Template has unqiue initial location.\n"
+                raise ValueError(err_info + hint_info)
+            else:
+                init_ref_set.clear()
 
     def get_communication_graph(self, save_path=None, is_beautify=True) -> Mermaid:
         """Get the communication graph of the UPPAAL model, and return a `Mermaid` instance.
@@ -82,7 +454,7 @@ class UModel:
             is_beautify (bool, optional): whether beautify the mermaid file by merging edges. Defaults to True.
 
         Returns:
-            Mermaid: _description_
+            Mermaid: a `Mermaid` instance.
         """
         mermaid_str = build_cg(self.model_path)
         m = Mermaid(mermaid_str)
@@ -92,56 +464,60 @@ class UModel:
             m.export(save_path)
         return m
 
-    def verify(self, trace_path: str = None, verify_options: str = None) -> List[str]:
-        """Verify and return the verify result. If `trace_path` is not given, it wll return the list of terminal result.
-
+    def __get_actions(self, observation: List[str] | List[tuple[str, str, str]]):
+        """get actions from observations
         Args:
-            trace_path (str, optional): _description_. Defaults to None.
-            verify_options (str, optional): _description_. Defaults to None.
+            observation (List[str] | List[tuple[str,str,str]]):
+                if List[str], then it is a list of actions.
+                if List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound)
+
+        Raises:
+            ValueError: if actions is not List[str] or List[tuple[str,str,str]], raise ValueError.
 
         Returns:
-            List[str]: _description_
+            List[str]: a list of actions.
         """
-        if trace_path:
-            return Verifyta().easy_verify(self.model_path, trace_path, verify_options)[0]
+        if isinstance(observation[0], str):
+            return observation
+        elif isinstance(observation[0], tuple):
+            return [action for action, _, _ in observation]
         else:
-            return Verifyta().verify(self.model_path, verify_options)[0]
+            raise ValueError(
+                f"observation should be List[str] or List[tuple[str,str,str]], but current is {type(observation)}."
+            )
 
-    def easy_verify(self, verify_options: str = "-t 1") -> SimTrace | None:
-        """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return the SimTrace (if exists).
-
+    def __parse_observations(self,
+        observation: List[str] | List[tuple[str, str, str]]
+    ) -> List[tuple[str, str, str]]:
+        """parse observations to List[tuple[str,str,str]]
         Args:
-            verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
+            observation (List[str] | List[tuple[str,str,str]]):
+                if List[str], then it is a list of actions.
+                if List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound)
+
+        Raises:
+            ValueError: if actions is not List[str] or List[tuple[str,str,str]], raise ValueError.
 
         Returns:
-            SimTrace | None: if exists a counter example, return a SimTrace, else return None.
+            List[tuple[str,str,str]]: a list of (action, lower_bound, upper_bound).
         """
-        if '-t' not in verify_options:
-            err_info = '"-t" must be set in verify_options, '
-            err_info += f'current verify_options: {verify_options}.'
-            raise ValueError(err_info)
-        xtr_trace_path = self.model_path.replace('.xml', '.xtr')
-
-        verify_cmd_res = Verifyta().easy_verify(
-            self.model_path, xtr_trace_path, verify_options=verify_options)[0]
-
-        xtr_trace_path = xtr_trace_path.replace('.xtr', '-1.xtr')
-        if os.path.exists(xtr_trace_path):
-            return Tracer.get_timed_trace(self.model_path, xtr_trace_path)
+        if isinstance(observation[0], str):
+            return [(action, "", "") for action in observation]
+        elif isinstance(observation[0], tuple):
+            if isinstance(observation[0][1], int): # if use int"time" not str"gclk >= time"
+                processed_observations = []
+                for action, lb, ub in observation:
+                    lb = f"gclk>={lb}"
+                    ub = f"gclk<={ub}"
+                    processed_observations.append((action, lb, ub))
+                return processed_observations
+            return observation
         else:
-            return None
+            raise ValueError(
+                f"actions should be List[str] or List[tuple[str,str,str]], but current is {type(observation)}."
+            )
 
-    # ======== templates ========
-    @property
-    def templates(self) -> List[str]:
-        """Get all template names of current model.
-
-        Returns:
-            List[str]: list of all template names.
-        """
-        template_names = self.__element_tree.findall("./template/name")
-        return [i.text for i in template_names]
-
+    # region 基础编辑
     def remove_template(self, template_name: str) -> bool:
         """
         Delete the template according to the input name.
@@ -149,320 +525,178 @@ class UModel:
         :param str template_name: the name of template
         :return: `True` when succeed, `False` when fail
         """
-        # get template
-        template_elem = None
-        for template in self.__element_tree.iter("template"):
-            if template.find('name').text == template_name:
-                template_elem = template
-        # remove template
-        if template_elem is None:
-            if self.auto_save:
-                self.save()
-            return False
-        self.__root_elem.remove(template_elem)
-        if self.auto_save:
-            self.save()
-        return True
 
-    # ======== queries ========
-    @property
-    def queries(self) -> List[str]:
-        """Get all queries string.
-
-        Returns:
-            List[str]: _description_
-        """
-        query_formula_elems = self.__element_tree.findall(
-            './queries/query/formula')
-        queries = [query_elem.text for query_elem in query_formula_elems]
-        return queries
-
-    def clear_queries(self) -> bool:
-        """Clear all queries of the model.
-
-        Returns:
-            bool: _description_
-        """
-        root = self.__root_elem
-        queries_elem = root.find('queries')
-        if queries_elem is None:
-            if self.auto_save:
-                self.save()
-            return False
-        root.remove(queries_elem)
-        if self.auto_save:
-            self.save()
-        return True
-
-    def set_queries(self, queries: List[str] | str) -> None:
-        """Delete all the queries in the model and then inserts the new queries into the model
-
-        Args:
-            queries (List[str] | str): A list of queries or a single query
-
-        """
-
-        if isinstance(queries, str):
-            queries = [queries]
-
-        # 首先删除所有的queries
-        self.clear_queries()
-        # 然后构造queries并插入到模型中
-        queries_elem = UFactory.queries(queries)
-        self.__root_elem.append(queries_elem)
-        if self.auto_save:
-            self.save()
-
-    # ======== system ========
-    @property
-    def system(self) -> str:
-        """Get the system of the model.
-
-        Returns:
-            str: _description_
-        """
-        system_elem = self.__element_tree.find('system')
-        return system_elem.text
-
-    def set_system(self, system_str: str) -> None:
-        """Set the system element of current model.
-
-        Args:
-            system_str (str): target system string you want to set.
-        """
-        system_elem = self.__element_tree.find('system')
-        system_elem.text = system_str
-        if self.auto_save:
-            self.save()
-
-    # ======== declaration ========
-    @property
-    def declaration(self) -> str:
-        """Get the declaration of the model.
-
-        Returns:
-            str: _description_
-        """
-        declaration_elem = self.__element_tree.find('declaration')
-        return declaration_elem.text
-
-    def set_declaration(self, declaration_str: str) -> None:
-        """Set the declaration element of current model.
-
-        Args:
-            declaration_str (str): target declaration string you want to set.
-        """
-        declaration_elem = self.__element_tree.find('declaration')
-        declaration_elem.text = declaration_str
-        if self.auto_save:
-            self.save()
-
-    # ======== other ========
-    @property
-    def __max_location_id(self) -> int:
-        """Get the maximum location_id so as to make it easier to create a new template.
-
-        Returns:
-            int: max location id.
-        """
-        location_elems = self.__element_tree.findall('./template/location')
-        # <location id="id0" x="-187" y="-76">
-        # <location id="id1" x="25" y="-76">
-        # <location id="id2" x="-51" y="-119">
-        ids = [int(location_elem.attrib['id'][2:])
-               for location_elem in location_elems]
-        return max(ids)
-
-    @property
-    def broadcast_chan(self) -> List[str]:
-        """Get broadcast channels in Declaration.
-
-        Returns:
-            List[str]: List of broadcast channels.
-        """
-        declarations = self.declaration
-        systems = self.system
-        start_index = 0
-        broadcast_chan = []
-        while True:
-            start_index = declarations.find('broadcast chan', start_index, -1)
-            if start_index == -1:
+        for i, template in enumerate(self.templates):
+            if template.name == template_name:
+                self.templates.remove(self.templates[i])
                 break
-            end_index = declarations.find(';', start_index, -1)
-            tmp_actions = declarations[start_index +
-                                       15:end_index].strip().split(',')
-            tmp_actions = [x.strip() for x in tmp_actions]
-            broadcast_chan += tmp_actions
-            start_index = end_index
-        start_index = 0
-        return list(set(broadcast_chan))
+        self.save()
+        return True
 
-    def add_observer_template(self, observations: TimedActions, focused_actions: List[str] | None = None, template_name: str = 'Observer', is_strict: bool = True) -> None:
-        """Add an observer template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
+    # endregion
 
-        An observer is xxx.
+    def add_observer_monitor(
+        self,
+        observations: List[str] | List[tuple[str, str, str]],
+        focused_actions: List[str] | None = None,
+        template_name: str = "Observer",
+        is_strict: bool = True,
+        all_patterns: bool = False,
+    ) -> None:
+        """Add an observer template, which will also be embedded in `system declarations`. If exists a template with the same name, it will raise error.
+
+        An observer is a monitor that observes a sequence of actions, and it will pass if the observed sequence of actions is a subsequence of the trace.
 
         Args:
-            observations (TimedActions): observed actions, observed time lower_bound, observed time upper_bound.
+            observations (List[str] | List[tuple[str, str, str]]): observed actions, observed time lower_bound, observed time upper_bound.
             template_name (str, optional): the name of the template. Defaults to 'observer'.
-            is_strict (bool, optional): if strict, any other observations will be illegal. 
+            is_strict (bool, optional): if strict, any other observations will be illegal.
                 For example, assume you set observations `a1, gclk=1, a2, gclk=3`, and there exists trace T: `a1, gclk=1, a2, gclk=2, a2, gclk=3`.
                 If `is_strict_observer` is True, then T is invalid. Defaults to True.
 
+        Raises:
+            ValueError: if template_name already exists, raise ValueError.
+
         Returns:
-            _type_: _description_
+            None
         """
+
+        signals = self.__parse_observations(observations)
+
         if focused_actions is None:
-            focused_actions = list(map(lambda x: x.replace(
-                '!', '').replace('?', ''), observations.actions))
-        self.add_monitor_template(
-            template_name, observations, focused_actions, strict=is_strict)
+            focused_actions = list(
+                map(
+                    lambda x: x.replace("!", "").replace("?", ""),
+                    self.__get_actions(signals),
+                )
+            )
 
-    def add_pattern_template(self, pattern_list: List[str], template_name: str) -> None:
-        """Add a pattern template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
+        focused_actions = list(
+            map(lambda x: x.replace("!", "").replace("?", ""), focused_actions)
+        )
 
-        Args:
-            pattern_list (List[str]): pattern to be monitored.
-            template_name (str): _description_
+        if template_name in [template.name for template in self.templates]:
+            raise ValueError(f"Template <{template_name}> already exists.")
 
-        Returns:
-            _type_: _description_
-        """
-        raise NotImplementedError
+        monitor = Monitors.observer_template(
+            name=template_name,
+            signals=signals,
+            observe_action=focused_actions,
+            init_id=self.max_location_id + 1,
+            strict=is_strict,
+            allpattern=all_patterns,
+        )
+        # self.templates.append(monitor)
 
-    def add_input_template(self, signals: TimedActions, template_name: str = 'Input') -> None:
+        # 将新到monitor加入到system中
+
+        self.add_template_to_system(monitor.name)
+        self.add_template(monitor)
+
+    def add_input_monitor(
+        self,
+        observations: List[str] | List[tuple[str, str, str]],
+        template_name: str = "Input",
+    ) -> None:
         """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         Args:
-            signals (TimedActions): _description_
-            template_name (str, optional): _description_. Defaults to 'Input'.
+            observations (List[str] | List[tuple[str, str, str]]): observed actions, observed time lower_bound, observed time upper_bound.
+            template_name (str, optional): the name of the template. Defaults to 'input'.
 
         Returns:
-            _type_: _description_
+            None
         """
+        signals = self.__parse_observations(observations)
         assert len(signals) > 0
 
-        start_id = self.__max_location_id + 1
+        start_id = self.max_location_id + 1
         # 删除相同名字的monitor
-        self.remove_template(template_name)
+        # self.remove_template(template_name)
+        if template_name in [template.name for template in self.templates]:
+            raise ValueError(f"Template <{template_name}> already exists.")
 
-        clock_name, signals = self.__parse_signals(signals)
-        input_model = UFactory.input(
-            template_name, signals.convert_to_list_tuple(clock_name), start_id)
-        self.__root_elem.insert(-2, input_model)
+        # clock_name, signals = self.__parse_signals(signals)
+        # input_model = UFactory.input(template_name, signals.to_list_tuple(clock_name), start_id)
+        input_monitor = Monitors.input_template(
+            name=template_name, signals=signals, init_id=start_id
+        )
+        # self.templates.append(input_monitor)
+
+        # self.__root_elem.insert(-2, input_model)
 
         # 将新到monitor加入到system中
-        self.__add_template_to_system(template_name)
+        self.add_template(input_monitor)
+        self.add_template_to_system(input_monitor.name)
 
         return None
 
-    def __add_template_to_system(self, template_name: str):
+    def add_template(self, template: Template) -> None:
+        """Add a template to the model.
+
+        raise ValueError if template name already exists.
+
+        Args:
+            template (Template): the template to be added.
+        """
+
+        # Check if the template name already exists
+        if template.name in [t.name for t in self.templates]:
+            raise ValueError(f"Template <{template.name}> already exists in the model.")
+
+        self.templates.append(template)
+        self.save()
+
+    def add_template_to_system(self, template_name: str):
         """Add a template to system declarations.
+        For example, a system declaration is "system Process1, Process2;".
+        After add Process3 by add_template_to_system('Process3'), we get "system Process1, Process2, Process3;".
+
+        Raises:
+            ValueError: if template_name already exists, raise ValueError.
 
         Args:
             template_name (str): the name of the template.
-
         """
-        system_lines: List[str] = self.system.split('\n')
+
+        system_lines: List[str] = self.system.split("\n")
         system_lines: List[str] = list(map(lambda x: x.strip(), system_lines))
         for i, line in enumerate(system_lines):
-            if line.strip().startswith('system'):
+            if line.strip().startswith("system"):
                 system_items = list(
-                    map(lambda s: s.strip(), line.strip()[6:-1].split(',')))
+                    map(lambda s: s.strip(), line.strip()[6:-1].split(","))
+                )
                 if template_name not in system_items:
                     system_items.append(template_name)
+                else:  # This may not happen. Checked before this.
+                    raise ValueError(
+                        f"Template {template_name} already exists in system."
+                    )
                 system_lines[i] = f"system {', '.join(system_items)};"
                 break
+        self.system = "\n".join(system_lines)
 
-        self.set_system('\n'.join(system_lines))
-
-    # all patterns
-    def add_monitor_template(self, monitor_name: str, signals: TimedActions, focused_actions: List[str] = None, strict: bool = True, allpattern: bool = False):
-        """Add new linear monitor template, which will also be embedded in `system declarations`. 
-
-        If `monitor_name` already exists in current templates, it will be overwritten.
-
-        Args:
-            monitor_name (str): the template name of the monitor.
-            signals (TimedActions): actions, lower_bound, upper_bound.
-            focused_actions (List[str], optional): _description_. Defaults to None.
-            strict (bool, optional): _description_. Defaults to True.
-            allpattern (bool, optional): _description_. Defaults to False.
-
-        Returns:
-            _type_: _description_
-        """
-
-        # 处理focused_actions is None的情况
-        if focused_actions is None:
-            focused_actions = self.broadcast_chan
-
-        clock_name, signals = self.__parse_signals(signals)
-
-        if '?' in "".join(focused_actions) or '!' in "".join(focused_actions):
-            raise ValueError(
-                f"focused_actions should not contain '?' or '!', current focused_actions: {focused_actions}")
-
-        start_id = self.__max_location_id + 1
-        # 删除相同名字的monitor
-        self.remove_template(monitor_name)
-        monitor = UFactory.monitor(monitor_name, signals.convert_to_list_tuple(
-            clock_name), focused_actions, start_id, strict, allpattern)
-        self.__root_elem.insert(-2, monitor)
-        # 将新到monitor加入到system中
-
-        self.__add_template_to_system(monitor_name)
-
-    def __parse_signals(self, signals: TimedActions, default_name: str = "input_clk") -> Tuple[str, TimedActions]:
-        """Parse the signals, if the signal name is not specified, then use the default name.
-
-        Args:
-            signals (TimedActions): the signals to be parsed.
-            default_name (str): the default clock name for the signals.
-
-        Returns:
-            Tuple[str, TimedActions]: the clock name and the parsed signals.
-        """
-
-        parsed_actions = list(map(lambda x: x.replace(
-            '?', '').replace('!', ''), signals.actions))
-
-        if len(signals) > 0 and not isinstance(signals.lb[0], str):
-            signals.lb = list(map(str, signals.lb))
-
-        if len(signals) > 0 and not isinstance(signals.ub[0], str):
-            signals.ub = list(map(str, signals.ub))
-
-        if len(signals) > 0 and signals.lb[0].strip().find('>') > 0 and signals.lb[0].strip()[0] != '>':
-            # If the stmt has clk name, like 'a1 > 1', then use the clk name
-            # Only accept input like "a1 > 1" or "a1>1", not ">1" or "1"
-            clock_name = signals.lb[0].split('>')[0]
-        else:  # Otherwise, we use the default clock name
-            # accept input like ">1" or "1"
-            clock_name = default_name
-
-        len_lb = len(signals.lb)
-        for i in range(len_lb):  # Remove the clock name and operator
-            # Note that '>=' must be removed first, otherwise '>=' will be removed to '='
-            signals.lb[i] = signals.lb[i].replace(
-                clock_name, '').replace('>=', '').replace('>', '').strip()
-            signals.ub[i] = signals.ub[i].replace(
-                clock_name, '').replace('<=', '').replace('<', '').strip()
-
-        return clock_name, TimedActions(parsed_actions, signals.lb, signals.ub)
-
-    def __find_a_pattern(self, focused_action: List[str] = None, hold: bool = True, options: str = None) -> SimTrace | None:
+    def find_a_pattern(
+        self,
+        focused_action: List[str] = None,
+        keep_tmp_file: bool = True,
+        options: str = None,
+    ) -> SimTrace | None:
         """Find a pattern in the current model.
 
         Args:
             focused_action (List[str], optional): the actions that we want to focus on. Defaults to None.
-            hold (bool, optional): whether to keep the temp file. Defaults to True.
+            keep_tmp_file (bool, optional): whether to keep the temp file. Defaults to True.
             options (str, optional): options for the verifier. Defaults to None.
 
         Returns:
             SimTrace | None: the founded patterns. None if no pattern is found.
         """
-        self.save()
+        # create a temp model
+        # new_model_path = os.path.splitext(self.model_path)[0] + '_a_pattern.xml'
+        # new_umodel = self.copy_as(new_path=new_model_path)
+        # new_umodel.queries = default_query
+
         if options is not None:
             sim_trace = self.easy_verify(options)
         else:
@@ -471,61 +705,91 @@ class UModel:
         if sim_trace is None:
             return None
 
-        trace_path = os.path.splitext(self.model_path)[0] + '-1.xtr'
+        if Verifyta().get_uppaal_version() == 4:
+            trace_path = os.path.splitext(self.model_path)[0] + "-1.xtr"
+        else:
+            trace_path = os.path.splitext(self.model_path)[0] + "_xtr-1"
+
         pattern_seq = sim_trace.filter_by_actions(focused_action)
 
-        if not hold:
+        if not keep_tmp_file:
             os.remove(trace_path)
-            os.remove(self.model_path)
 
         return pattern_seq
 
-    def find_all_patterns(self, focused_actions: List[str] = None,
-                          hold: bool = True,
-                          max_patterns: int = None) -> List[SimTrace]:
-        """Find all patterns of the first query in the model.
+    def find_all_patterns(
+        self,
+        focused_actions: List[str] = None,
+        keep_tmp_file: bool = True,
+        max_patterns: int = None,
+        verify_options: str = "-t 1",
+    ) -> List[SimTrace]:
+        """Find all patterns of the first query in the model, if the number of patterns is finite.
+        If the number of patterns is infinite, it will loop forever. You can set `max_patterns` to limit the number of patterns.
+        It will always search the shortest patterns first, i.e., `verify_options: str = "-t 1"`.
+        If you want the fastest patterns first, you can let `verify_options: str = "-t 2"`.
 
         Args:
             focused_actions (List[str], optional): the actions that we want to focus on. Defaults to None.
-            hold (bool, optional): whether to keep the temp files. Defaults to True.
+            keep_tmp_file (bool, optional): whether to keep the temp files. Defaults to True.
             max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
 
         Returns:
             List[SimTrace]: the list of patterns.
         """
-        queries = self.queries
-        if len(queries) == 0:
-            return []
-        all_patterns = self.__find_all_patterns_of_a_query(
-            queries[0], focused_actions, hold, max_patterns)
-        return all_patterns
+        res = []
+        new_model = self.copy_as(f"tmp_find_all_patterns_{uuid.uuid4()}.xml")
+        for simtrace in new_model.find_all_patterns_iter(
+            focused_actions, keep_tmp_file, max_patterns, verify_options
+        ):
+            # print(simtrace.untime_pattern)
+            res.append(simtrace)
+        if not keep_tmp_file:
+            os.remove(new_model.model_path)
+        return res
 
-    def __find_all_patterns_of_a_query(self, query: str = None,
-                                       focused_actions: List[str] = None,
-                                       hold: bool = True,
-                                       max_patterns: int = None) -> List[SimTrace] | None:
-        """Find all patterns that satisfy the query
-
-        Args:
-            query (str, optional): the query to be verified. Defaults to None.
-            focused_actions (List[str], optional): the actions that we want to focus on. Defaults to None.
-            hold (bool, optional): whether to keep the temp files. Defaults to True.
-            max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
-
-        Raises:
-            NotImplementedError: only support E<> and A[] queries. Raise when other queries are given
-
-        Returns:
-            List[SimTrace]: a list of patterns that satisfy the query.
+    def __add_all_patterns_template(
+        self,
+        observations: List[str] | List[tuple[str, str, str]],
+        focused_actions: List[str] | None = None,
+        template_name: str = "all_patterns_monitor",
+        is_strict: bool = True,
+        all_patterns: bool = False,
+    ) -> None:
         """
-        # 首先
-        query = query.strip()
-        if not (query.startswith('A[]') or query.startswith('E<>')):
-            raise NotImplementedError('Only support E<> and A[] query!')
+        Currently just call add_observer_monitor
+        """
+        return self.add_observer_monitor(
+            observations, focused_actions, template_name, is_strict, all_patterns
+        )
 
-        if query.startswith('A[]'):
+    def find_all_patterns_iter(
+        self,
+        focused_actions: List[str] = None,
+        keep_tmp_file: bool = True,
+        max_patterns: int = None,
+        verify_options: str = "-t 1",
+    ) -> SimTrace:
+        """
+        Find all patterns that satisfy the query using a generator.
+        query = self.queries[0]
+        Args:
+            focused_actions (List[str], optional): the actions to focus on. Defaults to None.
+            keep_tmp_file (bool, optional): whether to keep the temp files. Defaults to True.
+            max_patterns (int, optional): the maximum number of patterns to find. If None, find all. Defaults to None.
+
+        Yields:
+            SimTrace: a pattern that satisfies the query.
+        """
+
+        query = self.queries[0]
+        query = query.strip()
+        if not (query.startswith("A[]") or query.startswith("E<>")):
+            raise NotImplementedError("Only support E<> and A[] query!")
+
+        if query.startswith("A[]"):
             default_query = query[3:].strip()
-            if default_query[0] == '!':
+            if default_query[0] == "!":
                 default_query = "E<> " + default_query[1:].strip()
             elif default_query[0:3] == "not":
                 default_query = "E<> " + default_query[3:].strip()
@@ -534,55 +798,418 @@ class UModel:
         else:
             default_query = query
 
-        new_model_path = os.path.splitext(self.model_path)[0] + '_pattern.xml'
-        new_umodel = self.copy_as(new_model_path=new_model_path)
+        model_uuid = self.model_path.split("_")[-1]
+        new_model_path = f"tmp_find_all_patterns_iter_{model_uuid}"
+        new_umodel = self.copy_as(new_path=new_model_path)
+        # tmp_find_all_iter_dde41bdf-7482-44f0-8674-ede5fd97e5c8.xml
+        new_umodel.queries = default_query
+        # print(f"create a new model: {new_umodel.model_path}")
 
-        new_umodel.set_queries(default_query)
-        new_patterns = new_umodel.__find_a_pattern(
-            focused_actions, hold=hold)  # Keep the temp files until the end
+        # Initial pattern search
+        new_pattern = new_umodel.find_a_pattern(
+            focused_actions, keep_tmp_file, verify_options
+        )
+        if new_pattern is None:
+            if not keep_tmp_file:
+                # print(new_umodel.model_path)
+                # print("removed and return none.")
+                os.remove(new_umodel.model_path)
+                # os.remove(os.path.splitext(new_umodel.model_path)[0] + '-1.xtr')
+            return
 
-        if new_patterns is None:
+        monitor_id = 0
+        pattern_count = 0
+        while new_pattern is not None:
+            yield new_pattern
+            pattern_count += 1
+            if max_patterns is not None and pattern_count >= max_patterns:
+                break
+
+            monitor_id += 1
+            # Add new monitor for the found pattern
+            new_observes = self.__parse_observations(new_pattern.actions)
+
+            new_umodel.__add_all_patterns_template(
+                template_name=f"all_patterns_monitor_{monitor_id}",
+                observations=new_observes,
+                focused_actions=focused_actions,
+                is_strict=True,
+                all_patterns=True,
+            )
+
+            query_str = " && ".join(
+                [f"!all_patterns_monitor_{i}.pass" for i in range(1, monitor_id + 1)]
+            )
+            query_str = f"{default_query} && {query_str}"
+
+            new_umodel.queries = query_str
+            new_pattern = new_umodel.find_a_pattern(
+                focused_actions, keep_tmp_file=keep_tmp_file
+            )
+
+        if not keep_tmp_file:
+            # print(f"remove {new_umodel.model_path}")
+            os.remove(new_umodel.model_path)
+            # os.remove(os.path.splitext(new_umodel.model_path)[0] + '-1.xtr')
+
+    def is_valid_suffix(
+        self,
+        sigma_o: List[str],
+        sigma_un: List[str],
+        fault: str,
+        observation_suffix: List[str],
+        keep_tmp_file=True,
+    ) -> (bool, "UModel"):
+        """determine whether a observation suffix can happen after the fault f
+
+        This function will NOT modify the model, a copy named 'tmp_diagnosable_suffix.xml' will be generated
+
+        Args:
+            sigma_o (List[str]): observable event set
+            sigma_un (List[str]): unobservable event set
+            fault (str): fault name
+            observation_suffix (List[str]): latest observation sequence (suffix sequence)
+        """
+        tmp_model = self.copy_as(f"tmp_diagnosable_suffix_{uuid.uuid4()}.xml")
+
+        template = Monitors.obs_after_fault_monitor(
+            "MObsAfterFault",
+            observation_suffix,
+            sigma_o,
+            sigma_un,
+            fault,
+            tmp_model.max_location_id + 1,
+        )
+        tmp_model.add_template(template)
+        tmp_model.add_template_to_system(template.name)
+        tmp_model.queries = "E<> MObsAfterFault.pass"
+        res = tmp_model.verify(keep_tmp_file=keep_tmp_file)
+        if not keep_tmp_file:
+            os.remove(tmp_model.model_path)
+            return ("is satisfied" in res, None)
+        return ("is satisfied" in res, tmp_model)
+
+    # def diagnosable_one_fault(self, fault: str, n: int, sigma_o: List[str], sigma_un: List[str], visual=False, keep_tmp_file=True) -> bool:
+    def fault_diagnosability(
+        self,
+        fault: str,
+        n: int,
+        sigma_o: List[str],
+        sigma_un: List[str],
+        visual=False,
+        keep_tmp_file=True,
+    ) -> (bool, SimTrace):
+        """determine whether the `fault` is `n` diagnosable.
+
+        This function will NOT modify the model, but will copy to 'tmp_diagnosable_suffix.xml' and 'tmp_identify.xml'
+        Note: If not keep_tmp_file, it won't be able to get the trace because the tmp model is removed.
+
+        Args:
+            fault (str): fault name
+            n (int, optional):  n-diagnosability
+
+        Returns:
+            bool: whether the fault is n-diagnosable]
+            SimTrace: the trace
+        """
+        if visual:
+            from tqdm import tqdm
+
+            for suffix in tqdm(
+                product(sigma_o, repeat=n),
+                total=len(sigma_o) ** n,
+                desc=f"   {n}-diagnosability for '{fault}'",
+            ):
+                suffix = list(suffix)
+                if self.is_valid_suffix(
+                    sigma_o, sigma_un, fault, suffix, keep_tmp_file
+                )[0]:
+                    # print('    valid_suffix: ', suffix)
+                    # Note: tmp_model is removed. So if you need the trace, set keep_tmp_file = True
+                    verify_res, trace = self.fault_identification(
+                        suffix, fault, sigma_o, sigma_un, keep_tmp_file
+                    )
+
+                    if verify_res:
+                        continue
+                    else:
+                        # print(f"   '{fault}' is NOT {n}-diagnosable because of the suffix {suffix}.")
+                        return False, trace
+                else:
+                    # print('NOT valid suffix: ', suffix)
+                    continue
+        else:
+            for suffix in product(sigma_o, repeat=n):
+                suffix = list(suffix)
+                if self.is_valid_suffix(
+                    sigma_o, sigma_un, fault, suffix, keep_tmp_file
+                )[0]:
+                    # print('    valid_suffix: ', suffix)
+
+                    # tmp_model is removed. So if you need the trace, set keep_tmp_file = True
+                    verify_res, trace = self.fault_identification(
+                        suffix, fault, sigma_o, sigma_un, keep_tmp_file
+                    )
+                    if verify_res:
+                        continue
+                    else:
+                        # print(f"   '{fault}' is NOT {n}-diagnosable because of the suffix {suffix}.")
+                        return False, trace
+                else:
+                    # print('NOT valid suffix: ', suffix)
+                    continue
+        # print(f"   {fault} is {n}-diagnosable.")
+        return True, None
+
+    def fault_identification(
+        self,
+        suffix_sequence: List[str],
+        fault: str,
+        sigma_o: List[str],
+        sigma_un: List[str],
+        keep_tmp_file=True,
+    ) -> (bool, SimTrace):
+        """identify faults with the suffix sequence
+
+        Args:
+            suffix_sequence (List[str]): latest observation sequence (suffix sequence)
+            fault (str): the fault to be identified
+            sigma_o (List[str]):  observable event set
+            sigma_un (List[str]): unobservable event set
+
+        Returns:
+            bool: whether the fault can be identified with the suffix sequence
+            SimTrace: the trace of the suffix sequence
+        """
+
+        tmp_model = self.copy_as(f"tmp_identify_{uuid.uuid4()}.xml")
+        sequence_monitor = Monitors.observer_suffix_monitor(
+            name="MObserverSuffix",
+            suffix_sequence=suffix_sequence,
+            sigma_o=sigma_o,
+            sigma_un=sigma_un,
+            init_ref=tmp_model.max_location_id + 1,
+        )
+        tmp_model.add_template(sequence_monitor)
+        tmp_model.add_template_to_system(sequence_monitor.name)
+
+        f = fault
+        fault_monitor = Monitors.fault_monitor(
+            f"{f}_Monitor", f, init_ref=tmp_model.max_location_id + 1
+        )
+        tmp_model.add_template(fault_monitor)
+        tmp_model.add_template_to_system(fault_monitor.name)
+        # must imply
+        tmp_model.queries = f"MObserverSuffix.pass-->{f}_Monitor.pass"
+        res = tmp_model.verify().find("NOT") == -1
+        trace = tmp_model.easy_verify(keep_tmp_file=keep_tmp_file)
+        if not keep_tmp_file:
+            os.remove(tmp_model.model_path)
+        return (res, trace)
+
+    def fault_tolerance(
+        self,
+        target_state: str,
+        identified_faults: List[str],
+        safety_events: List[str],
+        sigma_f: List[str],
+        sigma_c: List[str],
+        control_length: int,
+        keep_tmp_file=True,
+    ) -> str:
+        """tolerance analysis for a given fault set
+
+        Args:
+            target_state (str): the target state to be reached
+            identified_faults (List[str]): the identified faults
+            safety_events (List[str]): the safety events
+            sigma_f (List[str]): the fault set
+            sigma_c (List[str]): the control set
+            control_length (int): the length of control sequence
+            keep_tmp_file (bool): whether to keep the temp file
+
+            Returns:
+                str: the result of tolerance, the control sequence tail, the trace
+                    example:
+                        "Fault can NOT be tolerated"
+                        "Fault can be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
+                        "Fault may be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
+        """
+        for _ in range(len(identified_faults)):
+            tmp_model = self.copy_as(f"tmp_tolerance_design_input_{uuid.uuid4()}.xml")
+
+            template = Monitors.input_after_fault_monitor(
+                "MInputAfterFault",
+                identified_faults=identified_faults,
+                protecting_events=safety_events,
+                sigma_fault=sigma_f,
+                sigma_control=sigma_c,
+                control_length=control_length,
+                init_ref=tmp_model.max_location_id + 1,
+            )
+            tmp_model.add_template(template)
+            tmp_model.add_template_to_system(template.name)
+            tmp_model.queries = f"E<> MInputAfterFault.pass and {target_state}"
+
+            result = tmp_model.find_all_patterns_sfx(
+                identified_faults=identified_faults,
+                focused_actions=sigma_c + identified_faults,
+                keep_tmp_file=keep_tmp_file,
+            )  # find all patterns, return SimTrace
+
+            if not keep_tmp_file:
+                os.remove(tmp_model.model_path)
+
+        if len(result) == 0:
+            return "Fault can NOT be tolerated"
+
+        for i, result_i in enumerate(result):
+            tmp_model = self.copy_as(f"tmp_tolerance_check_input_{uuid.uuid4()}.xml")
+            control_tail = result_i.untime_pattern[-control_length:]
+            # print('==================== control tail ======================\n')
+            # print(control_tail)
+            # print('\n')
+            # print('==================== control tail end ======================\n')
+            template = Monitors.tolerance_checker_monitor(
+                "MToleranceChecker",
+                identified_faults=identified_faults,
+                protecting_events=safety_events,
+                sigma_fault=sigma_f,
+                sigma_control=sigma_c,
+                control_sequence=control_tail,
+                init_ref=tmp_model.max_location_id + 1,
+            )
+            tmp_model.add_template(template)
+            tmp_model.add_template_to_system(template.name)
+            tmp_model.queries = f"MToleranceChecker.pass --> {target_state}"
+            verify_res = "is satisfied" in tmp_model.verify()
+
+            if not keep_tmp_file:
+                os.remove(tmp_model.model_path)
+
+            if verify_res:
+                # print(f"    Control sequence: {control_tail} can help to tolerate the faults {identified_faults}.")
+                return f"Fault can be tolerated, control sequence tail: {control_tail}, trace: {result_i}"
+            else:
+                return f"Fault may be tolerated, control sequence tail: {control_tail}, trace: {result_i}"
+
+    def find_all_patterns_sfx(
+        self,
+        identified_faults: List[str],
+        focused_actions: List[str] = None,
+        keep_tmp_file=True,
+    ) -> List[SimTrace]:
+        queries = self.queries
+        if len(queries) == 0:
             return []
+
+        query = queries[0]
+        query = query.strip()
+        if not (query.startswith("A[]") or query.startswith("E<>")):
+            raise NotImplementedError("Only support E<> and A[] query!")
+
+        if query.startswith("A[]"):
+            default_query = query[3:].strip()
+            if default_query[0] == "!":
+                default_query = "E<> " + default_query[1:].strip()
+            elif default_query[0:3] == "not":
+                default_query = "E<> " + default_query[3:].strip()
+            else:
+                default_query = "E<> ! " + default_query.strip()
+        else:
+            default_query = query
+
+        new_model_path = os.path.splitext(self.model_path)[0] + "_pattern.xml"
+        new_umodel = self.copy_as(new_path=new_model_path)
+        new_umodel.queries = default_query
 
         query_str = default_query
         # 根据初始的pattern构建monitor并循环, 初始Moniter为0
         all_patterns = []
         monitor_id = 0
-        iter_ = 1
-        while new_patterns is not None:
-            all_patterns.append(new_patterns)
 
-            if max_patterns is not None and iter_ >= max_patterns:
-                break
+        for new_pattern in self.find_all_patterns_iter(focused_actions, keep_tmp_file):
+            all_patterns.append(new_pattern)
 
             monitor_id += 1
-            # 将pattern[List] -> TimedActions
-            new_observes = TimedActions(new_patterns.actions)
-            new_umodel.add_monitor_template(f'Monitor{monitor_id}', new_observes,
-                                            focused_actions=focused_actions, strict=True, allpattern=True)
+
+            fault_idx = 0
+            for action in new_pattern.actions:
+                fault_idx += 1
+                if action in identified_faults:
+                    break
+            print(new_pattern.actions[:fault_idx])
+            print(type(new_pattern.actions[:fault_idx]))
+            new_observes = self.__parse_observations(new_pattern.actions[:fault_idx])
+            new_umodel.__add_all_patterns_template(
+                template_name=f"all_patterns_monitor_{monitor_id}",
+                observations=new_observes,
+                focused_actions=focused_actions,
+                is_strict=True,
+                all_patterns=True,
+            )
+
+            # 删除initial location相连的fail0
+            observer_template: Template = new_umodel.templates.pop()
+            idx = 0
+            target_location_id = -1
+            for i, l in enumerate(observer_template.locations):
+                if l.name == "fail0":
+                    idx = i
+                    target_location_id = l.location_id
+                    break
+            del observer_template.locations[idx]
+
+            edges_idx_to_be_removed = []
+            for i, e in enumerate(observer_template.edges):
+                if e.target_location_id == target_location_id:
+                    edges_idx_to_be_removed.append(i)
+
+            for i in reversed(edges_idx_to_be_removed):
+                del observer_template.edges[i]
+
+            new_umodel.templates.append(observer_template)
+            new_umodel.save()
 
             # 构造验证语句
             # 构造monitor.pass
             # E<> Monitor0.pass & !Monitor1.pass
-            query_str = ' && '.join(
-                [f'!Monitor{i}.pass' for i in range(1, monitor_id+1)])
+            query_str = " && ".join(
+                [f"!all_patterns_monitor_{i}.pass" for i in range(1, monitor_id + 1)]
+            )
             # E<> !Monitor0.pass & !Monitor1.pass
-            query_str = f'{default_query} && {query_str}'
+            query_str = f"{default_query} && {query_str}"
 
-            new_umodel.set_queries(query_str)
-            new_patterns = new_umodel.__find_a_pattern(
-                focused_actions, hold=hold)
-            # Keep the temp files until the end
+            new_umodel.queries = query_str
 
-            if new_patterns is None:
-                break
-
-            trace_path = os.path.splitext(new_umodel.model_path)[0] + '-1.xtr'
-
-            iter_ = iter_ + 1
-
-        if not hold:
-            os.remove(new_model_path)
-            os.remove(trace_path)
-
+        if not keep_tmp_file:
+            os.remove(new_umodel.model_path)
         return all_patterns
+
+    def load_xtr_trace(self, xtr_trace_path: str, keep_if=False) -> SimTrace | None:
+        """Analyze the `xtr_trace_path` trace file generated by model and return the instance `SimTrace`.
+
+        The internal process is as following:
+        1. Convert the `model_path` model into a `.if` file.
+        2. Analyze `.if` file and the `xtr_trace_path` to get the instance `SimTrace`.
+        3. [reference](https://github.com/UPPAALModelChecker/utap).
+
+        Args:
+            model_path (str): the path of the `.xml` model file
+            xtr_trace_path (str): the path of the `.xtr` trace file
+            keep_if (bool): keep the `.if` file
+
+        Raises:
+            FileNotFoundError: if the `xtr_trace_path` file does not exist, raise FileNotFoundError in Verifyta().compile_to_if(self.model_path)
+            ValueError: if the `xtr_trace_path` file is not a `.xtr` file, raise ValueError in Verifyta().compile_to_if(self.model_path)
+            ValueError: if the `xtr_trace` does not fit the model, raise ValueError in utap_parser(if_name, xtr_trace_path)
+
+        Returns:
+            SimTrace | None: if you want to save the parsed raw trace, you can use SimTrace.save_raw(file_name)
+        """
+        if_name = Verifyta().compile_to_if(self.model_path)
+        trace_text = utap_parser(if_name, xtr_trace_path, keep_if=keep_if)
+
+        res = SimTrace(trace_text)
+        res.trim_transitions(self.model_path)
+        return res

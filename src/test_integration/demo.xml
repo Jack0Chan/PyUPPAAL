@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<nta>
+<declaration>// Place global declarations here.
+broadcast chan a, b, c, d;</declaration><template><name>Template</name><declaration>// Place local declarations here.
+clock t;</declaration><location id="id0" x="-306" y="-85"><name x="-316" y="-119">start</name><label kind="invariant" x="-331" y="-68">t&lt;=10</label></location><location id="id1" x="-204" y="-51"><label kind="invariant" x="-221" y="-34">t&lt;=20</label></location><location id="id2" x="-204" y="-127" /><location id="id3" x="-102" y="-85"><name x="-112" y="-119">pass</name></location><init ref="id0" /><transition><source ref="id1" /><target ref="id3" /><label kind="synchronisation" x="-161" y="-59">d!</label></transition><transition><source ref="id2" /><target ref="id3" /><label kind="synchronisation" x="-153" y="-127">b!</label></transition><transition><source ref="id0" /><target ref="id2" /><label kind="guard" x="-255" y="-102">t&gt;=10</label><label kind="synchronisation" x="-272" y="-127">a!</label></transition><transition><source ref="id0" /><target ref="id1" /><label kind="synchronisation" x="-272" y="-68">c!</label></transition></template><system>// Place template instantiations here.
+P1 = Template();
+// List one or more processes to be composed into a system.
+system P1;
+    </system><queries><query><formula>E&lt;&gt; P1.pass</formula><comment /></query></queries></nta>

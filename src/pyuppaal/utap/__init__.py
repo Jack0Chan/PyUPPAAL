@@ -1,57 +1,51 @@
-import platform
+"""Uppaal trace parser.
+
+Raises:
+    ValueError: Command error with: {cmd}
+
+Returns:
+    str: Parsed trace string that is readable by human, and will be parsed into `SimTrace`.
+"""
 import subprocess
-import sys
+import platform
 import os
+import sys
 
-# def utap_parser(if_str: str, xtr_file: str) -> str:
-#     """接口函数来展示utap_parser的用法。
+# use absolute path
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+TRACEER_FILE_DICT = {
+    'Windows': os.path.join(CURRENT_DIR, 'tracer.exe'),
+    'Linux': os.path.join(CURRENT_DIR, 'tracer_linux'),
+    'Darwin': os.path.join(CURRENT_DIR, 'tracer_darwin')
+}
+TRACEER_FILE = TRACEER_FILE_DICT[platform.system()]
 
-#     Args:
-#         if_str (str): uppaal编译出来的if文件的内容
-#         xtr_file (str): `.xtr`路径文件
+# platform
+PLATFORM = platform.system()
+USE_SHELL = PLATFORM == 'Windows'
 
-#     Returns:
-#         str: 返回解析好的raw trace
-#     """
-#     raise NotImplemented
+def utap_parser(if_file: str, xtr_file: str, keep_if: bool = False) -> str:
+    """Parse `.if` and associated `.xtr` file to readable trace string, which will be parsed into `SimTrace`.
 
+    Args:
+        if_file (str): `.if` file path.
+        xtr_file (str): `.xtr` file path.
+        keep_if (bool): whether keep `.if` file.
 
-def utap_parser(if_file: str, xtr_file: str) -> str:
-#     """接口函数来展示utap_parser的用法。
+    Returns:
+        str: Parsed trace string that is readable by human, and will be parsed into `SimTrace`.
+    """
 
-#     Args:
-#         if_file (str): uppaal编译出来的if文件
-#         xtr_file (str): `.xtr`路径文件
+    cmd = [TRACEER_FILE, "--trace=string", "-t", xtr_file, "-i", if_file]
 
-#     Returns:
-#         str: 返回解析好的raw trace
-#     """
-#     raise NotImplemented
-
-    # use absolute path
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # os.path.join(current_dir, 'tracer.exe')
-
-    cmd = [os.path.join(current_dir, 'tracer.exe'), "--trace=string", "-t", xtr_file, "-i", if_file] \
-    if platform.system() == "Windows" else [os.path.join(current_dir, 'tracer_linux'), "--trace=string", "-t", xtr_file, "-i", if_file]
-    # print(cmd)
-
-    __is_windows: bool = platform.system() == 'Windows'
-    __is_linux: bool = platform.system() == 'Linux'
-    __is_macos: bool = platform.system() == 'Darwin'
-    
     try:
-        cmd_res = subprocess.run(cmd, capture_output=True, shell=__is_windows, text=True) 
-            
+        cmd_res = subprocess.run(cmd, capture_output=True, shell=USE_SHELL, text=True, check=False)
         if cmd_res.stderr:
-            raise ValueError(f"Command error with: {''.join(cmd)}:\n {cmd_res.stderr} ")
+            err_info = f"Command error with: {' '.join(cmd)}:\n {cmd_res.stderr}"
+            raise ValueError(err_info)
+        if not keep_if and os.path.exists(if_file):
+            os.remove(if_file)
         return cmd_res.stdout
-    
-    except:
-        raise ValueError(f"Command error with: {''.join(cmd)}")
 
-    finally:
-        # Delete the temporary .if file after successful execution
-        # os.remove(temp_if_file_path)
-        pass
+    except Exception as e:
+        raise ValueError(f"Command error with: {' '.join(cmd)}") from e

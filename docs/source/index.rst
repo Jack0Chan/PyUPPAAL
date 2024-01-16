@@ -11,8 +11,8 @@ Pyuppaal documentation
    :caption: Pyuppaal:
 
    README.md
-   Devloper Interface
-
+   USER API
+   ALL API
 
 Indices and tables
 ==================

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+broadcast chan input_ball, observe_ball;
+broadcast chan hidden_path1, hidden_path2, hidden_path3, hidden_path4, hidden_path5, hidden_path6;
+broadcast chan exit1, exit2, exit3;
+
+clock gclk;</declaration>
+	<template>
+		<name>Input</name>
+		<location id="id0" x="-221" y="-42">
+			<label kind="invariant" x="-231" y="-25">input_clk&lt;=0</label>
+		</location>
+		<location id="id1" x="-51" y="-42">
+		</location>
+		<location id="id2" x="110" y="-42">
+		</location>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Observer</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id3" x="-578" y="51">
+			<label kind="invariant" x="-646" y="68">input_clk&lt;=500</label>
+		</location>
+		<location id="id4" x="-578" y="-68">
+			<name x="-629" y="-85">fail0</name>
+			<label kind="invariant" x="-612" y="-110">input_clk&lt;500</label>
+		</location>
+		<location id="id5" x="-408" y="51">
+			<label kind="invariant" x="-459" y="68">input_clk&lt;=1550</label>
+		</location>
+		<location id="id6" x="-408" y="-68">
+			<name x="-459" y="-85">fail1</name>
+			<label kind="invariant" x="-442" y="-110">input_clk&lt;1550</label>
+		</location>
+		<location id="id7" x="-255" y="51">
+			<name x="-263" y="68">pass</name>
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-425" y="-17">exit2?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-603" y="-17">exit2?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-391" y="51">input_clk&gt;=1550</label>
+			<label kind="synchronisation" x="-357" y="34">exit2?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-544" y="51">input_clk&gt;=500</label>
+			<label kind="synchronisation" x="-518" y="34">exit1?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-544" y="-17">exit3?</label>
+			<nail x="-544" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-654" y="-17">exit1?</label>
+			<nail x="-612" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-382" y="-42">input_clk&gt;500</label>
+			<label kind="synchronisation" x="-374" y="-17">exit3?</label>
+			<nail x="-374" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-527" y="-42">input_clk&gt;500</label>
+			<label kind="synchronisation" x="-484" y="-17">exit1?</label>
+			<nail x="-442" y="-8"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Process = Template();
+// List one or more processes to be composed into a system.
+system Observer;    </system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

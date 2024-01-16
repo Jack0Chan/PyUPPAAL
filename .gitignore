@@ -1,5 +1,6 @@
 # customize
-
+tmp*.xml
+tmp*.xtr
 
 
 # Byte-compiled / optimized / DLL files
@@ -8,7 +9,7 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
+# *.so # This should not be ignored. UPPAAL5 use one of these.
 
 # Distribution / packaging
 .Python
@@ -138,3 +139,6 @@ dmypy.json
 **/.DS_Store
 .DS_Store?
 /.vscode
+
+src/pyuppaal/simpleUML/*
+src/test_integration/uppaal

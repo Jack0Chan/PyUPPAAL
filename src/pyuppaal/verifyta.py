@@ -4,29 +4,10 @@
 # https://github.com/microsoft/pylance-release/issues/513
 from __future__ import annotations
 
-from typing import List
-from multiprocessing.dummy import Pool as ThreadPool
-import functools
 import platform
 import os
 import subprocess
-
-
-def check_is_verifyta_path_empty(func):
-    """====该函数后续会删除，希望不要每次都检测====
-    装饰器, 用来在verifyta运行前检测路径是否被设置。
-    """
-    @functools.wraps(func)
-    def checker_wrapper(*args, **kwargs):
-        # 注意verifyta是singleton，因此可以直接用Verifyta()调用到唯一的实例
-        if Verifyta().verifyta_path:
-            return func(*args, **kwargs)
-        else:
-            error_info = 'Verifyta path is not set.'
-            error_info += ' Please use "pyuppaal.set_verifyta_path(verifyta_path: str)" to set the path of verifyta.'
-            raise ValueError(error_info)
-    return checker_wrapper
-
+from typing import List
 
 class Verifyta:
     """This is a singleton class that help to use `verifyta` command.
@@ -47,7 +28,10 @@ class Verifyta:
         self.__is_first_init = False
 
         self.__verifyta_path: str = None
-        self.__is_windows: bool = platform.system() == 'Windows'
+
+        self.__verifyta_version: int = None
+
+        self.__operating_system: str = self.get_env()
 
     @property
     def verifyta_path(self) -> str:
@@ -57,30 +41,35 @@ class Verifyta:
             str: current verifyta path.
         """
         return self.__verifyta_path
+    
 
-    def __is_valid_verifyta_path(self, verifyta_path: str) -> bool:
-        """Check whether the verifyta path is valid.
-        Checking steps:
-        1. run cmd with `verifyta_path -h`;
-        2. check whether `'-h [ --help ]' in res`.
+    @staticmethod
+    def get_env() -> str: # operation system
 
-        Args:
-            verifyta_path (str): _description_
+        operating_system = platform.system()
 
-        Returns:
-            bool: _description_
-        """
-        cmd = f'{verifyta_path} -h'
-        res = os.popen(cmd).read()
-        return '-h [ --help ]' in res
+        if operating_system == 'Windows':
+            return 'Windows'
+        elif operating_system == 'Linux':
+            return 'Linux'
+        elif operating_system == 'Darwin':
+            return 'Darwin'
+        else:
+            raise ValueError(f'Unknown operating system: {operating_system}')
 
-    def set_verifyta_path(self, verifyta_path: str) -> bool:
+    def get_uppaal_version(self) -> int:
+
+        res = self.cmd(f'{self.__verifyta_path} -v')
+        index = res.split(' ').index('UPPAAL') # Version is the word after UPPAAL
+        return int(res.split(' ')[index + 1].split('.')[0])
+
+    def set_verifyta_path(self, verifyta_path: str) -> None:
         """Set the verifyta path before using pyuppaal.
         This function will check the validation of the `verifyta_path` automatically by the following steps:
 
-        1. run cmd with `verifyta_path -h`;
-        2. check whether `'-h [ --help ]' in res`.
-        
+        1. run cmd with `verifyta_path -v`;
+        2. check whether `'UPPAAL' in res`.
+
         Example paths:
 
         1. Windows: path_to_uppaal\\bin-Windows\\verifyta.exe
@@ -91,15 +80,33 @@ class Verifyta:
             verifyta_path (str): (absolute) path to `verifyta`
 
         Raises:
-            ValueError: if verifyta_path is invalid, it will raise an error and tips to help.
+            ValueError: if verifyta_path is invalid.
 
         Returns:
-            bool: return `True` if verifyta_path is successfully set.
+            None
         """
+        # check validation of verifyta
+        cmd = f'{verifyta_path} -v'
 
-        if self.__is_valid_verifyta_path(verifyta_path):
+
+        cmd_res = subprocess.run(cmd, shell=True, capture_output=True)
+        if cmd_res.returncode == 0:
+            pass
+        else:
+            # 如果报错里面有 \xcf\xB5\xCD\xB3，是中文gbk系统的问题，大概率解码后是"路径不存在"。
+            # if "\\xcf\\xb5\\xcd\\xb3" in str(cmd_res):
+            #     print("Encounter Encode Error. Probable means 'File Not Found' in your language.")
+            raise ValueError(f"Verifyta Not Found!. \nCommand: {cmd}\nErr: {str(cmd_res.stderr)}")
+
+        # UPPAAL5 will get noneType in stderr.
+        if cmd_res.stderr is not None:
+            cmd_res = str(cmd_res.stdout + cmd_res.stderr)
+        else:
+            cmd_res = str(cmd_res.stdout)
+        
+        if 'UPPAAL' in cmd_res:
             self.__verifyta_path = verifyta_path
-            return True
+            self.__verifyta_version = self.get_uppaal_version()
         else:
             example_info = "======== Example Paths ========" \
                            "\nWindows: absolute_path_to_uppaal\\bin-Windows\\verifyta.exe" \
@@ -108,92 +115,77 @@ class Verifyta:
             raise ValueError(
                 f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
 
-    @check_is_verifyta_path_empty
     def cmd(self, cmd: str) -> str:
         """Run common command with cmd, you can easily ignore the verifyta path.
 
         Args:
             cmd (str): command to run.
+            
+        Raises:
+            ValueError: if verifyta_path is not set.
+            ValueError: if cmd got stderr and not as expected.
 
         Returns:
             str: the output of the input command.
         """
-        if self.__verifyta_path not in cmd:
-            cmd = f'{self.__verifyta_path} {cmd}'
-        # Run the command and check for errors. Use shell because we set env var and && is used.
-        cmd_res = subprocess.run(cmd,shell=True, capture_output=True, text=True)
-
-        # Raise an error if there is stderr output that does not include "example"
-        if cmd_res.stderr and "-X" in cmd and "Writing example trace to" not in cmd_res.stderr:
-            raise ValueError(f"Command: {''.join(cmd)}\nErr: {cmd_res.stderr}")
-
-        if "Unknown identifier" in cmd_res.stderr:
-            raise ValueError(f"Model Error. Command: {''.join(cmd)}\nErr: {cmd_res.stderr}")
-
-        # Return stdout
-        return cmd_res.stdout + cmd_res.stderr
-
-    # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
-    def cmds(self, cmds: List[str], num_threads: int = 1) -> List[str]:
-        """Run commands with terminal.
-
-        Args:
-            cmds (List[str]): commands to run
-            num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
-
-        Raises:
-            ValueError: Number of threads should ≥ 1.
-
-        Returns:
-            List[str]: return values of each command.
-        """
-        # 检测报错
-        num_threads = int(num_threads)
-        if num_threads < 1:
-            raise ValueError("Number of threads should ≥ 1.")
-        elif num_threads == 1:
-            return [self.cmd(tmp_cmd) for tmp_cmd in cmds]
-        else:
-            p = ThreadPool(num_threads)
-            return p.map(self.cmd, cmds)
-
-    @check_is_verifyta_path_empty
-    def _compile_to_if(self, model_path: str) -> str:
-        """Compile the `.xml` model_path to a `.if` file and return the path to `.if` file.
-
-        Args:
-            model_path (str): `.xml` model file.
-
-        Raises:
-            FileNotFoundError: `model_path` not found.
-            ValueError: `model_path` is not a `.xml`.
-            FileNotFoundError: _description_
-
-        Returns:
-            str: path to `.if` file.
-        """
-        if not os.path.exists(model_path):
-            error_info = f'model_path {model_path} not found.'
-            raise FileNotFoundError(error_info)
-        file_path, file_ext = os.path.splitext(model_path)
-        if_path = file_path + '.if'
-
-        if file_ext != '.xml':
-            error_info = f'model_path {model_path} should be xml format file.'
+        # check for validation of verifyta path
+        if not Verifyta().verifyta_path:
+            error_info = 'Verifyta path is not set.'
+            error_info += ' Please use "pyuppaal.set_verifyta_path(verifyta_path: str)" to set the path of verifyta.'
             raise ValueError(error_info)
 
-        # set uppaal environment variables
-        # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
-        cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
-        # cmd = cmd_env+"&&"+f'{self.__verifyta_path} {model_path} > {if_path}'
-        cmd = f'{cmd_env} && {self.__verifyta_path} {model_path} > {if_path}'
-        self.cmd(cmd=cmd)
-        if not os.path.exists(if_path):
-            error_info = f'if file {if_path} has not generated.'
-            raise FileNotFoundError(error_info)
-        return if_path
+        # Run the command and check for errors. Use shell because we set env var and && is used.
+        # macos and windows use shell, linux not use
+        cmd_res = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=False)
+        
+        if cmd_res.stderr is not None and cmd_res.stderr != '':
+            if  "Writing example trace to" in cmd_res.stderr:
+                pass
+            elif "Writing counter example" in cmd_res.stderr:
+                pass
+            elif cmd_res.stdout is not None and "Showing" in cmd_res.stdout:
+                #cmd:
+                #   set UPPAAL_COMPILE_ONLY=&&c:\users\taco\documents\github\pyuppaal_hcps\src\pyuppaal\../../bin/uppaal64-4.1.26\bin-Windows/verifyta.exe C:\Users\Taco\Documents\GitHub\pyuppaal_hcps\src\test_unit\demo1.xml -t 1 -o 0
+                #stdout:
+                #   Options for the verification:
+                #   Generating shortest trace
+                #   Search order is breadth first
+                #   Using conservative space optimisation
+                #   Seed is 1700202518
+                #   State space representation uses minimal constraint systems
+                # 
+                # Verifying formula 1 at /nta/queries/query[1]/formula
+                #  -- Formula is NOT satisfied.
+                # Showing counter example.
 
-    @check_is_verifyta_path_empty
+                #stderr:
+                # State:
+                # ( P1.A )
+                # P1.t=0 #depth=0
+
+                # Transitions:
+                #   P1.A->P1.C { 1, tau, t := 0 }
+
+                # State:
+                # ( P1.C )
+                # P1.t=0 #depth=1
+                pass
+            elif "[warning] Strict invariant." in cmd_res.stderr:
+                # TODO: Maybe change the input/observation clk name to avoid this.    
+                pass
+            else:
+                if "license key is not set" in cmd_res.stderr:
+                    raise ValueError(f"UPPAAL License Not set. Register on `https://uppaal.veriaal.dk/academic.html` and set the key via `verifyta --lease 168 --key YOUR_LICENSE_KEY`.\n Note: You may need to modify `verifyta` to the real verifyta path. \n cmd: {''.join(cmd)}\nErr: {cmd_res.stderr}")
+                if "Failed to retrieve" in cmd_res.stderr:
+                    raise ValueError(f"UPPAAL License Error. Check Internect connection and try again may help. \n cmd: {''.join(cmd)}\nErr: {cmd_res.stderr}")
+                raise ValueError(f"Command: {''.join(cmd)}\nErr: {cmd_res.stderr}")
+        res = cmd_res.stderr
+
+        if cmd_res.stdout is not None:
+            res = res + cmd_res.stdout
+
+        return res
+
     def compile_to_if(self, model_path: str) -> str:
         """Compile the `.xml` model_path to a `.if` file and return the content of the `.if` file.
 
@@ -203,7 +195,6 @@ class Verifyta:
         Raises:
             FileNotFoundError: `model_path` not found.
             ValueError: `model_path` is not a `.xml`.
-            FileNotFoundError: _description_
 
         Returns:
             str: path to `.if` file.
@@ -216,202 +207,106 @@ class Verifyta:
         if file_ext != '.xml':
             error_info = f'model_path {model_path} should be xml format file.'
             raise ValueError(error_info)
-        
-        if_path = file_path + '.if'
 
+        if_path = file_path + '.if'
         # set uppaal environment variables
         # 设置命令行环境保证uppaal能够产生正确的.if文件，后半部分保证文件以UTF-8编码，进而保证lf结尾。
-        # Unix系统设置环境变量没有set，也不需要指定编码
-        cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'" \
-            if self.__is_windows else "UPPAAL_COMPILE_ONLY=1'"
-        cmd = f'{cmd_env} && {self.__verifyta_path} {model_path} > {if_path}'
+        if self.__operating_system == "Windows":
+            cmd_env = "set UPPAAL_COMPILE_ONLY=1 && set PSDefaultParameterValues['Out-File:Encoding']='Default'"
+            cmd = f'{cmd_env} && {self.__verifyta_path} {model_path} > {if_path}'
+        else:
+            cmd_env = "UPPAAL_COMPILE_ONLY=1"
+            cmd = f'{cmd_env} {self.__verifyta_path} {model_path} > {if_path}'
         self.cmd(cmd=cmd)
+
         return if_path
 
-    # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
-    def verify(self,
-               model_path: str | List[str],
-               verify_options: str | List[str] = None,
-               num_threads: int = 1) -> List[str]:
-        """Verify models and return the verify results as list.
-        This is designed for advanced UPPAAL user.
-        If you want to save a `.xtr` or `.xml`(DBM) path, you may want to check `Verifyta().easy_verify()`.
-        WARNING: Note that `-f xx.xtr` or `-X xx.xml` should be used together with `-t` options, otherwise you may fail to save the path files.
+    def verify(self, model_path: str , trace_path: str  = None, verify_options: str = "-t 1", keep_tmp_file = True) -> str:
         
-        Examples:       
-            >>> Verifyta().verify('test1.xml')
-            >>> Verifyta().verify(['test1.xml', 'test2.xml'], verify_options = '-t 1 -o 0')
-            >>> Verifyta().verify(['test1.xml', 'test1.xml'], 
-            >>>     verify_options = ['-t 1 -o 0', '-t 2 -o 0'])
-            >>> # if you surely want to generate a trace file with Verifyta().verify()
-            >>> # you should not add `.xtr` at the end of `xtr_trace`,
-            >>> # or `.xml` at the end of `xtr_trace`
-            >>> Verifyta().verify(['test1.xml', 'test1.xml'], 
-            >>>     verify_options = ['-f xtr_trace -t 1 -o 0', '-X xml_trace -t 2 -o 0'], 
-            >>>     num_threads=2)
-            >>>
-            >>> # return example
-            >>> # Options for the verification: 
-            >>> #    Generating shortest trace
-            >>> #    Search order is breadth first
-            >>> #    Using conservative space optimisation
-            >>> #    Seed is 1665658616
-            >>> #    State space representation uses minimal constraint systems
-            >>> #    Verifying formula 1 at /nta/queries/query[1]/formula
-            >>> #   -- Formula is satisfied.
-            >>> # Options for the verification: 
-            >>> #   Generating shortest trace  
-            >>> #   Search order is breadth first
-            >>> #   Using conservative space optimisation
-            >>> #   Seed is 1665658616  
-            >>> #   State space representation uses minimal constraint systems
-            >>> #   Verifying formula 1 at /nta/queries/query[1]/formula
-            >>> #   -- Formula is NOT satisfied.
-
-        Args:
-            model_path (str | List[str]): model paths to be verified.
-            verify_options (str | List[str], optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
-                If `verify_options` is provided as a single `string`, all the models will be verified with the same options. Defaults to None.
-            num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
-
-        Raises:
-            ValueError: _description_
-            TypeError: _description_
-            ValueError: _description_
-            FileNotFoundError: _description_
-            ValueError: _description_
-
-        Returns:
-            List[str]: terminal verify results for each `.xml` model. 
         """
-        num_threads = int(num_threads)
-        if num_threads < 1:
-            raise ValueError(
-                f"Number of threads should ≥ 1. Current value: {num_threads}.")
+        Verify model and return the verify result as list.
+        This is designed for advanced UPPAAL user.
 
-        # check model_path is only one model
-        if isinstance(model_path, str):
-            model_path = [model_path]
-        len_model_path = len(model_path)
-
-        # check verify_options is only one
-        if verify_options is None:
-            verify_options = ['' for _ in range(len_model_path)]
-        elif isinstance(verify_options, str):
-            verify_options = [verify_options for _ in range(len_model_path)]
-        else:
-            pass
-        len_verify_options = len(verify_options)
-
-        # check consistency
-        if len_model_path != len_verify_options:
-            error_info = f'Length of model_path and verify_options are inconsistent. Current values:\n' \
-                         f'model_path: {model_path}, \nverify_options: {verify_options}.'
-            raise ValueError(error_info)
-
-        # set uppaal environment variables
-        # 因为生成.if的时候UPPAAL_COMPILE_ONLY=1, 这里要改回来。但是改成啥都不对，所以就啥都不加，然后就对了。。。
-        # 啥都不加是@yhc试出来的
-        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if self.__is_windows else "UPPAAL_COMPILE_ONLY="
-
-        cmds = []
-        for i in range(len_model_path):
-            model_i = model_path[i]
-            verify_options_i = verify_options[i]
-            # check model_path exist
-            if not os.path.exists(model_i):
-                error_info = f'model_path {model_i} not found.'
-                raise FileNotFoundError(error_info)
-            # 构造命令
-            cmd = cmd_env+'&&' + \
-                f'{self.__verifyta_path} {model_i} {verify_options_i}'
-            cmds.append(cmd)
-        # print(cmds)
-        res = self.cmds(cmds=cmds, num_threads=num_threads)
-        # print(res)
-        return res
-
-    # @check_is_verifyta_path_empty 调用了self.cmd，所以不需要加
-    def easy_verify(self,
-                    model_path: str | List[str],
-                    trace_path: str | List[str] = None,
-                    verify_options: str | List[str] = "-t 1",
-                    num_threads: int = 1) -> List[str]:
-        """Verify models and return the verify results as list.
+        Verify models and return the verify results as list.
         For `trace_path` param, both `.xtr` and `.xml`(DBM) files are supported.
+        WARNING: Note that `-f xx.xtr` or `-X xx.xml` should be used together with `-t` options, otherwise you may fail to save the path files.
         WARNING: `-t` option must be set for `verify_options`, which is set by default `verify_options = '-t 1'`(shortest), otherwise counter-example file may not be created.
 
-        Examples:       
+        Examples:
             >>> Verifyta().set_verifyta_path(VERIFYTA_PATH)
-            >>> model_paths = [os.path.join(ROOT_DIR, 'demo1.xml'),
-            >>>         os.path.join(ROOT_DIR, 'demo2.xml'),
-            >>>         os.path.join(ROOT_DIR, 'demo3.xml')]
-            >>> trace_paths = [os.path.join(ROOT_DIR, 't1.xtr'),
-            >>>         os.path.join(ROOT_DIR, 't2-.xml'),
-            >>>         os.path.join(ROOT_DIR, 't3-.xml')]
-            >>> Verifyta().easy_verify(model_paths, 
-            >>>         verify_options=['-t 1 -o 0', '-t 2 -o 0', '-t 2 -o 1'], 
-            >>>         num_threads=3)
-            >>> Verifyta().easy_verify(model_paths, trace_path=trace_paths, 
-            >>>         verify_options='-t 1 -o 0', num_threads=3)        
+            >>> model_path = os.path.join(ROOT_DIR, 'demo1.xml')
+            >>> trace_path = os.path.join(ROOT_DIR, 't1.xtr')
+            >>> Verifyta().verify(model_path, trace_path=trace_path, verify_options='-t 1 -o 0')
 
         Args:
-            model_path (str | List[str]): model paths to be verified.
-            trace_path (str | List[str], optional): target trace paths, both `.xtr` and `.xml`(DBM) are supported. 
+            model_path (str): model path to be verified.
+            trace_path (str, optional): target trace path, both `.xtr` and `.xml`(DBM) are supported. 
                 Defaults to None, which will create `.xtr` path.
-            verify_options (str | List[str], optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
-                If `verify_options` is provides as a single string, all the models will be verified with the same options. Defaults to '-t 1', returning the shortest trace.
-            num_threads (int, optional): use multi-threads if is greater than 1. Defaults to 1.
-
+            verify_options (str, optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
+                Defaults to '-t 1', returning the shortest trace.
+        
+        Raises:
+            ValueError: if tracer file is not `xml` or `xtr`.
+        
         Returns:
-            List[str]: terminal verify results for each `.xml` model.
+            str: terminal verify results for `.xml` model.
         """
-        # num_threads will be checked in self.verify()
-
-        # check whether trace_path is None
-        if trace_path is None:
-            if isinstance(model_path, str):
-                trace_path = os.path.splitext(model_path)[0] + '.xtr'
-            else:
-                trace_path = [os.path.splitext(
-                    x)[0]+'.xtr' for x in model_path]
-
-        # check model_path is only one model, set parallel loop
-        if isinstance(model_path, str):
-            model_path = [model_path]
-        if isinstance(trace_path, str):
-            trace_path = [trace_path]
-
-        len_model_path = len(model_path)
-        len_trace_path = len(trace_path)
-        # check model_path and trace_path len is same
-        if len_model_path != len_trace_path:
-            error_info = f'Length of model_path and trace_path are inconsistent\n' \
-                         f'model_path: {len_model_path}, trace_path: {len_trace_path}'
-            raise ValueError(error_info)
+        
+        if not isinstance(model_path, str):
+            raise ValueError(f'List input is not supported anymore, please use for loop. mdel_path: {model_path}, verify_options: {option}')
 
         if verify_options is None:
             verify_options = "-t 1"
-        if isinstance(verify_options, str):
-            verify_options = [verify_options for _ in range(len_model_path)]
 
-        options = []
         # 构造options然后让self.verify()处理任务
-        for i in range(len_model_path):
-            trace_i = trace_path[i]
-            verify_options_i = verify_options[i]
-            if '-t ' not in verify_options_i:
-                verify_options[i] += ' -t 1'
-            # model_path existence will be checked in self.verity()
-            # check trace_path format
-            if trace_i.endswith('.xml'):
-                option = f"-X {trace_i.replace('.xml', '')} {verify_options_i}"
-                options.append(option)
-            elif trace_i.endswith('.xtr'):
-                option = f"-f {trace_i.replace('.xtr', '')} {verify_options_i}"
-                options.append(option)
+        if '-t ' not in verify_options:
+            verify_options += ' -t 1'
+        # model_path existence will be checked in self.verity()
+        # check trace_path format
+        option = ''
+
+        # check whether trace_path is None
+        if Verifyta().__verifyta_version == 4:
+            if trace_path is None:
+                trace_path = os.path.splitext(model_path)[0] + '.xtr'
+
+            if trace_path.endswith('.xml'):
+                option = f"-X {trace_path.replace('.xml', '')} {verify_options}"
+            elif trace_path.endswith('.xtr'):
+                option = f"-f {trace_path.replace('.xtr', '')} {verify_options}"
             else:
-                error_info = f'trace_path should end with ".xml" or ".xtr", ' \
-                             f'current trace_path = {trace_i}.'
+                error_info = f'trace_path should end with ".xml" or ".xtr", current trace_path = {trace_path}.'
                 raise ValueError(error_info)
-        return self.verify(model_path=model_path, verify_options=options, num_threads=num_threads)
+        else:
+            if trace_path is None:
+                trace_path = os.path.splitext(model_path)[0] + '_xtr'
+                option = f"-f {trace_path} {verify_options}"
+            elif trace_path.endswith('.xml'):
+                option = f"-X {trace_path.replace('.xml', '_xtr')} {verify_options}"
+            elif trace_path.endswith('.xtr'):
+                option = f"-f {trace_path.replace('.xtr', '_xtr')} {verify_options}"
+            elif trace_path.endswith("_xtr"):
+                option = f"-f {trace_path} {verify_options}"
+            else:
+                error_info = f'trace_path should end with ".xml" or ".xtr", current trace_path = {trace_path}.'
+                raise ValueError(error_info)        
+            
+        # check model_path exist
+        if not os.path.exists(model_path):
+            error_info = f'model_path {model_path} not found.'
+            raise FileNotFoundError(error_info)
+        
+        # set uppaal environment variables
+        cmd_env = 'set UPPAAL_COMPILE_ONLY=' if (self.__operating_system == "Windows") else "UPPAAL_COMPILE_ONLY="
+        
+        # 构造命令
+        cmd = f'{cmd_env}&&{self.__verifyta_path} {model_path} {option}'
+        res = self.cmd(cmd)
+
+        # remove tmp file
+        if not keep_tmp_file:
+            trace_path = trace_path.replace('.xtr', '-1.xtr').replace('_xtr', '_xtr-1')
+            if os.path.exists(trace_path):
+                os.remove(trace_path) 
+
+        return res

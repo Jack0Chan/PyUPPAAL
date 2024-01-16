@@ -11,9 +11,9 @@ import sys
 sys.path.insert(0, os.path.abspath('../../src'))
 
 project = 'pyuppaal'
-copyright = '2022, Jack0Chan, yanglinshu, Uniontake, LZY-0313, DuckyDuck'
-author = 'Jack0Chan, yanglinshu, Uniontake, LZY-0313, DuckyDuck'
-release = '1.0.3'
+copyright = '2023, Jack0Chan, yanglinshu, Uniontake, LZY-0313, DuckyDuck, Tacoin'
+author = 'Jack0Chan, yanglinshu, Uniontake, LZY-0313, DuckyDuck, Tacoin'
+release = '1.2.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -25,6 +25,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
+    'sphinxcontrib.mermaid',
     'myst_parser']
 
 napoleon_use_rtype = False
