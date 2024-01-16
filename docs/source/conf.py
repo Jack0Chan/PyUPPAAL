@@ -25,7 +25,6 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
-    'sphinxcontrib.mermaid',
     'myst_parser']
 
 napoleon_use_rtype = False
