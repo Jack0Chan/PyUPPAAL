@@ -38,7 +38,7 @@ pyuppaal.set_verifyta_path("your/path/to/verifyta.exe")
 
 ## 3. Verify a Model
 
-Lets take the following model P1 with query `A[] not deadlock` as the example. You can download this file via [this_link](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/demo.xml).
+Lets take the following model P1 with query `A[] not deadlock` as the example. You can download this file via [this_link](https://github.com/Jack0Chan/pyuppaal/blob/main/stc/test-integration/demo.xml).
 
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/demo.png width=250 />
 
@@ -147,7 +147,7 @@ An example communication graph of a complex model in [MiniProject_PipeNet](https
 
 # Mini Project - PipeNet
 
-We will use [demo_PipeNet.xml](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/demo_PipeNet.xml) as an example to help understand how `pauppaal` can contribute to scientific research **partially observable** system.
+We will use [demo_PipeNet.xml](https://github.com/Jack0Chan/pyuppaal/blob/main/stc/test-integration/demo_PipeNet.xml) as an example to help understand how `pauppaal` can contribute to scientific research **partially observable** system.
 
 ### 1. Problem Description
 
@@ -157,7 +157,7 @@ You want to know what happends to the balls -- all possible paths that can lead 
 
 ### 2. Modeling the PipeNet
 
-We have modeled the PipeNet with UPPAAL, you can download via [this link](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/demo_PipeNet.xml).
+We have modeled the PipeNet with UPPAAL, you can download via [this link](https://github.com/Jack0Chan/pyuppaal/blob/main/stc/test-integration/demo_PipeNet.xml).
 
 As shown in the figure below, the guard on the edge is the falling time for each path, e.g., if a ball goes through hidden_path1, it will take `T1_Min` to `T1_Max` seconds.
 
