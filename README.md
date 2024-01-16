@@ -184,7 +184,7 @@ pyuppaal.set_verifyta_path("your/path/to/verifyta.exe")
 
 Lets take the following model P1 with query `A[] not deadlock` as the example. You can download this file via [this_link](https://github.com/Jack0Chan/pyuppaal/blob/main/src/tests/demo.xml).
 
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/demo.png width=250 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/demo.png width=250 />
 
 
 ```python
@@ -212,7 +212,7 @@ You can also edit the model and get all possible patterns that satisfy the query
 
 The red line is pattern1, and the green line is pattern2.
 
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/demo_patterns.png width=250 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/demo_patterns.png width=250 />
 
 
 ```python
@@ -305,7 +305,7 @@ We have modeled the PipeNet with UPPAAL, you can download via [this link](https:
 
 As shown in the figure below, the guard on the edge is the falling time for each path, e.g., if a ball goes through `hidden_path1`, it will take `200` to `300` seconds.
 
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetModel.png width=400 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/pipeNetModel.png width=400 />
 
 ### 3. Load the Model and Set Inputs & Observations
 
@@ -403,9 +403,9 @@ print("trace:", trace)
 
 The `Input` and `Observation` template created by `pyuppaal`. The cache file `*_pattern.xml` can be found in the same directory of the input model.
 <br><br>
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetInput.png width=300 />
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetObserver.png width=350 />
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetModel.png width=350 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/pipeNetInput.png width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/pipeNetObserver.png width=350 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/pipeNetModel.png width=350 />
 <br><br>
 In this example, we know the exact time of the inputs & observations, and thus `lower_bounds == upper_bounds`. If you are not sure about the exact time, or you just want to add uncertainty, e.g., the first ball goes from `Exit1` at gclk $\in$ [490, 510], you can just set the lower bound to 490, and the upper bound to 510.
 
@@ -442,7 +442,7 @@ You can get all possible patterns by the following code, and all possible patter
 2. The second observation at `Exit2` is suggested by 2 the green and yellow line, meaning there are two possible patterns for this observation.
    
 
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetPatterns.png width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/pipeNetPatterns.png width=300 />
 
 
 ```python
@@ -459,7 +459,7 @@ for i, trace in enumerate(traces):
 
 While extracting all patterns, pyuppaal constructs Monitors based on historical patterns. The figure below shows one of the monitors constructed by pyuppaal. You can get more details from the cache file `*_pattern.xml` that is in the same directory of the input model.
 
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/tests/figs/pipeNetMonitor1.png width=100% />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/pipeNetMonitor1.png width=100% />
 
 ## Full Code
 
