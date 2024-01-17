@@ -2,7 +2,7 @@ User API
 ==================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 10
    :caption: Pyuppaal: User API
 
 pyuppaal.umodel
