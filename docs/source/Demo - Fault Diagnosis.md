@@ -1,5 +1,6 @@
 # Demo3 - Fault Diagnosis
 
+
 ```python
 import pyuppaal as pyu
 import os
@@ -20,10 +21,12 @@ keep_tmp_file = False
 ```
 
     1.2.1
+    
 
 ## Toy Example Diagnosability
 
-![1705401214574](image/Demo-FaultDiagnosis/1705401214574.png)
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_integration/figs/Fault_Diagnosis.png width=400 />
+
 
 ```python
 A = pyu.UModel(bring_to_root('toy_model_diagnosable.xml'))
@@ -44,8 +47,12 @@ print(f"   A is 3-diagnosable: {res_A[0]}")
 print(f"   B is 3-diagnosable: {res_B[0]}")
 ```
 
-    3-diagnosability for 'f':   0%|          | 0/64 [00:00<?, ?it/s]   3-diagnosability for 'f': 100%|██████████| 64/64 [00:06<00:00, 10.28it/s]
+       3-diagnosability for 'f':   0%|          | 0/64 [00:00<?, ?it/s]   3-diagnosability for 'f': 100%|██████████| 64/64 [00:06<00:00, 10.28it/s]
        3-diagnosability for 'f':   6%|▋         | 4/64 [00:01<00:19,  3.08it/s]
 
-    A is 3-diagnosable: True
+       A is 3-diagnosable: True
        B is 3-diagnosable: False
+    
+
+    
+    

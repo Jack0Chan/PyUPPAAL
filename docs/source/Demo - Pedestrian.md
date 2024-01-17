@@ -1,5 +1,6 @@
 # Demo2 - Pedestrian
 
+
 ```python
 import os
 
@@ -18,6 +19,8 @@ pyu.DeveloperTools.set_verifyta_path_dev()
 ```
 
     1.2.1
+    
+
 
 ```python
 # Load the `xml` model
@@ -27,6 +30,7 @@ pipeNet = pipeNet.save_as(bring_to_root("demo_pedestrian.xml"))
 ```
 
 #### Verifyta
+
 
 ```python
 # we enumerate all the options for verifyta.
@@ -57,10 +61,12 @@ for i, verify_option in enumerate(verify_options):
 
 print(set([ "-".join(r) for r in res]))
 
-  
+    
 ```
 
     {'cCrss-pCheckLight-pRed-pCrss', 'pCheckLight-pRed-pCrss-cCrss'}
+    
+
 
 ```python
 # Load the model
@@ -76,9 +82,22 @@ for trace in traces:
     ['cCrss', 'pCheckLight', 'pRed', 'pCrss']
     ['pCheckLight', 'pGreen', 'pCrss', 'cCrss']
     ['pCheckLight', 'pYellow', 'pCrss', 'cCrss']
+    
+
 
 ```python
 M.get_communication_graph()
 ```
 
-    ``mermaid     graph TD     PCar--cCheckLight-->PTrafficLights     PTrafficLights--cGreen,cRed,cYellow-->PCar     PTrafficLights--pGreen,pRed,pYellow-->PPedestrian     PPedestrian--pCheckLight-->PTrafficLights     ``
+
+
+
+    ```mermaid
+    graph TD
+    PCar--cCheckLight-->PTrafficLights
+    PTrafficLights--cGreen,cRed,cYellow-->PCar
+    PTrafficLights--pGreen,pRed,pYellow-->PPedestrian
+    PPedestrian--pCheckLight-->PTrafficLights
+    ```
+
+
