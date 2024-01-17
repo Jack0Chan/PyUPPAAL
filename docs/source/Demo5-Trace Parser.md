@@ -8,7 +8,7 @@ This demo indicates the usage of pyuppaal.SimTrace.
 
 Coming soon..
 
-<img src=trace_parser.png width=1200 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/trace_parser.png width=1200 />
 
 ## 2. Code
 
@@ -96,8 +96,8 @@ transitions [2]: actNode: path -> ['nodeOut']; path.Conducting -> path._id0; nod
 
 We can infer `0 <= path.t <=30` from the red component.
 
-<img src=conduction_1.png width=300 />
-<img src=conduction_2.png width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/conduction_1.png width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/conduction_2.png width=300 />
 
 ## 2.Node Refractory Info
 
@@ -106,5 +106,5 @@ global_variables [5]: None
 Clock_constraints [5]: [t(0) - gclk ≤ -50; t(0) - nodeInput.t ≤ 0; t(0) - path.t ≤ 0; gclk - t(0) ≤ 100; gclk - nodeInput.t ≤ 0; nodeInput.t - path.t ≤ 30; path.t - gclk ≤ -30; ]
 transitions [5]: None: nodeInput.Refratory -> nodeInput._id2
 
-<img src=refractory_1.png width=300 />
-<img src=refractory_2.png width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/refractory_1.png width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/refractory_2.png width=300 />

@@ -2,7 +2,7 @@
 
 **Note: we are woking on CAV-2024 tool paper. The documentation will be updated to a structure similar to Demo1-PipeNet before 2024.4.1.**
 
-<img src=models.jpg width=300 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/models.jpg width=300 />
 
 
 ```python

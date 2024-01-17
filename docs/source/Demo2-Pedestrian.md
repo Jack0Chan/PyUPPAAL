@@ -6,7 +6,7 @@
 
 Comming Soon..
 
-<img src=pedestrian.png width=600 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/pedestrian.png width=600 />
 
 ## 2. Verifyta results
 
