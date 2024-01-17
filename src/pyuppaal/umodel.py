@@ -20,8 +20,7 @@ from .utap import utap_parser
 
 
 class UModel:
-    """Load UPPAAL model for analysis, editing, verification and other operations.
-    queries: List[str], 只能填写验证语句CTL, 不能添加注释, 如果需要添加注释功能, 请在issues里详细说明需要的理由。
+    """Load UPPAAL model for analysis, editing, verification and other operations. If you want to modify the model, you should `from pyuppaal.nta import Template, Location, Edge`.
     """
 
     def __init__(self, model_path: str = None):
@@ -29,7 +28,6 @@ class UModel:
 
         Args:
             model_path (str): model path. Defaults to None.
-
         """
         self.__declaration: str = "// Place global declarations here."
         self.__templates: List[Template] = []
@@ -104,6 +102,15 @@ class UModel:
 
     @queries.setter
     def queries(self, value: str | List[str] | None) -> None:
+        """Set the queries of the xml model.
+        ```python
+        m = UModel('test.xml')
+        m.queries = 'A[] not deadlock'
+        m.queries = ['A[] not deadlock', 'E<> process.success']
+        ```
+        Args:
+            value (str | List[str] | None): target single query, or list of queries.
+        """
         if isinstance(value, str):
             value = [value]
         self.__queries = value
@@ -114,12 +121,11 @@ class UModel:
     # region ======== other properties ========
     @property
     def Element(self) -> ET.Element:
-        """导出模型的xml, xml基本属性包含
+        """xml contents of `self`, including
         1. declaration
         2. template(s)
         3. system
         4. query(s)
-        这4个属性都是<nta>标签内的属性
         """
         # 模型xml文件的标准模板
         root = """<?xml version="1.0" encoding="utf-8"?>
@@ -164,10 +170,10 @@ class UModel:
 
     @property
     def max_location_id(self) -> int:
-        """Get the maximum location_id so as to make it easier to create a new template.
+        """Get the maximum location_id so as to make it easier to create a new template, because the id of `Location` is unique.
 
         Returns:
-            int: max location id.
+            int: max location id of `self`.
         """
         res = -1
         for template in self.templates:
@@ -183,7 +189,7 @@ class UModel:
 
     @property
     def broadcast_chan(self) -> List[str]:
-        """Get broadcast channels in Declaration.
+        """Get broadcast channels in `declaration`.
 
         Returns:
             List[str]: List of broadcast channels.
@@ -197,7 +203,7 @@ class UModel:
             if start_index == -1:
                 break
             end_index = declarations.find(";", start_index, -1)
-            tmp_actions = declarations[start_index + 15 : end_index].strip().split(",")
+            tmp_actions = declarations[start_index + 15: end_index].strip().split(",")
             tmp_actions = [x.strip() for x in tmp_actions]
             broadcast_chan += tmp_actions
             start_index = end_index
@@ -343,7 +349,7 @@ system Process;
             new_path (str): target copy file path.
 
         Returns:
-            UModel: copied instance.
+            UModel: new copied instance.
         """
         with open(new_path, "w", encoding="utf-8") as f:
             self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
@@ -352,15 +358,16 @@ system Process;
     # endregion 基础的文件保存功能
 
     # region 验证相关
-    def verify(self, trace_path: str = None, verify_options: str = None, keep_tmp_file = True) -> str:
+    def verify(self, trace_path: str = None, verify_options: str = None, keep_tmp_file: bool = True) -> str:
         """Verify and return the verify result. If `trace_path` is not given, it wll return the terminal result.
 
         Args:
             trace_path (str, optional): the path to save the trace file. Defaults to None.
-            verify_options (str, optional):  verify options. Defaults to None.
+            verify_options (str, optional): options for verifyta, such as ` -t 0 -o 0`. Defaults to None.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
         Returns:
-            str:  verify result.
+            str: terminal verify results for `self`.
         """
         return Verifyta().verify(self.model_path, trace_path, verify_options, keep_tmp_file)
 
@@ -371,6 +378,7 @@ system Process;
 
         Args:
             verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
         Returns:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
@@ -379,7 +387,7 @@ system Process;
             err_info = '"-t" must be set in verify_options, '
             err_info += f"current verify_options: {verify_options}."
             raise ValueError(err_info)
-        
+
         if Verifyta().get_uppaal_version() == 4:
             xtr_trace_path = self.model_path.replace(".xml", ".xtr")
             verify_cmd_res = Verifyta().verify(
@@ -392,7 +400,7 @@ system Process;
                 if not keep_tmp_file:
                     os.remove(xtr_trace_path)
                 return res
-            
+
         else:
             xtr_trace_path = self.model_path.replace(".xml", "_xtr")
             verify_cmd_res = Verifyta().verify(
@@ -468,8 +476,8 @@ system Process;
         """get actions from observations
         Args:
             observation (List[str] | List[tuple[str,str,str]]):
-                if List[str], then it is a list of actions.
-                if List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound)
+                If List[str], then it is a list of actions.
+                If List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound).
 
         Raises:
             ValueError: if actions is not List[str] or List[tuple[str,str,str]], raise ValueError.
@@ -487,13 +495,13 @@ system Process;
             )
 
     def __parse_observations(self,
-        observation: List[str] | List[tuple[str, str, str]]
-    ) -> List[tuple[str, str, str]]:
+                             observation: List[str] | List[tuple[str, str, str]]
+                             ) -> List[tuple[str, str, str]]:
         """parse observations to List[tuple[str,str,str]]
         Args:
             observation (List[str] | List[tuple[str,str,str]]):
-                if List[str], then it is a list of actions.
-                if List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound)
+                If List[str], then it is a list of actions.
+                If List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound).
 
         Raises:
             ValueError: if actions is not List[str] or List[tuple[str,str,str]], raise ValueError.
@@ -504,7 +512,7 @@ system Process;
         if isinstance(observation[0], str):
             return [(action, "", "") for action in observation]
         elif isinstance(observation[0], tuple):
-            if isinstance(observation[0][1], int): # if use int"time" not str"gclk >= time"
+            if isinstance(observation[0][1], int):  # if use int"time" not str"gclk >= time"
                 processed_observations = []
                 for action, lb, ub in observation:
                     lb = f"gclk>={lb}"
@@ -519,13 +527,14 @@ system Process;
 
     # region 基础编辑
     def remove_template(self, template_name: str) -> bool:
-        """
-        Delete the template according to the input name.
+        """Delete the template according to `template_name`.
 
-        :param str template_name: the name of template
-        :return: `True` when succeed, `False` when fail
-        """
+        Args:
+            template_name (str): the name of template you want to delte.
 
+        Returns:
+            bool: `True` when succeed, `False` when fail.
+        """
         for i, template in enumerate(self.templates):
             if template.name == template_name:
                 self.templates.remove(self.templates[i])
@@ -545,22 +554,25 @@ system Process;
     ) -> None:
         """Add an observer template, which will also be embedded in `system declarations`. If exists a template with the same name, it will raise error.
 
-        An observer is a monitor that observes a sequence of actions, and it will pass if the observed sequence of actions is a subsequence of the trace.
+        An observer is a monitor that observes the sequence of actions, and it will reach the `pass` state if the observed sequence of actions is a subsequence of the trace.
 
         Args:
-            observations (List[str] | List[tuple[str, str, str]]): observed actions, observed time lower_bound, observed time upper_bound.
+            observations (List[str] | List[tuple[str, str, str]]): observed actions.
+                If List[str], then it is a list of actions.
+                If List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound).
+            focused_actions (List[str] | None, optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
             template_name (str, optional): the name of the template. Defaults to 'observer'.
             is_strict (bool, optional): if strict, any other observations will be illegal.
                 For example, assume you set observations `a1, gclk=1, a2, gclk=3`, and there exists trace T: `a1, gclk=1, a2, gclk=2, a2, gclk=3`.
                 If `is_strict_observer` is True, then T is invalid. Defaults to True.
+            all_patterns (bool, optional): whether the monitor is used for `find_all_patterns`. Defaults to False.
 
         Raises:
-            ValueError: if template_name already exists, raise ValueError.
+            ValueError: if `template_name` already exists, raise ValueError.
 
         Returns:
             None
         """
-
         signals = self.__parse_observations(observations)
 
         if focused_actions is None:
@@ -595,19 +607,21 @@ system Process;
 
     def add_input_monitor(
         self,
-        observations: List[str] | List[tuple[str, str, str]],
+        inputs: List[str] | List[tuple[str, str, str]],
         template_name: str = "Input",
     ) -> None:
-        """Add a linear input template, which will also be embedded in `system declarations`. Template that has the same name will be over written.
+        """Add a linear input template that captures specified `inputs`, which will also be embedded in `system declarations`. Template that has the same name will be over written.
 
         Args:
-            observations (List[str] | List[tuple[str, str, str]]): observed actions, observed time lower_bound, observed time upper_bound.
+            observations (List[str] | List[tuple[str, str, str]]): input actions.
+                If List[str], then it is a list of actions.
+                If List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound).
             template_name (str, optional): the name of the template. Defaults to 'input'.
 
         Returns:
             None
         """
-        signals = self.__parse_observations(observations)
+        signals = self.__parse_observations(inputs)
         assert len(signals) > 0
 
         start_id = self.max_location_id + 1
@@ -632,12 +646,13 @@ system Process;
         return None
 
     def add_template(self, template: Template) -> None:
-        """Add a template to the model.
-
-        raise ValueError if template name already exists.
+        """Add `template` to `self.template`. However, if you also want to embed the template to `system`, you should also call `self.add_template_to_system(template_name: str)`.
 
         Args:
-            template (Template): the template to be added.
+            template (Template): the template to be added to `self.template`.
+
+        Raises:
+            ValueError: raise ValueError if `template` with the same name already exists.
         """
 
         # Check if the template name already exists
@@ -652,11 +667,13 @@ system Process;
         For example, a system declaration is "system Process1, Process2;".
         After add Process3 by add_template_to_system('Process3'), we get "system Process1, Process2, Process3;".
 
-        Raises:
-            ValueError: if template_name already exists, raise ValueError.
+        Note that before `add_template_to_system`, you should first call `self.add_template(template: Template)`.
 
         Args:
             template_name (str): the name of the template.
+
+        Raises:
+            ValueError: if template_name already exists, raise ValueError.
         """
 
         system_lines: List[str] = self.system.split("\n")
@@ -678,19 +695,19 @@ system Process;
 
     def find_a_pattern(
         self,
-        focused_action: List[str] = None,
+        focused_actions: List[str] = None,
         keep_tmp_file: bool = True,
         options: str = None,
     ) -> SimTrace | None:
         """Find a pattern in the current model.
 
         Args:
-            focused_action (List[str], optional): the actions that we want to focus on. Defaults to None.
-            keep_tmp_file (bool, optional): whether to keep the temp file. Defaults to True.
-            options (str, optional): options for the verifier. Defaults to None.
+            focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
+            options (str, optional): options for verifyta, such as ` -t 0 -o 0`. Defaults to None.
 
         Returns:
-            SimTrace | None: the founded patterns. None if no pattern is found.
+            SimTrace | None: pattern will be returend as `SimTrace`. Return `None` if no pattern is found.
         """
         # create a temp model
         # new_model_path = os.path.splitext(self.model_path)[0] + '_a_pattern.xml'
@@ -710,7 +727,7 @@ system Process;
         else:
             trace_path = os.path.splitext(self.model_path)[0] + "_xtr-1"
 
-        pattern_seq = sim_trace.filter_by_actions(focused_action)
+        pattern_seq = sim_trace.filter_by_actions(focused_actions)
 
         if not keep_tmp_file:
             os.remove(trace_path)
@@ -730,8 +747,8 @@ system Process;
         If you want the fastest patterns first, you can let `verify_options: str = "-t 2"`.
 
         Args:
-            focused_actions (List[str], optional): the actions that we want to focus on. Defaults to None.
-            keep_tmp_file (bool, optional): whether to keep the temp files. Defaults to True.
+            focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
             max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
 
         Returns:
@@ -771,12 +788,12 @@ system Process;
         verify_options: str = "-t 1",
     ) -> SimTrace:
         """
-        Find all patterns that satisfy the query using a generator.
-        query = self.queries[0]
+        Find all patterns that satisfy `self.queries[0]` using a generator.
         Args:
-            focused_actions (List[str], optional): the actions to focus on. Defaults to None.
-            keep_tmp_file (bool, optional): whether to keep the temp files. Defaults to True.
+            focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
             max_patterns (int, optional): the maximum number of patterns to find. If None, find all. Defaults to None.
+            verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
 
         Yields:
             SimTrace: a pattern that satisfies the query.
@@ -852,7 +869,7 @@ system Process;
             os.remove(new_umodel.model_path)
             # os.remove(os.path.splitext(new_umodel.model_path)[0] + '-1.xtr')
 
-    def is_valid_suffix(
+    def __is_valid_suffix(
         self,
         sigma_o: List[str],
         sigma_un: List[str],
@@ -860,15 +877,22 @@ system Process;
         observation_suffix: List[str],
         keep_tmp_file=True,
     ) -> (bool, "UModel"):
-        """determine whether a observation suffix can happen after the fault f
+        """determine whether a `observation_suffix` sequence can happen after the `fault`.
 
-        This function will NOT modify the model, a copy named 'tmp_diagnosable_suffix.xml' will be generated
+        This function will NOT modify the model, a copy named 'tmp_diagnosable_suffix.xml' will be generated, which will be returned by the function.
 
         Args:
-            sigma_o (List[str]): observable event set
-            sigma_un (List[str]): unobservable event set
-            fault (str): fault name
-            observation_suffix (List[str]): latest observation sequence (suffix sequence)
+            sigma_o (List[str]): the set of observable events.
+            sigma_un (List[str]): the set of unobservable events.
+            fault (str): fault name.
+            observation_suffix (List[str]): latest observation sequence (suffix sequence).
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
+
+        Returns:
+            (bool, UModel): 
+                `bool` represents whether a `observation_suffix` sequence can happen after the `fault`.
+                `UModel` is the copied model.
+
         """
         tmp_model = self.copy_as(f"tmp_diagnosable_suffix_{uuid.uuid4()}.xml")
 
@@ -899,18 +923,23 @@ system Process;
         visual=False,
         keep_tmp_file=True,
     ) -> (bool, SimTrace):
-        """determine whether the `fault` is `n` diagnosable.
+        """Determine whether the `fault` is `n` diagnosable.
 
-        This function will NOT modify the model, but will copy to 'tmp_diagnosable_suffix.xml' and 'tmp_identify.xml'
+        This function will NOT modify the model. It will copy to 'tmp_diagnosable_suffix.xml' and 'tmp_identify.xml'
         Note: If not keep_tmp_file, it won't be able to get the trace because the tmp model is removed.
 
         Args:
             fault (str): fault name
-            n (int, optional):  n-diagnosability
+            n (int): n-diagnosability
+            sigma_o (List[str]): the set of observable events,
+            sigma_un (List[str]): the set of unobservable events,
+            visual (bool, optional): whether to visualize the analyzing process with a progress bar. Defaults to False.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
         Returns:
-            bool: whether the fault is n-diagnosable]
-            SimTrace: the trace
+            (bool, SimTrace):
+                bool: whether the fault is n-diagnosable.
+                SimTrace: if is not n-diagnosable, a `SimTrace` will be returend as a proof.
         """
         if visual:
             from tqdm import tqdm
@@ -921,7 +950,7 @@ system Process;
                 desc=f"   {n}-diagnosability for '{fault}'",
             ):
                 suffix = list(suffix)
-                if self.is_valid_suffix(
+                if self.__is_valid_suffix(
                     sigma_o, sigma_un, fault, suffix, keep_tmp_file
                 )[0]:
                     # print('    valid_suffix: ', suffix)
@@ -941,7 +970,7 @@ system Process;
         else:
             for suffix in product(sigma_o, repeat=n):
                 suffix = list(suffix)
-                if self.is_valid_suffix(
+                if self.__is_valid_suffix(
                     sigma_o, sigma_un, fault, suffix, keep_tmp_file
                 )[0]:
                     # print('    valid_suffix: ', suffix)
@@ -969,17 +998,18 @@ system Process;
         sigma_un: List[str],
         keep_tmp_file=True,
     ) -> (bool, SimTrace):
-        """identify faults with the suffix sequence
+        """Do fault identification of `fault` with `suffix_sequence`.
 
         Args:
-            suffix_sequence (List[str]): latest observation sequence (suffix sequence)
-            fault (str): the fault to be identified
-            sigma_o (List[str]):  observable event set
-            sigma_un (List[str]): unobservable event set
+            suffix_sequence (List[str]): latest observation sequence.
+            fault (str): the fault to be identified.
+            sigma_o (List[str]): the set of observable events.
+            sigma_un (List[str]): the set of unobservable events.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
         Returns:
-            bool: whether the fault can be identified with the suffix sequence
-            SimTrace: the trace of the suffix sequence
+            bool: whether the fault can be identified with `suffix_sequence`.
+            SimTrace: if the `fault` can not be identified, a counter-example will be returned.
         """
 
         tmp_model = self.copy_as(f"tmp_identify_{uuid.uuid4()}.xml")
@@ -1017,16 +1047,16 @@ system Process;
         control_length: int,
         keep_tmp_file=True,
     ) -> str:
-        """tolerance analysis for a given fault set
+        """Tolerate the `identified_faults` such that the system can reach the `target_state`.
 
         Args:
-            target_state (str): the target state to be reached
-            identified_faults (List[str]): the identified faults
-            safety_events (List[str]): the safety events
-            sigma_f (List[str]): the fault set
-            sigma_c (List[str]): the control set
-            control_length (int): the length of control sequence
-            keep_tmp_file (bool): whether to keep the temp file
+            target_state (str): the expression of the target state to be reached, which will be concatinated to the ending of TCTL. For example: `f"E<> MInputAfterFault.pass and {target_state}"`.
+            identified_faults (List[str]): the set of identified faults.
+            safety_events (List[str]): the sequence of safety events that should be applied just after the fault.
+            sigma_f (List[str]): the set of fault events.
+            sigma_c (List[str]): the set of control events.
+            control_length (int): the maximum length of control sequence, i.e., the `identified_faults` should be tolerated within `control_length` of control events.
+            keep_tmp_file (bool): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
             Returns:
                 str: the result of tolerance, the control sequence tail, the trace
@@ -1034,6 +1064,7 @@ system Process;
                         "Fault can NOT be tolerated"
                         "Fault can be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
                         "Fault may be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
+                        `may` means that the the provided control sequence is not confirmed to tolerate `identified_faults`, but there exists such a trace that lead to `target_state`.
         """
         for _ in range(len(identified_faults)):
             tmp_model = self.copy_as(f"tmp_tolerance_design_input_{uuid.uuid4()}.xml")
@@ -1051,7 +1082,7 @@ system Process;
             tmp_model.add_template_to_system(template.name)
             tmp_model.queries = f"E<> MInputAfterFault.pass and {target_state}"
 
-            result = tmp_model.find_all_patterns_sfx(
+            result = tmp_model.__find_all_patterns_sfx(
                 identified_faults=identified_faults,
                 focused_actions=sigma_c + identified_faults,
                 keep_tmp_file=keep_tmp_file,
@@ -1093,7 +1124,7 @@ system Process;
             else:
                 return f"Fault may be tolerated, control sequence tail: {control_tail}, trace: {result_i}"
 
-    def find_all_patterns_sfx(
+    def __find_all_patterns_sfx(
         self,
         identified_faults: List[str],
         focused_actions: List[str] = None,

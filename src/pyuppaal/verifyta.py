@@ -9,6 +9,7 @@ import os
 import subprocess
 from typing import List
 
+
 class Verifyta:
     """This is a singleton class that help to use `verifyta` command.
     """
@@ -41,10 +42,9 @@ class Verifyta:
             str: current verifyta path.
         """
         return self.__verifyta_path
-    
 
     @staticmethod
-    def get_env() -> str: # operation system
+    def get_env() -> str:  # operation system
 
         operating_system = platform.system()
 
@@ -60,7 +60,7 @@ class Verifyta:
     def get_uppaal_version(self) -> int:
 
         res = self.cmd(f'{self.__verifyta_path} -v')
-        index = res.split(' ').index('UPPAAL') # Version is the word after UPPAAL
+        index = res.split(' ').index('UPPAAL')  # Version is the word after UPPAAL
         return int(res.split(' ')[index + 1].split('.')[0])
 
     def set_verifyta_path(self, verifyta_path: str) -> None:
@@ -88,7 +88,6 @@ class Verifyta:
         # check validation of verifyta
         cmd = f'{verifyta_path} -v'
 
-
         cmd_res = subprocess.run(cmd, shell=True, capture_output=True)
         if cmd_res.returncode == 0:
             pass
@@ -103,7 +102,7 @@ class Verifyta:
             cmd_res = str(cmd_res.stdout + cmd_res.stderr)
         else:
             cmd_res = str(cmd_res.stdout)
-        
+
         if 'UPPAAL' in cmd_res:
             self.__verifyta_path = verifyta_path
             self.__verifyta_version = self.get_uppaal_version()
@@ -120,7 +119,7 @@ class Verifyta:
 
         Args:
             cmd (str): command to run.
-            
+
         Raises:
             ValueError: if verifyta_path is not set.
             ValueError: if cmd got stderr and not as expected.
@@ -137,28 +136,28 @@ class Verifyta:
         # Run the command and check for errors. Use shell because we set env var and && is used.
         # macos and windows use shell, linux not use
         cmd_res = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=False)
-        
+
         if cmd_res.stderr is not None and cmd_res.stderr != '':
-            if  "Writing example trace to" in cmd_res.stderr:
+            if "Writing example trace to" in cmd_res.stderr:
                 pass
             elif "Writing counter example" in cmd_res.stderr:
                 pass
             elif cmd_res.stdout is not None and "Showing" in cmd_res.stdout:
-                #cmd:
+                # cmd:
                 #   set UPPAAL_COMPILE_ONLY=&&c:\users\taco\documents\github\pyuppaal_hcps\src\pyuppaal\../../bin/uppaal64-4.1.26\bin-Windows/verifyta.exe C:\Users\Taco\Documents\GitHub\pyuppaal_hcps\src\test_unit\demo1.xml -t 1 -o 0
-                #stdout:
+                # stdout:
                 #   Options for the verification:
                 #   Generating shortest trace
                 #   Search order is breadth first
                 #   Using conservative space optimisation
                 #   Seed is 1700202518
                 #   State space representation uses minimal constraint systems
-                # 
+                #
                 # Verifying formula 1 at /nta/queries/query[1]/formula
                 #  -- Formula is NOT satisfied.
                 # Showing counter example.
 
-                #stderr:
+                # stderr:
                 # State:
                 # ( P1.A )
                 # P1.t=0 #depth=0
@@ -171,11 +170,12 @@ class Verifyta:
                 # P1.t=0 #depth=1
                 pass
             elif "[warning] Strict invariant." in cmd_res.stderr:
-                # TODO: Maybe change the input/observation clk name to avoid this.    
+                # TODO: Maybe change the input/observation clk name to avoid this.
                 pass
             else:
                 if "license key is not set" in cmd_res.stderr:
-                    raise ValueError(f"UPPAAL License Not set. Register on `https://uppaal.veriaal.dk/academic.html` and set the key via `verifyta --lease 168 --key YOUR_LICENSE_KEY`.\n Note: You may need to modify `verifyta` to the real verifyta path. \n cmd: {''.join(cmd)}\nErr: {cmd_res.stderr}")
+                    raise ValueError(
+                        f"UPPAAL License Not set. Register on `https://uppaal.veriaal.dk/academic.html` and set the key via `verifyta --lease 168 --key YOUR_LICENSE_KEY`.\n Note: You may need to modify `verifyta` to the real verifyta path. \n cmd: {''.join(cmd)}\nErr: {cmd_res.stderr}")
                 if "Failed to retrieve" in cmd_res.stderr:
                     raise ValueError(f"UPPAAL License Error. Check Internect connection and try again may help. \n cmd: {''.join(cmd)}\nErr: {cmd_res.stderr}")
                 raise ValueError(f"Command: {''.join(cmd)}\nErr: {cmd_res.stderr}")
@@ -221,8 +221,7 @@ class Verifyta:
 
         return if_path
 
-    def verify(self, model_path: str , trace_path: str  = None, verify_options: str = "-t 1", keep_tmp_file = True) -> str:
-        
+    def verify(self, model_path: str, trace_path: str = None, verify_options: str = "-t 1", keep_tmp_file=True) -> str:
         """
         Verify model and return the verify result as list.
         This is designed for advanced UPPAAL user.
@@ -244,14 +243,14 @@ class Verifyta:
                 Defaults to None, which will create `.xtr` path.
             verify_options (str, optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
                 Defaults to '-t 1', returning the shortest trace.
-        
+
         Raises:
             ValueError: if tracer file is not `xml` or `xtr`.
-        
+
         Returns:
             str: terminal verify results for `.xml` model.
         """
-        
+
         if not isinstance(model_path, str):
             raise ValueError(f'List input is not supported anymore, please use for loop. mdel_path: {model_path}, verify_options: {option}')
 
@@ -289,16 +288,16 @@ class Verifyta:
                 option = f"-f {trace_path} {verify_options}"
             else:
                 error_info = f'trace_path should end with ".xml" or ".xtr", current trace_path = {trace_path}.'
-                raise ValueError(error_info)        
-            
+                raise ValueError(error_info)
+
         # check model_path exist
         if not os.path.exists(model_path):
             error_info = f'model_path {model_path} not found.'
             raise FileNotFoundError(error_info)
-        
+
         # set uppaal environment variables
         cmd_env = 'set UPPAAL_COMPILE_ONLY=' if (self.__operating_system == "Windows") else "UPPAAL_COMPILE_ONLY="
-        
+
         # 构造命令
         cmd = f'{cmd_env}&&{self.__verifyta_path} {model_path} {option}'
         res = self.cmd(cmd)
@@ -307,6 +306,6 @@ class Verifyta:
         if not keep_tmp_file:
             trace_path = trace_path.replace('.xtr', '-1.xtr').replace('_xtr', '_xtr-1')
             if os.path.exists(trace_path):
-                os.remove(trace_path) 
+                os.remove(trace_path)
 
         return res

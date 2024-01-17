@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from .verifyta import Verifyta
 from .utap import utap_parser
 
+
 class SimTrace:
     """SimTrace is a class that represents a trace.
     """
@@ -60,11 +61,11 @@ class SimTrace:
             res += f'State [{i}]: {state_i}\n'
             if len(self.__global_variables[i].variables_value) > 0:
                 res += f'global_variables [{i}]: {self.__global_variables[i]}\n'
-            else :
+            else:
                 res += f'global_variables [{i}]: None\n'
             if len(self.__clock_constraints[i].clockzones) > 0:
                 res += f'Clock_constraints [{i}]: {self.__clock_constraints[i]}\n'
-            else :
+            else:
                 res += f'Clock_constraints [{i}]: None\n'
             if i < len(self.__states) - 1:
                 res += f'transitions [{i}]: {self.__transitions[i]}\n'
@@ -706,6 +707,7 @@ class GlobalVar:
 
     Global variables are shared across different components of the model and can be used to store and manipulate data that is globally accessible.
     """
+
     def __init__(self, variables_name: List[str], variables_value: List[float]):
         """
         Initializes a new instance of the GlobalVar class.

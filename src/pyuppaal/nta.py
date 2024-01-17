@@ -20,7 +20,7 @@ class Location:
         location = Location(location_id=1, location_pos=(100, 200))
 
         # Creating a location with additional properties.
-        location =   Location(
+        location = Location(
             location_id=2,
             location_pos=(150, 250),
             name="Start",
@@ -282,7 +282,7 @@ class Edge:
     Represents a transition (edge) between two locations in a UPPAAL model.
 
     In UPPAAL, an edge (referred to as 'transition' in XML) defines the behavior and conditions for moving from one state (location) to another. It can include synchronization labels, guards, updates, selections, and more.
-    
+
     Example Usage:
         # Creating an edge with basic properties.
         edge = Edge(
@@ -698,18 +698,17 @@ class Template:
 
     @property
     def xml(self) -> str:
-        """将实例转换成ET.Element(.xml 文件中的一段), 
-        再转换成一段文本，用户一般不会用到。
+        """Convert `self` to ET.Element(part of `.xml` file) as `string`, which is not epected to be used by users.
 
         Returns:
-            str: A string representing the Template instance in UPPAAL XML format.
+            str: A string representing the `Template` instance in UPPAAL `.xml` format.
         """
         element = self.Element
         return ET.tostring(element, encoding="utf-8").decode("utf-8")
 
     @staticmethod
     def from_xml(template_xml: str | ET.Element) -> Template:
-        """静态方法，从.xml 文件解析出 template. 顺序如下
+        """parse `template` from `.xml` file by the following steps:
         1. template的name
         2. parameter
         3. declaration
@@ -772,56 +771,56 @@ class Template:
 
         return temp_res
 
-    @staticmethod
-    def input_template(name: str, signals: List[Tuple[str, str, str]], init_id: int) -> Template:
-        """_summary_
+    # @staticmethod
+    # def input_template(name: str, signals: List[Tuple[str, str, str]], init_id: int) -> Template:
+    #     """_summary_
 
-        >>> monitor = Template.construct_input_template(xxx)
-        >>> umodel = UModel(xxx)
-        >>> umodel.add_template(monitor: Tempalte)
-        >>> umodel.add_template_to_system(str: template_name)
+    #     >>> monitor = Template.construct_input_template(xxx)
+    #     >>> umodel = UModel(xxx)
+    #     >>> umodel.add_template(monitor: Tempalte)
+    #     >>> umodel.add_template_to_system(str: template_name)
 
-        Args:
-            name (str): The name of the input template.
-            signals (List[Tuple[str, str, str]]): A list of tuples where each tuple represents an input signal.
-                Each tuple consists of (action_name, guard_condition, invariant_condition).
-                - action_name (str): The name of the action or signal.
-                - guard_condition (str): The guard condition associated with the action.
-                - invariant_condition (str): The invariant condition associated with the location.
-            init_id (int): The initial ID to use for the locations in this template.
+    #     Args:
+    #         name (str): The name of the input template.
+    #         signals (List[Tuple[str, str, str]]): A list of tuples where each tuple represents an input signal.
+    #             Each tuple consists of (action_name, guard_condition, invariant_condition).
+    #             - action_name (str): The name of the action or signal.
+    #             - guard_condition (str): The guard condition associated with the action.
+    #             - invariant_condition (str): The invariant condition associated with the location.
+    #         init_id (int): The initial ID to use for the locations in this template.
 
-        Returns:
-            Template: A UPPAAL template object representing the input signals with their respective guards and invariants.
+    #     Returns:
+    #         Template: A UPPAAL template object representing the input signals with their respective guards and invariants.
 
-        Example Usage:
-            >>> input_signals = [('signal1', 'x >= 10', 'x <= 20'), ('signal2', 'y >= 5', 'y <= 10')]
-            >>> input_template = Monitors.input_template('InputSignals', input_signals, 1)
-            >>> print(input_template.name)
-            'InputSignals'
-        """
+    #     Example Usage:
+    #         >>> input_signals = [('signal1', 'x >= 10', 'x <= 20'), ('signal2', 'y >= 5', 'y <= 10')]
+    #         >>> input_template = Monitors.input_template('InputSignals', input_signals, 1)
+    #         >>> print(input_template.name)
+    #         'InputSignals'
+    #     """
 
-        # 创建locations
-        locations = []
-        edges = []
-        for i, signal_i in enumerate(signals):
-            # [signal, guard, inv, name]
-            location_pos = (300 * i, 200)
-            location = Location(location_id=init_id + i, location_pos=location_pos, invariant=signal_i[2])
-            locations.append(location)
-            # [signal, guard, inv]
-            edge = Edge(source_location_id=init_id + i,
-                        target_location_id=init_id + i + 1,
-                        source_location_pos=location_pos,
-                        target_location_pos=(location_pos[0]+300, 200),
-                        guard=signal_i[1], sync=signal_i[0]+'!')
-            edges.append(edge)
-        # 需要多一个尾巴location
-        location = Location(location_id=init_id + len(signals), location_pos=(300 * len(signals), 200), name='pass')
-        locations.append(location)
+    #     # 创建locations
+    #     locations = []
+    #     edges = []
+    #     for i, signal_i in enumerate(signals):
+    #         # [signal, guard, inv, name]
+    #         location_pos = (300 * i, 200)
+    #         location = Location(location_id=init_id + i, location_pos=location_pos, invariant=signal_i[2])
+    #         locations.append(location)
+    #         # [signal, guard, inv]
+    #         edge = Edge(source_location_id=init_id + i,
+    #                     target_location_id=init_id + i + 1,
+    #                     source_location_pos=location_pos,
+    #                     target_location_pos=(location_pos[0]+300, 200),
+    #                     guard=signal_i[1], sync=signal_i[0]+'!')
+    #         edges.append(edge)
+    #     # 需要多一个尾巴location
+    #     location = Location(location_id=init_id + len(signals), location_pos=(300 * len(signals), 200), name='pass')
+    #     locations.append(location)
 
-        # 获得clock name并创建declaration
-        clk_name = signals[0][1].split('>')[0]
-        declaration = f'clock {clk_name};'
-        input_temp = Template(name=name, locations=locations,
-                              init_ref=init_id, edges=edges, declaration=declaration)
-        return input_temp
+    #     # 获得clock name并创建declaration
+    #     clk_name = signals[0][1].split('>')[0]
+    #     declaration = f'clock {clk_name};'
+    #     input_temp = Template(name=name, locations=locations,
+    #                           init_ref=init_id, edges=edges, declaration=declaration)
+    #     return input_temp
