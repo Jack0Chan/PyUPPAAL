@@ -89,13 +89,13 @@ class Verifyta:
         cmd = f'{verifyta_path} -v'
 
         cmd_res = subprocess.run(cmd, shell=True, capture_output=True)
-        if cmd_res.returncode == 0:
-            pass
-        else:
-            # 如果报错里面有 \xcf\xB5\xCD\xB3，是中文gbk系统的问题，大概率解码后是"路径不存在"。
-            # if "\\xcf\\xb5\\xcd\\xb3" in str(cmd_res):
-            #     print("Encounter Encode Error. Probable means 'File Not Found' in your language.")
-            raise ValueError(f"Verifyta Not Found!. \nCommand: {cmd}\nErr: {str(cmd_res.stderr)}")
+        # if cmd_res.returncode == 0:
+        #     pass
+        # else:
+        #     # 如果报错里面有 \xcf\xB5\xCD\xB3，是中文gbk系统的问题，大概率解码后是"路径不存在"。
+        #     # if "\\xcf\\xb5\\xcd\\xb3" in str(cmd_res):
+        #     #     print("Encounter Encode Error. Probable means 'File Not Found' in your language.")
+        #     raise ValueError(f"Verifyta Not Found!. \nCommand: {cmd}\nErr: {str(cmd_res.stderr)}")
 
         # UPPAAL5 will get noneType in stderr.
         if cmd_res.stderr is not None:
@@ -112,7 +112,7 @@ class Verifyta:
                            "\nLinux  : absolute_path_to_uppaal/bin-Linux/verifyta" \
                            "\nmacOS  : absolute_path_to_uppaal/bin-Darwin/verifyta"
             raise ValueError(
-                f"Invalid verifyta_path: {verifyta_path}.\n{example_info}")
+                f"Invalid verifyta_path: {verifyta_path}.\n{example_info} \nVerifyta Not Found!.")
 
     def cmd(self, cmd: str) -> str:
         """Run common command with cmd, you can easily ignore the verifyta path.

@@ -142,3 +142,5 @@ dmypy.json
 
 src/pyuppaal/simpleUML/*
 src/test_integration/uppaal
+
+bin/

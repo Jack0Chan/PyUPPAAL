@@ -540,13 +540,12 @@ class Monitors:
         >>> umodel = UModel(xxx)
         >>> umodel.add_template(monitor: Tempalte)
         >>> umodel.add_template_to_system(str: template_name)
-
-        # <template>
-        #     <name>Monitor</name>
-        #     <location> </location>
-        #     <location>init ref="id47"/>
-        #     <transition> </transition>
-        # </template>
+        <template>
+            <name>Monitor</name>
+            <location> </location>
+            <location>init ref="id47"/>
+            <transition> </transition>
+        </template>
         """
         # 创建locations
         locations = []

@@ -8,14 +8,14 @@ Pyuppaal documentation
 
 .. toctree::
    :maxdepth: 10
-   :caption: Pyuppaal:
+   :caption: PyUPPAAL Documentation
 
    README.md
-   Demo - PipeNet.md
-   Demo - Pedestrian.md
-   Demo - Fault Diagnosis.md
-   Demo - Scripted Model Construction.md
-   Demo - Trace Parser.md
+   Demo1-PipeNet.md
+   Demo2-Pedestrian.md
+   Demo3-Fault Diagnosis.md
+   Demo4-Scripted Model Construction.md
+   Demo5-Trace Parser.md
    USER API
    ALL API
 

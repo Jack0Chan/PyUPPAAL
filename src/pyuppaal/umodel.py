@@ -394,12 +394,15 @@ system Process;
                 self.model_path, xtr_trace_path, verify_options=verify_options
             )
 
+            # print(verify_cmd_res)
+
             xtr_trace_path = xtr_trace_path.replace(".xtr", "-1.xtr")
-            if "Writing example trace to" in verify_cmd_res:
+            if "Writing example trace to" in verify_cmd_res or "Writing counter example to" in verify_cmd_res:
                 res = self.load_xtr_trace(xtr_trace_path)
                 if not keep_tmp_file:
                     os.remove(xtr_trace_path)
                 return res
+
 
         else:
             xtr_trace_path = self.model_path.replace(".xml", "_xtr")
@@ -408,7 +411,7 @@ system Process;
             )
 
             xtr_trace_path = xtr_trace_path.replace("_xtr", "_xtr-1")
-            if "Writing witness trace" in verify_cmd_res:
+            if "Writing witness trace" in verify_cmd_res or "Writing counter example to" in verify_cmd_res:
                 res = self.load_xtr_trace(xtr_trace_path)
                 if not keep_tmp_file:
                     os.remove(xtr_trace_path)
@@ -594,7 +597,7 @@ system Process;
             name=template_name,
             signals=signals,
             observe_action=focused_actions,
-            init_id=self.max_location_id + 1,
+            init_ref=self.max_location_id + 1,
             strict=is_strict,
             allpattern=all_patterns,
         )
@@ -633,7 +636,7 @@ system Process;
         # clock_name, signals = self.__parse_signals(signals)
         # input_model = UFactory.input(template_name, signals.to_list_tuple(clock_name), start_id)
         input_monitor = Monitors.input_template(
-            name=template_name, signals=signals, init_id=start_id
+            name=template_name, signals=signals, init_ref=start_id
         )
         # self.templates.append(input_monitor)
 
@@ -787,12 +790,12 @@ system Process;
         max_patterns: int = None,
         verify_options: str = "-t 1",
     ) -> SimTrace:
-        """
-        Find all patterns that satisfy `self.queries[0]` using a generator.
+        """Find all patterns that satisfy `self.queries[0]` using a generator.
+
         Args:
             focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
-            max_patterns (int, optional): the maximum number of patterns to find. If None, find all. Defaults to None.
+            max_patterns (int, optional): the maximum number of patterns to find. Defaults to None, find all patterns.
             verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
 
         Yields:
@@ -1047,7 +1050,15 @@ system Process;
         control_length: int,
         keep_tmp_file=True,
     ) -> str:
-        """Tolerate the `identified_faults` such that the system can reach the `target_state`.
+        """Tolerate the `identified_faults` such that the system can reach the `target_state`. 
+        
+        Examples:
+            >>> possible return results
+            "Fault can NOT be tolerated" 
+            "Fault can be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
+            "Fault may be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
+            "Fault may be tolerated" means that the the provided control sequence is not confirmed to tolerate `identified_faults`, 
+            but there exists such a trace that lead to `target_state`.
 
         Args:
             target_state (str): the expression of the target state to be reached, which will be concatinated to the ending of TCTL. For example: `f"E<> MInputAfterFault.pass and {target_state}"`.
@@ -1058,13 +1069,8 @@ system Process;
             control_length (int): the maximum length of control sequence, i.e., the `identified_faults` should be tolerated within `control_length` of control events.
             keep_tmp_file (bool): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
-            Returns:
-                str: the result of tolerance, the control sequence tail, the trace
-                    example:
-                        "Fault can NOT be tolerated"
-                        "Fault can be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
-                        "Fault may be tolerated, control sequence tail: ['a1', 'a2'], trace: ['a1', 'a2', 'a3', 'a4']"
-                        `may` means that the the provided control sequence is not confirmed to tolerate `identified_faults`, but there exists such a trace that lead to `target_state`.
+        Returns:
+            str: the result of tolerance, the control sequence tail, and the trace.
         """
         for _ in range(len(identified_faults)):
             tmp_model = self.copy_as(f"tmp_tolerance_design_input_{uuid.uuid4()}.xml")
@@ -1223,7 +1229,7 @@ system Process;
         The internal process is as following:
         1. Convert the `model_path` model into a `.if` file.
         2. Analyze `.if` file and the `xtr_trace_path` to get the instance `SimTrace`.
-        3. [reference](https://github.com/UPPAALModelChecker/utap).
+        3. reference: https://github.com/UPPAALModelChecker/utap.
 
         Args:
             model_path (str): the path of the `.xml` model file

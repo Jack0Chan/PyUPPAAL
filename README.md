@@ -1,24 +1,39 @@
 # Introduction
 
-[![Documentation Status](https://readthedocs.org/projects/pyuppaal/badge/?version=latest)](https://pyuppaal.readthedocs.io/en/latest/?badge=latest)    [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)    [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)    [![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps)
+[![Documentation Status](https://readthedocs.org/projects/pyuppaal/badge/?version=latest)](https://pyuppaal.readthedocs.io/en/latest/?badge=latest) 
+![](https://img.shields.io/badge/test-passing-brightgreen)
+[![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)
+[![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)
+[![](https://img.shields.io/badge/group-HCPS-blue)](https://www.yuque.com/hcps) 
 
-`pyuppaal` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
+![](https://img.shields.io/badge/platform-Windows-blue) 
+![](https://img.shields.io/badge/platform-Linux-blue) 
+![](https://img.shields.io/badge/platform-MacOS-blue)
 
-1. load a .xml model, just like you open a model in UPPAAL GUI;
+
+
+`PyUPPAAL` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
+
+1. load a `.xml` model, just like you open a model in UPPAAL GUI;
 2. set the query, just like you edit the queries in UPPAAL GUI;
 3. verify a model with the query and options (e.g., shortest path), just like you click the "Verify" button in UPPAAL GUI.
-4. universal (support Windows, Linux, MacOS).
 
 In addition to the above functions, you can also
 
 - load a `.xtr` trace, and get the formatted trace data as [SimTrace](https://pyuppaal.readthedocs.io/en/latest/USER%20API.html#pyuppaal.tracer.SimTrace);
-- modify NTA of UPPAAL xml model, including templates, systems, and queries, etc. ([Example](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20Scripted%20Model%20Construction.html));
+- modify NTA of UPPAAL xml model, including templates, systems, and queries, etc. ([Example](https://pyuppaal.readthedocs.io/en/latest/Demo4-ScriptedModelConstruction.html));
 - add built-in templates such as Input, Observer, and other monitors in class [Template](https://pyuppaal.readthedocs.io/en/latest/USER%20API.html#pyuppaal.nta.Template);
 - find all patterns of the model with certain query with [find_all_patterns](https://pyuppaal.readthedocs.io/en/latest/USER%20API.html#pyuppaal.umodel.UModel.find_all_patterns) method;
 - common problem solutions, such as , [fault_identification](https://pyuppaal.readthedocs.io/en/latest/USER%20API.html#pyuppaal.umodel.UModel.fault_identification), [fault_diagnosability](https://pyuppaal.readthedocs.io/en/latest/USER%20API.html#pyuppaal.umodel.UModel.fault_diagnosability), and [fault_tolerance](https://pyuppaal.readthedocs.io/en/latest/USER%20API.html#pyuppaal.umodel.UModel.fault_tolerance);
 - [todo] analyze the *SMC* simulation results.
 
-A [Demo - Pipenet](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20PipeNet.html) is provided to help understand how `pyppaal` can contribute to scientific research.
+Demos are provided to help understand how `PyUPPAAL` can contribute to scientific research:
+
+1. [Demo - PipeNet (find_all_patterns)](https://pyuppaal.readthedocs.io/en/latest/Demo1-PipeNet.html)
+2. [Demo - Pedestrian (find_all_patterns)](https://pyuppaal.readthedocs.io/en/latest/Demo2-Pedestrian.html)
+3. [Demo - Fault Diagnosis (fault_diagnosability, fault_identification)](https://pyuppaal.readthedocs.io/en/latest/Demo3-Fault%20Diagnosis.html)
+4. [Demo - Scripted Model Construction (pyuppaal.nta)](https://pyuppaal.readthedocs.io/en/latest/Demo4-Scripted%20Model%20Construction.html)
+5. [Demo - Trace Parser (pyuppaal.SimTrace)](https://pyuppaal.readthedocs.io/en/latest/Demo5-Trace%20Parser.html)
 
 # Quickstart
 
@@ -157,18 +172,7 @@ print(f'Verify with multi-threads, time usage {time.time() - t0}')
 
 For models with multiple processes, you can use `umod.get_communication_graph()` method to visualize the sturcture of the model.
 
-An example communication graph of a complex model in [Demo_PipeNet](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20PipeNet.html#visualize-the-architecture) is shown below:
+An example communication graph of a complex model in [Demo_PipeNet](https://pyuppaal.readthedocs.io/en/latest/Demo1-PipeNet.html#visualize-the-architecture) is shown below:
 
 
 [![](https://mermaid.ink/img/pako:eNpVjs0KwjAQhF-l7Lk56DEHT714UUGPC7JttjaQpCHdiFL67kYo_pxmmG8GZoZuNAwaboniUF0aDCcb-cCCYR9iLnJsJ053TmuglH3LtSXnlNp92qtRih9WtoV8d39o84OgBs_JkzXlwYyhqhBkYM8IuljDPWUnCBiWUqUs4_kZOtCSMteQoyHhxlL57kH35CZeXq-ESg8?type=png)](https://mermaid.live/edit#pako:eNpVjs0KwjAQhF-l7Lk56DEHT714UUGPC7JttjaQpCHdiFL67kYo_pxmmG8GZoZuNAwaboniUF0aDCcb-cCCYR9iLnJsJ053TmuglH3LtSXnlNp92qtRih9WtoV8d39o84OgBs_JkzXlwYyhqhBkYM8IuljDPWUnCBiWUqUs4_kZOtCSMteQoyHhxlL57kH35CZeXq-ESg8)
-
-## 6. Other Demos
-
-More functions can be found in the demos below.
-
-1. [Demo - PipeNet (find_all_patterns)](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20PipeNet.html)
-2. [Demo - Pedestrian (find_all_patterns)](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20Pedestrian.html)
-3. [Demo - Fault Diagnosis (fault_diagnosability, fault_identification)](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20Fault%20Diagnosis.html)
-4. [Demo - Scripted Model Construction (pyuppaal.nta)](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20Scripted%20Model%20Construction.html)
-5. [Demo - Trace Parser (pyuppaal.SimTrace)](https://pyuppaal.readthedocs.io/en/latest/Demo%20-%20Trace%20Parser.html)
-

@@ -15,18 +15,16 @@ class Location:
 
     A location in UPPAAL is a state in the state machine of a template. It can have various properties like being an initial, urgent, or committed state, along with invariants, names, and positions.
 
-    Example Usage:
-        # Creating a basic location with an ID and position.
-        location = Location(location_id=1, location_pos=(100, 200))
-
-        # Creating a location with additional properties.
-        location = Location(
-            location_id=2,
-            location_pos=(150, 250),
-            name="Start",
-            invariant="x <= 5",
-            is_initial=True
-        )
+    Examples:
+        >>> # Creating a basic location with an ID and position.
+        >>> location = Location(location_id=1, location_pos=(100, 200)) 
+        >>> # Creating a location with additional properties.
+        >>> location = Location(
+        >>>    location_id=2,
+        >>>    location_pos=(150, 250),
+        >>>    name="Start",
+        >>>    invariant="x <= 5",
+        >>>    is_initial=True)
     """
 
     def __init__(self, location_id: int, location_pos: Tuple(int, int),
@@ -185,20 +183,22 @@ class Location:
 
     @staticmethod
     def from_xml(location_xml: str | ET.Element) -> Location:
-        """_summary_
+        """ Parse `xml` element to a `Location` instance.
+        
+        Examples:
+            >>> # A committed location with many properties such as invariant, testcode, etc.         
+                <location id="id1" x="0" y="0">
+                    <name x="-10" y="-34">location_name</name>
+                    <label kind="invariant" x="-10" y="17">inv_inv</label>
+                    <label kind="exponentialrate" x="-10" y="34">roe_roe</label>
+                    <label kind="testcodeEnter">on_enter_on_enter</label>
+                    <label kind="testcodeExit">on_exit_on_exit</label>
+                    <label kind="comments" x="-10" y="59">comments_comments</label>
+                    <committed/>
+                </location>
 
         Args:
-            location_xml (str | ET.Element): string that meets xml element format of location. For example:
-            A committed location with many properties such as invariant, testcode, etc.         
-            <location id="id1" x="0" y="0">
-                <name x="-10" y="-34">location_name</name>
-                <label kind="invariant" x="-10" y="17">inv_inv</label>
-                <label kind="exponentialrate" x="-10" y="34">roe_roe</label>
-                <label kind="testcodeEnter">on_enter_on_enter</label>
-                <label kind="testcodeExit">on_exit_on_exit</label>
-                <label kind="comments" x="-10" y="59">comments_comments</label>
-                            <committed/>
-                    </location>
+            location_xml (str | ET.Element): string that meets xml element format of location. 
 
         Returns:
             Location: location instance
@@ -278,30 +278,28 @@ class Location:
 
 @dataclass
 class Edge:
-    """在界面里叫Edge, 在xml里叫做transition
+    """In GUI, it names `Edge`, but in `xml`, it names `transition`.
     Represents a transition (edge) between two locations in a UPPAAL model.
 
     In UPPAAL, an edge (referred to as 'transition' in XML) defines the behavior and conditions for moving from one state (location) to another. It can include synchronization labels, guards, updates, selections, and more.
 
-    Example Usage:
-        # Creating an edge with basic properties.
-        edge = Edge(
-            source_location_id=1, 
-            target_location_id=2,
-            source_location_pos=(100, 200),
-            target_location_pos=(300, 400),
-            guard="x < 5"
-        )
+    Examples:
+        >>> # Creating an edge with basic properties.
+        >>> edge = Edge(
+        >>>     source_location_id=1, 
+        >>>     target_location_id=2,
+        >>>     source_location_pos=(100, 200),
+        >>>     target_location_pos=(300, 400),
+        >>>     guard="x < 5")
 
-        # Creating an edge with additional properties like synchronization and update.
-        edge = Edge(
-            source_location_id=1, 
-            target_location_id=2,
-            source_location_pos=(100, 200),
-            target_location_pos=(300, 400),
-            sync="a!",
-            update="x=0"
-        )
+        >>> # Creating an edge with additional properties like synchronization and update.
+        >>> edge = Edge(
+        >>>     source_location_id=1, 
+        >>>     target_location_id=2,
+        >>>     source_location_pos=(100, 200),
+        >>>     target_location_pos=(300, 400),
+        >>>     sync="a!",
+        >>>     update="x=0")
     """
 
     def __init__(self, source_location_id: int, target_location_id: int,
@@ -479,46 +477,51 @@ class Edge:
 
     @property
     def xml(self) -> str:
-        """        
-        >>> <transition>
-                >>> 	<source ref="id1"/>
-                >>> 	<target ref="id2"/>
-                >>> 	<label kind="select" x="18" y="-51">nnn:id</label>
-                >>>	    <label kind="guard" x="18" y="-34">guard:=0</label>
-                >>> 	<label kind="synchronisation" x="18" y="-17">sync?</label>
-                >>> 	<label kind="assignment" x="18" y="0">update</label>
-                >>> 	<label kind="testcode">testcode_testcode</label>
-                >>> 	<label kind="comments" x="18" y="25">comments_comments</label>
-                >>> 	<nail x="51" y="42"/>
-                >>> 	<nail x="76" y="34"/>
-                >>> 	<nail x="68" y="0"/>
-                >>> 	<nail x="102" y="42"/>
-                >>> </transition>
+        """__summary__
+        
+        Examples:
+            >>> # example of transition (in gui named Edge) xml
+                <transition>
+                    <source ref="id1"/>
+                    <target ref="id2"/>
+                    <label kind="select" x="18" y="-51">nnn:id</label>
+                    <label kind="guard" x="18" y="-34">guard:=0</label>
+                    <label kind="synchronisation" x="18" y="-17">sync?</label>
+                    <label kind="assignment" x="18" y="0">update</label>
+                    <label kind="testcode">testcode_testcode</label>
+                    <label kind="comments" x="18" y="25">comments_comments</label>
+                    <nail x="51" y="42"/>
+                    <nail x="76" y="34"/>
+                    <nail x="68" y="0"/>
+                    <nail x="102" y="42"/>
+                </transition>
+                
         """
         element = self.Element
         return ET.tostring(element, encoding="utf-8").decode("utf-8")
 
     @staticmethod
     def from_xml(edge_xml: str | ET.Element) -> Edge:
-        """ 
+        """ __summary__
+        
+        Examples: 
+            >>> # normal transition
+                <transition>
+                    <source ref="id1"/>
+                    <target ref="id2"/>
+                    <label kind="select" x="18" y="-51">nnn:id</label>
+                    <label kind="guard" x="18" y="-34">guard:=0</label>
+                    <label kind="synchronisation" x="18" y="-17">sync?</label>
+                    <label kind="assignment" x="18" y="0">update</label>
+                    <label kind="testcode">testcode_testcode</label>
+                    <label kind="comments" x="18" y="25">comments_comments</label>
+                    <nail x="51" y="42"/>
+                    <nail x="76" y="34"/>
+                </transition>
 
         Args:
             et (str | ET.Element): string that meets xml element format of branch point. 
-            Example1: normal transition
-            <transition>
-                <source ref="id1"/>
-                <target ref="id2"/>
-                <label kind="select" x="18" y="-51">nnn:id</label>
-                <label kind="guard" x="18" y="-34">guard:=0</label>
-                <label kind="synchronisation" x="18" y="-17">sync?</label>
-                <label kind="assignment" x="18" y="0">update</label>
-                <label kind="testcode">testcode_testcode</label>
-                <label kind="comments" x="18" y="25">comments_comments</label>
-                <nail x="51" y="42"/>
-                <nail x="76" y="34"/>
-                    </transition>
-
-            Example2: probability transition
+            
         Returns:
             Edge: edge instance
         """
