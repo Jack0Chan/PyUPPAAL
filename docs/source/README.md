@@ -1,6 +1,7 @@
 # Introduction
 
 [![Documentation Status](https://readthedocs.org/projects/pyuppaal/badge/?version=latest)](https://pyuppaal.readthedocs.io/en/latest/?badge=latest) 
+[![PyPI version](https://badge.fury.io/py/pyuppaal.svg)](https://badge.fury.io/py/pyuppaal)
 ![](https://img.shields.io/badge/test-passing-brightgreen)
 [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)
 [![](https://img.shields.io/badge/github-Jack0Chan-blue)](https://github.com/Jack0Chan)
