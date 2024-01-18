@@ -15,17 +15,20 @@
 import os
 # from symbol import simple_stmt
 import pyuppaal
-from pyuppaal import UModel, Verifyta   
+from pyuppaal import UModel, Verifyta
 from typing import List
 # import time
 
 pyuppaal.DeveloperTools.set_verifyta_path_dev()
 
+
 def bring_to_root(file_name: str):
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(ROOT_DIR, file_name)
 
+
 keep_tmp_file = False
+
 
 def test_cg():
     """Test communication graph."""
@@ -51,31 +54,31 @@ def test_cg():
     print('==== after beautify ====\n', m)
 
 
-
 def test_all_patterns():
     """_summary_
     """
     query = f'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
-    focused_actions = ["pCheckLight", "pGreen",
-                       "pRed", "pYellow", "pCrss", "cCrss"]
+    sigma_focus = ["pCheckLight", "pGreen",
+                   "pRed", "pYellow", "pCrss", "cCrss"]
     u = UModel(bring_to_root('pedestrian_new.xml'))
     u.queries = [query]
-    res = u.find_all_patterns(focused_actions, keep_tmp_file, max_patterns=4)
+    res = u.find_all_patterns(sigma_focus, keep_tmp_file, max_patterns=4)
     assert len(res) == 4
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern-1.xtr"))
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern.xml"))
 
+
 def test_all_patterns_iter():
     """Test for finding all patterns using iterator."""
     query = f'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
-    focused_actions = ["pCheckLight", "pGreen",
-                       "pRed", "pYellow", "pCrss", "cCrss"]
+    sigma_focus = ["pCheckLight", "pGreen",
+                   "pRed", "pYellow", "pCrss", "cCrss"]
     u = UModel(bring_to_root('pedestrian_new.xml'))
     u.queries = [query]
 
     # Using the iterator method
     pattern_iterator = u.find_all_patterns_iter(
-        focused_actions, keep_tmp_file, max_patterns=4)
+        sigma_focus, keep_tmp_file, max_patterns=4)
 
     # Retrieve patterns from the iterator
     res = list(pattern_iterator)
@@ -85,8 +88,8 @@ def test_all_patterns_iter():
 def test_all_patterns_iter_consistance():
     """ Compare the results of find_all_patterns and find_all_patterns_iter"""
     query = 'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
-    focused_actions = ["pCheckLight", "pGreen",
-                       "pRed", "pYellow", "pCrss", "cCrss"]
+    sigma_focus = ["pCheckLight", "pGreen",
+                   "pRed", "pYellow", "pCrss", "cCrss"]
     max_patterns = 4  # Set search max patterns
 
     # Setup UModel instance
@@ -95,11 +98,11 @@ def test_all_patterns_iter_consistance():
 
     # Using traditional find_all_patterns
     traditional_results = u.find_all_patterns(
-        focused_actions, keep_tmp_file, max_patterns=max_patterns)
+        sigma_focus, keep_tmp_file, max_patterns=max_patterns)
 
     # Using find_all_patterns_iter
     pattern_iterator = u.find_all_patterns_iter(
-        focused_actions, keep_tmp_file, max_patterns=max_patterns)
+        sigma_focus, keep_tmp_file, max_patterns=max_patterns)
     iter_results = list(pattern_iterator)
 
     # Comparing the results
@@ -121,6 +124,7 @@ def test_easy_verify():
     print(res)
 
 # test_easy_verify()
+
 
 def test_diagnosibility():  # This test is based on the toy model.
     u_diagnosable = UModel(bring_to_root('toy_model_diagnosable.xml'))
@@ -145,7 +149,6 @@ def test_diagnosibility():  # This test is based on the toy model.
     assert res_diagosable[0] == True and res_not_diagnosable[0] == False
 
 
-
 def test_identification():  # This test is based on the EPS model.
     sigma_f: List[str] = ['fault_relay1_stuck_on', 'fault_relay1_stuck_off',
                           'fault_relay2_stuck_on', 'fault_relay2_stuck_off',
@@ -167,13 +170,13 @@ def test_identification():  # This test is based on the EPS model.
 
     u = UModel(bring_to_root('EPS.xml'))
 
-        # identified_faults = []
-        # for f in sigma_f:
-        #     identify_res = self.fault_identification(
-        #         suffix_sequence=suffix_sequence, fault=f, sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)
-        #     if identify_res[0]:
-        #         identified_faults.append(f)
-        # return identified_faults
+    # identified_faults = []
+    # for f in sigma_f:
+    #     identify_res = self.fault_identification(
+    #         suffix_sequence=suffix_sequence, fault=f, sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)
+    #     if identify_res[0]:
+    #         identified_faults.append(f)
+    # return identified_faults
 
     # res.append f if f is identified
 
@@ -182,7 +185,7 @@ def test_identification():  # This test is based on the EPS model.
            'v1_low', 'v2_high', 'notwork']
     for f in sigma_f:
         if u.fault_identification(suffix_sequence=obs, fault=f,
-                          sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)[0]:
+                                  sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)[0]:
             res.append(f)
     assert res == ['fault_battery1_burn']
 
@@ -191,7 +194,7 @@ def test_identification():  # This test is based on the EPS model.
            'v1_low', 'v2_low', 'notwork']
     for f in sigma_f:
         if u.fault_identification(suffix_sequence=obs, fault=f,
-                          sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)[0]:
+                                  sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)[0]:
             res.append(f)
     assert res == ['fault_battery1_burn', 'fault_battery2_burn']
 
@@ -200,17 +203,18 @@ def test_identification():  # This test is based on the EPS model.
            'relay2_off', 'relay3_on',  'notwork']
     for f in sigma_f:
         if u.fault_identification(suffix_sequence=obs, fault=f,
-                          sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)[0]:
+                                  sigma_o=sigma_o, sigma_un=sigma_un, keep_tmp_file=keep_tmp_file)[0]:
             res.append(f)
     assert res == []
 
-def test_fault_tolerance() :
+
+def test_fault_tolerance():
     CONTROL_LENGTH = 2
     u = UModel(bring_to_root('EPS_ScanFirst.xml'))
     # system_prefix = u.system[u.system.rfind('system')]
     # u.system = system_prefix +'\n' + 'system battery1, battery2, wire1, wire2, wire3, wire4, relay1, relay2, relay3, load, v1, v2, controller_scan_first, scanner;'
 
-    safety_enents = ['relay1_off', 'relay2_off', 'relay3_off'] # safety operation
+    safety_enents = ['relay1_off', 'relay2_off', 'relay3_off']  # safety operation
     sigma_f: List[str] = ['fault_relay1_stuck_on', 'fault_relay1_stuck_off',
                           'fault_relay2_stuck_on', 'fault_relay2_stuck_off',
                           'fault_relay3_stuck_on', 'fault_relay3_stuck_off',
@@ -219,29 +223,30 @@ def test_fault_tolerance() :
                           'relay2_on', 'relay2_off', 'relay3_on', 'relay3_off']
 
     # test for fault_tolerance
-    res = u.fault_tolerance(target_state='load.working',identified_faults=['fault_battery1_burn'], safety_events=safety_enents, 
-                      sigma_f = sigma_f, sigma_c=sigma_c,
-                      control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
+    res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn'], safety_events=safety_enents,
+                            sigma_f=sigma_f, sigma_c=sigma_c,
+                            control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
     # print(str(res) )
-    assert("Fault can be tolerated" in res)
+    assert ("Fault can be tolerated" in res)
 
-    res = u.fault_tolerance(target_state='load.working',identified_faults=['fault_battery1_burn', 'fault_battery2_burn'],
-                    safety_events=safety_enents, 
-                    sigma_f = sigma_f, sigma_c=sigma_c,
-                    control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
+    res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn', 'fault_battery2_burn'],
+                            safety_events=safety_enents,
+                            sigma_f=sigma_f, sigma_c=sigma_c,
+                            control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
     # print(str(res))
-    assert("Fault can NOT be tolerated" in res)
+    assert ("Fault can NOT be tolerated" in res)
 
-    res = u.fault_tolerance(target_state='load.working',identified_faults=['fault_battery1_burn', 'fault_relay1_stuck_off'],
-                      safety_events=safety_enents, 
-                    sigma_f = sigma_f, sigma_c=sigma_c,
-                    control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
+    res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn', 'fault_relay1_stuck_off'],
+                            safety_events=safety_enents,
+                            sigma_f=sigma_f, sigma_c=sigma_c,
+                            control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
     # print(str(res))
-    assert("Fault can be tolerated" in res)
+    assert ("Fault can be tolerated" in res)
 
-# test_fault_tolerance() 
+# test_fault_tolerance()
 
 # xtr tracer test.
+
 
 def __run_test_tracer(model_path: str, trace_path: str):
     """_summary_
@@ -259,6 +264,7 @@ def __run_test_tracer(model_path: str, trace_path: str):
     os.remove(trace_path)
     return sim_trace
 
+
 def test_tracer_basic():
     """_summary_
     """
@@ -275,8 +281,10 @@ def test_tracer_basic():
     assert os.path.exists(sim_trace_path) is True
     os.remove(sim_trace_path)
 
+
 def test_tracer_trim():
     __run_test_tracer("test1.xml", "test1-1.xtr")
+
 
 def test_multithreaded_tracer():
     import multiprocessing.dummy as mp
@@ -291,6 +299,7 @@ def test_multithreaded_tracer():
     pool.starmap(__run_test_tracer, test_cases)
     pool.close()
     pool.join()
+
 
 if __name__ == "__main__":
     test_tracer_basic()

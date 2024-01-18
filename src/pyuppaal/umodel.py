@@ -403,7 +403,6 @@ system Process;
                     os.remove(xtr_trace_path)
                 return res
 
-
         else:
             xtr_trace_path = self.model_path.replace(".xml", "_xtr")
             verify_cmd_res = Verifyta().verify(
@@ -550,7 +549,7 @@ system Process;
     def add_observer_monitor(
         self,
         observations: List[str] | List[tuple[str, str, str]],
-        focused_actions: List[str] | None = None,
+        sigma_focus: List[str] | None = None,
         template_name: str = "Observer",
         is_strict: bool = True,
         all_patterns: bool = False,
@@ -563,7 +562,7 @@ system Process;
             observations (List[str] | List[tuple[str, str, str]]): observed actions.
                 If List[str], then it is a list of actions.
                 If List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound).
-            focused_actions (List[str] | None, optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            sigma_focus (List[str] | None, optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
             template_name (str, optional): the name of the template. Defaults to 'observer'.
             is_strict (bool, optional): if strict, any other observations will be illegal.
                 For example, assume you set observations `a1, gclk=1, a2, gclk=3`, and there exists trace T: `a1, gclk=1, a2, gclk=2, a2, gclk=3`.
@@ -578,16 +577,16 @@ system Process;
         """
         signals = self.__parse_observations(observations)
 
-        if focused_actions is None:
-            focused_actions = list(
+        if sigma_focus is None:
+            sigma_focus = list(
                 map(
                     lambda x: x.replace("!", "").replace("?", ""),
                     self.__get_actions(signals),
                 )
             )
 
-        focused_actions = list(
-            map(lambda x: x.replace("!", "").replace("?", ""), focused_actions)
+        sigma_focus = list(
+            map(lambda x: x.replace("!", "").replace("?", ""), sigma_focus)
         )
 
         if template_name in [template.name for template in self.templates]:
@@ -596,7 +595,7 @@ system Process;
         monitor = Monitors.observer_template(
             name=template_name,
             signals=signals,
-            observe_action=focused_actions,
+            observe_action=sigma_focus,
             init_ref=self.max_location_id + 1,
             strict=is_strict,
             allpattern=all_patterns,
@@ -698,14 +697,14 @@ system Process;
 
     def find_a_pattern(
         self,
-        focused_actions: List[str] = None,
+        sigma_focus: List[str] = None,
         keep_tmp_file: bool = True,
         options: str = None,
     ) -> SimTrace | None:
         """Find a pattern in the current model.
 
         Args:
-            focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
             options (str, optional): options for verifyta, such as ` -t 0 -o 0`. Defaults to None.
 
@@ -730,7 +729,7 @@ system Process;
         else:
             trace_path = os.path.splitext(self.model_path)[0] + "_xtr-1"
 
-        pattern_seq = sim_trace.filter_by_actions(focused_actions)
+        pattern_seq = sim_trace.filter_by_actions(sigma_focus)
 
         if not keep_tmp_file:
             os.remove(trace_path)
@@ -739,7 +738,7 @@ system Process;
 
     def find_all_patterns(
         self,
-        focused_actions: List[str] = None,
+        sigma_focus: List[str] = None,
         keep_tmp_file: bool = True,
         max_patterns: int = None,
         verify_options: str = "-t 1",
@@ -750,7 +749,7 @@ system Process;
         If you want the fastest patterns first, you can let `verify_options: str = "-t 2"`.
 
         Args:
-            focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
             max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
 
@@ -760,7 +759,7 @@ system Process;
         res = []
         new_model = self.copy_as(f"tmp_find_all_patterns_{uuid.uuid4()}.xml")
         for simtrace in new_model.find_all_patterns_iter(
-            focused_actions, keep_tmp_file, max_patterns, verify_options
+            sigma_focus, keep_tmp_file, max_patterns, verify_options
         ):
             # print(simtrace.untime_pattern)
             res.append(simtrace)
@@ -771,7 +770,7 @@ system Process;
     def __add_all_patterns_template(
         self,
         observations: List[str] | List[tuple[str, str, str]],
-        focused_actions: List[str] | None = None,
+        sigma_focus: List[str] | None = None,
         template_name: str = "all_patterns_monitor",
         is_strict: bool = True,
         all_patterns: bool = False,
@@ -780,12 +779,12 @@ system Process;
         Currently just call add_observer_monitor
         """
         return self.add_observer_monitor(
-            observations, focused_actions, template_name, is_strict, all_patterns
+            observations, sigma_focus, template_name, is_strict, all_patterns
         )
 
     def find_all_patterns_iter(
         self,
-        focused_actions: List[str] = None,
+        sigma_focus: List[str] = None,
         keep_tmp_file: bool = True,
         max_patterns: int = None,
         verify_options: str = "-t 1",
@@ -793,7 +792,7 @@ system Process;
         """Find all patterns that satisfy `self.queries[0]` using a generator.
 
         Args:
-            focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
             max_patterns (int, optional): the maximum number of patterns to find. Defaults to None, find all patterns.
             verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
@@ -827,7 +826,7 @@ system Process;
 
         # Initial pattern search
         new_pattern = new_umodel.find_a_pattern(
-            focused_actions, keep_tmp_file, verify_options
+            sigma_focus, keep_tmp_file, verify_options
         )
         if new_pattern is None:
             if not keep_tmp_file:
@@ -852,7 +851,7 @@ system Process;
             new_umodel.__add_all_patterns_template(
                 template_name=f"all_patterns_monitor_{monitor_id}",
                 observations=new_observes,
-                focused_actions=focused_actions,
+                sigma_focus=sigma_focus,
                 is_strict=True,
                 all_patterns=True,
             )
@@ -864,7 +863,7 @@ system Process;
 
             new_umodel.queries = query_str
             new_pattern = new_umodel.find_a_pattern(
-                focused_actions, keep_tmp_file=keep_tmp_file
+                sigma_focus, keep_tmp_file=keep_tmp_file
             )
 
         if not keep_tmp_file:
@@ -1051,7 +1050,7 @@ system Process;
         keep_tmp_file=True,
     ) -> str:
         """Tolerate the `identified_faults` such that the system can reach the `target_state`. 
-        
+
         Examples:
             >>> possible return results
             "Fault can NOT be tolerated" 
@@ -1090,7 +1089,7 @@ system Process;
 
             result = tmp_model.__find_all_patterns_sfx(
                 identified_faults=identified_faults,
-                focused_actions=sigma_c + identified_faults,
+                sigma_focus=sigma_c + identified_faults,
                 keep_tmp_file=keep_tmp_file,
             )  # find all patterns, return SimTrace
 
@@ -1133,7 +1132,7 @@ system Process;
     def __find_all_patterns_sfx(
         self,
         identified_faults: List[str],
-        focused_actions: List[str] = None,
+        sigma_focus: List[str] = None,
         keep_tmp_file=True,
     ) -> List[SimTrace]:
         queries = self.queries
@@ -1165,7 +1164,7 @@ system Process;
         all_patterns = []
         monitor_id = 0
 
-        for new_pattern in self.find_all_patterns_iter(focused_actions, keep_tmp_file):
+        for new_pattern in self.find_all_patterns_iter(sigma_focus, keep_tmp_file):
             all_patterns.append(new_pattern)
 
             monitor_id += 1
@@ -1181,7 +1180,7 @@ system Process;
             new_umodel.__add_all_patterns_template(
                 template_name=f"all_patterns_monitor_{monitor_id}",
                 observations=new_observes,
-                focused_actions=focused_actions,
+                sigma_focus=sigma_focus,
                 is_strict=True,
                 all_patterns=True,
             )

@@ -51,7 +51,7 @@ pipeNet.add_input_monitor(inputs)
 # Focused Actions is xxxxxxxxx(if this comment is not completed, please report the issue :>, thanks)
 fc = ['exit1', 'exit2', 'exit3']
 # Add observation template.
-pipeNet.add_observer_monitor(observations, focused_actions=fc)
+pipeNet.add_observer_monitor(observations, sigma_focus=fc)
 
 # Query whether the model can simulate the inputs & observations
 pipeNet.queries = 'E<> Observer.pass'
@@ -207,7 +207,7 @@ observations = [('exit1', 500, 500), ('exit2', 1550, 1550)]
 pipeNet.add_input_monitor(inputs)
 # Add observation template.
 # raise ValueError("这里别忘了添加focused actions")
-pipeNet.add_observer_monitor(observations, focused_actions=['exit1', 'exit2', 'exit3'])
+pipeNet.add_observer_monitor(observations, sigma_focus=['exit1', 'exit2', 'exit3'])
 
 # Query whether the model can simulate the inputs & observations
 pipeNet.queries = 'E<> Observer.pass'

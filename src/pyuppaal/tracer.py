@@ -161,19 +161,19 @@ class SimTrace:
         self.__parse_raw()
         return self.__global_variables
 
-    def filter_by_actions(self, focused_actions: List[str]) -> SimTrace:
+    def filter_by_actions(self, sigma_focus: List[str]) -> SimTrace:
         """Filter the transitions by actions.
 
         Args:
-            focused_actions (List[str], optional): actions that you take cares of.
+            sigma_focus (List[str], optional): actions that you take cares of.
 
         Returns:
             SimTrace: The filtered SimTrace.
         """
         self.__parse_raw()
-        if focused_actions is None or self.raw is None:
+        if sigma_focus is None or self.raw is None:
             return self
-        index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in focused_actions]
+        index_array = [i for i in range(len(self.transitions)) if self.transitions[i].action in sigma_focus]
         return self[index_array]
 
     def __parse_raw(self) -> None:
