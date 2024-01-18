@@ -10,4 +10,4 @@ PCar  = Car(4, 1);
 PTrafficLights = TrafficLight();
 PPedestrian = Pedestrian(0, 10);
 
-system PCar, PTrafficLights, PPedestrian;</system><queries><query><formula>A[] not (PPedestrian.Crossing and PCar.Crossing)</formula><comment /></query></queries></nta>
+system PCar, PTrafficLights, PPedestrian;</system><queries><query><formula>E&lt;&gt; (PPedestrian.Crossing and PCar.Crossing)</formula><comment /></query></queries></nta>
