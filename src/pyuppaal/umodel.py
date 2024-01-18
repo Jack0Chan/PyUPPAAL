@@ -739,9 +739,9 @@ system Process;
     def find_all_patterns(
         self,
         sigma_focus: List[str] = None,
-        keep_tmp_file: bool = True,
         max_patterns: int = None,
         verify_options: str = "-t 1",
+        keep_tmp_file: bool = True,
     ) -> List[SimTrace]:
         """Find all patterns of the first query in the model, if the number of patterns is finite.
         If the number of patterns is infinite, it will loop forever. You can set `max_patterns` to limit the number of patterns.
@@ -749,12 +749,13 @@ system Process;
         If you want the fastest patterns first, you can let `verify_options: str = "-t 2"`.
 
         Args:
-            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
-            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
+            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, it will automatically extract all events from current model.
             max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
+            verify_options: (str, optional): model checking options of verifyta. Get more details by verifyta -h. Defaults to `-t 1`, and it will search from shortest pattern. Other options, `-t 2` from the fastest pattern.
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
         Returns:
-            List[SimTrace]: the list of patterns.
+            List[SimTrace]: the list of found patterns.
         """
         res = []
         new_model = self.copy_as(f"tmp_find_all_patterns_{uuid.uuid4()}.xml")
@@ -785,17 +786,15 @@ system Process;
     def find_all_patterns_iter(
         self,
         sigma_focus: List[str] = None,
-        keep_tmp_file: bool = True,
-        max_patterns: int = None,
         verify_options: str = "-t 1",
+        keep_tmp_file: bool = True,
     ) -> SimTrace:
         """Find all patterns that satisfy `self.queries[0]` using a generator.
 
         Args:
-            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            sigma_focus (List[str], optional): the set of actions you are focused on. Only events in `sigma_focus` will be analyzed when `find_all_patterns`. Defaults to None, it will automatically extract all events from current model.
+            verify_options: (str, optional): model checking options of verifyta. Get more details by verifyta -h. Defaults to `-t 1`, and it will search from shortest pattern. Other options, `-t 2` from the fastest pattern.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
-            max_patterns (int, optional): the maximum number of patterns to find. Defaults to None, find all patterns.
-            verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
 
         Yields:
             SimTrace: a pattern that satisfies the query.
@@ -841,8 +840,9 @@ system Process;
         while new_pattern is not None:
             yield new_pattern
             pattern_count += 1
-            if max_patterns is not None and pattern_count >= max_patterns:
-                break
+            # iterator should not have max_patterns
+            # if max_patterns is not None and pattern_count >= max_patterns:
+            #     break
 
             monitor_id += 1
             # Add new monitor for the found pattern
