@@ -58,11 +58,11 @@ def test_all_patterns():
     """_summary_
     """
     query = f'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
-    sigma_focus = ["pCheckLight", "pGreen",
-                   "pRed", "pYellow", "pCrss", "cCrss"]
+    focused_actions = ["pCheckLight", "pGreen",
+                       "pRed", "pYellow", "pCrss", "cCrss"]
     u = UModel(bring_to_root('pedestrian_new.xml'))
     u.queries = [query]
-    res = u.find_all_patterns(sigma_focus, keep_tmp_file, max_patterns=4)
+    res = u.find_all_patterns(focused_actions, keep_tmp_file, max_patterns=4)
     assert len(res) == 4
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern-1.xtr"))
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern.xml"))
@@ -71,14 +71,14 @@ def test_all_patterns():
 def test_all_patterns_iter():
     """Test for finding all patterns using iterator."""
     query = f'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
-    sigma_focus = ["pCheckLight", "pGreen",
-                   "pRed", "pYellow", "pCrss", "cCrss"]
+    focused_actions = ["pCheckLight", "pGreen",
+                       "pRed", "pYellow", "pCrss", "cCrss"]
     u = UModel(bring_to_root('pedestrian_new.xml'))
     u.queries = [query]
 
     # Using the iterator method
     pattern_iterator = u.find_all_patterns_iter(
-        sigma_focus, keep_tmp_file, max_patterns=4)
+        focused_actions, keep_tmp_file, max_patterns=4)
 
     # Retrieve patterns from the iterator
     res = list(pattern_iterator)
@@ -88,8 +88,8 @@ def test_all_patterns_iter():
 def test_all_patterns_iter_consistance():
     """ Compare the results of find_all_patterns and find_all_patterns_iter"""
     query = 'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
-    sigma_focus = ["pCheckLight", "pGreen",
-                   "pRed", "pYellow", "pCrss", "cCrss"]
+    focused_actions = ["pCheckLight", "pGreen",
+                       "pRed", "pYellow", "pCrss", "cCrss"]
     max_patterns = 4  # Set search max patterns
 
     # Setup UModel instance
@@ -98,11 +98,11 @@ def test_all_patterns_iter_consistance():
 
     # Using traditional find_all_patterns
     traditional_results = u.find_all_patterns(
-        sigma_focus, keep_tmp_file, max_patterns=max_patterns)
+        focused_actions, keep_tmp_file, max_patterns=max_patterns)
 
     # Using find_all_patterns_iter
     pattern_iterator = u.find_all_patterns_iter(
-        sigma_focus, keep_tmp_file, max_patterns=max_patterns)
+        focused_actions, keep_tmp_file, max_patterns=max_patterns)
     iter_results = list(pattern_iterator)
 
     # Comparing the results

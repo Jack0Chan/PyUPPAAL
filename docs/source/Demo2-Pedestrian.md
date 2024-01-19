@@ -49,7 +49,7 @@ Pattern 3 and 4 are new patterns that can ONLY be identified PyUPPAAL.
 m = UModel("pedestrian.xml").save_as("demo_pedestrian.xml")
 m.queries = "A[] not (PPedestrian.Crossing and PCar.Crossing)"
 F = ["pCheckLight", "pGreen", "pRed", "pYellow", "pCrss", "cCrss"]
-traces = m.find_all_patterns(sigma_focus=F)
+traces = m.find_all_patterns(focused_actions=F)
 for i, trace in enumerate(traces): print(f'pattern {i+1}:', trace.untime_pattern)
 ```
 
