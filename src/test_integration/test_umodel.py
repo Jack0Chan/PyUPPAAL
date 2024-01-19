@@ -62,7 +62,7 @@ def test_all_patterns():
                        "pRed", "pYellow", "pCrss", "cCrss"]
     u = UModel(bring_to_root('pedestrian_new.xml'))
     u.queries = [query]
-    res = u.find_all_patterns(focused_actions, keep_tmp_file, max_patterns=4)
+    res = u.find_all_patterns(focused_actions, max_patterns=4, keep_tmp_file=keep_tmp_file)
     assert len(res) == 4
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern-1.xtr"))
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern.xml"))
@@ -78,7 +78,7 @@ def test_all_patterns_iter():
 
     # Using the iterator method
     pattern_iterator = u.find_all_patterns_iter(
-        focused_actions, keep_tmp_file, max_patterns=4)
+        focused_actions, max_patterns=4, keep_tmp_file=keep_tmp_file)
 
     # Retrieve patterns from the iterator
     res = list(pattern_iterator)
@@ -98,11 +98,11 @@ def test_all_patterns_iter_consistance():
 
     # Using traditional find_all_patterns
     traditional_results = u.find_all_patterns(
-        focused_actions, keep_tmp_file, max_patterns=max_patterns)
+        focused_actions, max_patterns=max_patterns, keep_tmp_file=keep_tmp_file)
 
     # Using find_all_patterns_iter
     pattern_iterator = u.find_all_patterns_iter(
-        focused_actions, keep_tmp_file, max_patterns=max_patterns)
+        focused_actions, max_patterns=max_patterns, keep_tmp_file=keep_tmp_file)
     iter_results = list(pattern_iterator)
 
     # Comparing the results

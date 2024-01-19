@@ -19,27 +19,26 @@ pyuppaal.set_verifyta_path(r"C:\Users\Taco\Documents\GitHub\cav2024\bin\uppaal64
 
 
 ```python
-# load models, and set observations, unobvservable events
 m_a, m_b = UModel('model_A.xml'), UModel('model_B.xml')
 sigma_o, sigma_un = ['a', 'b', 'c'], ['f']
 
-# n-diagnosability for fault 'f'
-res_a = m_a.fault_diagnosability(fault='f', n=3, sigma_o=sigma_o, sigma_un=sigma_un)
-res_b = m_b.fault_diagnosability(fault='f', n=3, sigma_o=sigma_o, sigma_un=sigma_un)
-print(f"Model A is 3-diagnosable: {res_a[0]}.")
-print(f"Model B is 3-diagnosable: {res_b[0]}, reason: {res_b[1].untime_pattern}.")
-# identification for fault 'f' with o1 = ['a', 'b', 'a'] and o2 = ['a', 'a', 'a']
-o1, o2 = ['a', 'b', 'a'], ['a', 'a', 'a']
+# identification for fault 'f' with o1 = ['a', 'a', 'a'] and o2 = ['a', 'b', 'a']
+o1, o2 = ['a', 'a', 'a'], ['a', 'b', 'a']
 res1_a = m_a.fault_identification(o1, fault='f', sigma_o=sigma_o, sigma_un=sigma_un)
 res1_b = m_b.fault_identification(o1, fault='f', sigma_o=sigma_o, sigma_un=sigma_un)
-print(f"{o1} can detect 'f'. Model A: {res1_a[0]}, Model B: {res1_b[0]}.")
+print(f"{o1} can detect 'f'. Model A: {res1_a[0]},  Model B: {res1_b[0]}.")
 res2_a = m_a.fault_identification(o2, fault='f', sigma_o=sigma_o, sigma_un=sigma_un)
 res2_b = m_b.fault_identification(o2, fault='f', sigma_o=sigma_o, sigma_un=sigma_un)
 print(f"{o2} can detect 'f'. Model A: {res2_a[0]}, Model B: {res2_b[0]}.")
+# n-diagnosability for fault 'f', for n=3
+res_a = m_a.fault_diagnosability(fault='f', n=3, sigma_o=sigma_o, sigma_un=sigma_un)
+res_b = m_b.fault_diagnosability(fault='f', n=3, sigma_o=sigma_o, sigma_un=sigma_un)
+print(f"Model A is 3-diagnosable: {res_a[0]}, reason: {res_a[1].untime_pattern}.")
+print(f"Model B is 3-diagnosable: {res_b[0]}.")
 ```
 
-    Model A is 3-diagnosable: True.
-    Model B is 3-diagnosable: False, reason: ['c', 'a', 'b', 'a'].
-    ['a', 'b', 'a'] can detect 'f'. Model A: True, Model B: False.
-    ['a', 'a', 'a'] can detect 'f'. Model A: True, Model B: True.
+    ['a', 'a', 'a'] can detect 'f'. Model A: True,  Model B: True.
+    ['a', 'b', 'a'] can detect 'f'. Model A: False, Model B: True.
+    Model A is 3-diagnosable: False, reason: ['c', 'a', 'b', 'a'].
+    Model B is 3-diagnosable: True.
     

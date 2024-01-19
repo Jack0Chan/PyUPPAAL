@@ -60,9 +60,9 @@ Lets take the following model P1 with query `A[] not deadlock` as the example. Y
 ```python
 import pyuppaal as pyu
 
-VERIFYTA_PATH = "uppaal\\uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+print(pyu.__version__)
 # set verifyta path
-pyu.set_verifyta_path(VERIFYTA_PATH)
+pyu.set_verifyta_path(r"C:\Users\Taco\Documents\GitHub\cav2024\bin\uppaal64-4.1.26\bin-Windows\verifyta.exe")
 
 demo_path = 'demo.xml'
 
@@ -78,12 +78,13 @@ assert terminal_res == umod_res
 
 ```
 
+    1.2.0
     Writing example trace to demo-1.xtr
     Options for the verification:
       Generating shortest trace
       Search order is breadth first
       Using conservative space optimisation
-      Seed is 1705043788
+      Seed is 1705648037
       State space representation uses minimal constraint systems
     [2K
     Verifying formula 1 at /nta/queries/query[1]/formula
@@ -115,18 +116,18 @@ for i, pattern in enumerate(all_patterns):
 
 ```
 
-    broadcast channels:  ['b', 'a', 'd', 'c']
+    broadcast channels:  ['a', 'b', 'd', 'c']
     queries:  ['E<> P1.pass']
     
      State [0]: ['P1.start']
     global_variables [0]: None
     Clock_constraints [0]: [t(0) - P1.t ≤ 0; P1.t - t(0) ≤ 10; ]
-    transitions [0]: a: P1 -> []; P1.start -> P1._id2; 
+    transitions [0]: a: P1 -> ; P1.start -> P1._id2;
     -----------------------------------
     State [1]: ['P1._id2']
     global_variables [1]: None
     Clock_constraints [1]: [t(0) - P1.t ≤ -10; ]
-    transitions [1]: b: P1 -> []; P1._id2 -> P1.pass; 
+    transitions [1]: b: P1 -> ; P1._id2 -> P1.pass;
     -----------------------------------
     State [2]: ['P1.pass']
     global_variables [2]: None
@@ -144,9 +145,9 @@ import pyuppaal as pyu
 import time
 import multiprocessing.dummy as mp
 
-VERIFYTA_PATH = "uppaal\\uppaal64-4.1.26\\bin-Windows\\verifyta.exe"
+print(pyu.__version__)
 # set verifyta path
-pyu.set_verifyta_path(VERIFYTA_PATH)
+pyu.set_verifyta_path(r"C:\Users\Taco\Documents\GitHub\cav2024\bin\uppaal64-4.1.26\bin-Windows\verifyta.exe")
 
 model_path_list = ['demo.xml', 'demo_new.xml'] * 100
 trace_path_list = ['demo_trace.xtr', 'demo_new_grace.xtr'] * 100
@@ -165,8 +166,9 @@ print(f'Verify with multi-threads, time usage {time.time() - t0}')
 
 ```
 
-    Verify with for loop, time usage 9.287375211715698
-    Verify with multi-threads, time usage 1.6694567203521729
+    1.2.0
+    Verify with for loop, time usage 8.57197093963623
+    Verify with multi-threads, time usage 1.5158562660217285
     
 
 ## 5. Get Communication Graph
