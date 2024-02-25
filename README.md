@@ -15,7 +15,7 @@
 
 `PyUPPAAL` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
 
-1. load a `.xml` model, just like you open a model in UPPAAL GUI;
+1. load and edit a `.xml` model, just like you edit a model in UPPAAL GUI;
 2. set the query, just like you edit the queries in UPPAAL GUI;
 3. verify a model with the query and options (e.g., shortest path), just like you click the "Verify" button in UPPAAL GUI.
 
