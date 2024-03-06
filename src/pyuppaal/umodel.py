@@ -4,7 +4,7 @@
 from __future__ import annotations
 import os
 import xml.etree.ElementTree as ET
-from typing import List, Tuple
+from typing import List
 from itertools import product
 import uuid
 
@@ -17,6 +17,7 @@ from .tracer import SimTrace
 from .nta import Template
 from .monitors import Monitors
 from .utap import utap_parser
+from .mytree import MyTree
 
 
 class UModel:
@@ -990,6 +991,50 @@ system Process;
                     continue
         # print(f"   {fault} is {n}-diagnosable.")
         return True, None
+
+    def fault_diagnosability_optimized(
+        self,
+        fault: str,
+        n: int,
+        sigma_o: List[str],
+        sigma_un: List[str],
+        keep_tmp_file=True,
+    ) -> (bool, SimTrace):
+        """Determine whether the `fault` is `n` diagnosable.
+
+        This function will NOT modify the model. It will copy to 'tmp_diagnosable_suffix.xml' and 'tmp_identify.xml'
+        Note: If not keep_tmp_file, it won't be able to get the trace because the tmp model is removed.
+
+        Args:
+            fault (str): fault name
+            n (int): n-diagnosability
+            sigma_o (List[str]): the set of observable events,
+            sigma_un (List[str]): the set of unobservable events,
+            keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
+
+        Returns:
+            (bool, SimTrace):
+                bool: whether the fault is n-diagnosable.
+                SimTrace: if is not n-diagnosable, a `SimTrace` will be returend as a proof.
+        """
+        # FIX ME: bugs to be test
+        # should provide different optimization strategies, such as DFS, BFS, randomized
+        # here we provide DFS
+        root = MyTree(sigma_o=sigma_o, n=n)
+        if root.grow():
+            while True:
+                node = root.leftmost_not_verified_node
+                if node is None:
+                    return True
+                # check if is valid observation sequence
+                suffix = list(node.observation_sequence)
+                node.has_checked = True
+                node.is_valid = self.__is_valid_suffix(sigma_o, sigma_un, fault, suffix, keep_tmp_file)[0]
+                # check if it can identify the fault
+                if node.is_valid and node.depth == n:
+                    can_detect, trace = self.fault_identification(suffix, fault, sigma_o, sigma_un, keep_tmp_file)
+                    if not can_detect and node.depth == n:
+                        return False, trace
 
     def fault_identification(
         self,
