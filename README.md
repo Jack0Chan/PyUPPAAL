@@ -35,6 +35,7 @@ Demos are provided to help understand how `PyUPPAAL` can contribute to scientifi
 3. [Demo - Fault Diagnosis (fault_diagnosability, fault_identification)](https://pyuppaal.readthedocs.io/en/latest/Demo3-Fault%20Diagnosis.html)
 4. [Demo - Scripted Model Construction (pyuppaal.nta)](https://pyuppaal.readthedocs.io/en/latest/Demo4-Scripted%20Model%20Construction.html)
 5. [Demo - Trace Parser (pyuppaal.SimTrace)](https://pyuppaal.readthedocs.io/en/latest/Demo5-Trace%20Parser.html)
+6. [Realworld case study - Electric Power System](https://doi.org/10.1016/j.eswa.2024.123371)
 
 # Quickstart
 
