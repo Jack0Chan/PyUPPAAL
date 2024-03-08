@@ -916,6 +916,9 @@ system Process;
         return ("is satisfied" in res, tmp_model)
 
     # def diagnosable_one_fault(self, fault: str, n: int, sigma_o: List[str], sigma_un: List[str], visual=False, keep_tmp_file=True) -> bool:
+    # fault_diagnosability_early_return
+    # fault_diagnosability_ER+TC
+    # fault_diagnosability_ER+TC+MT
     def fault_diagnosability(
         self,
         fault: str,
@@ -970,6 +973,7 @@ system Process;
                     # print('NOT valid suffix: ', suffix)
                     continue
         else:
+            # for suffix in list(product()):
             for suffix in product(sigma_o, repeat=n):
                 suffix = list(suffix)
                 if self.__is_valid_suffix(
