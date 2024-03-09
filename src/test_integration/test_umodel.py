@@ -62,7 +62,7 @@ def test_all_patterns():
                        "pRed", "pYellow", "pCrss", "cCrss"]
     u = UModel(bring_to_root('pedestrian_new.xml'))
     u.queries = [query]
-    res = u.find_all_patterns(focused_actions, max_patterns=4, keep_tmp_file=keep_tmp_file)
+    res = u.find_all_patterns(focused_actions, keep_tmp_file=keep_tmp_file)
     assert len(res) == 4
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern-1.xtr"))
     # os.remove(bring_to_root("pedestrian_new_pattern_a_pattern.xml"))
@@ -78,7 +78,7 @@ def test_all_patterns_iter():
 
     # Using the iterator method
     pattern_iterator = u.find_all_patterns_iter(
-        focused_actions, max_patterns=4, keep_tmp_file=keep_tmp_file)
+        focused_actions, keep_tmp_file=keep_tmp_file)
 
     # Retrieve patterns from the iterator
     res = list(pattern_iterator)
@@ -90,7 +90,7 @@ def test_all_patterns_iter_consistance():
     query = 'E<> (PPedestrian.Crossing and PCar.Crossing)'  # property query
     focused_actions = ["pCheckLight", "pGreen",
                        "pRed", "pYellow", "pCrss", "cCrss"]
-    max_patterns = 4  # Set search max patterns
+    # max_patterns = 4  # Set search max patterns
 
     # Setup UModel instance
     u = UModel(bring_to_root('pedestrian_new.xml'))
@@ -98,11 +98,11 @@ def test_all_patterns_iter_consistance():
 
     # Using traditional find_all_patterns
     traditional_results = u.find_all_patterns(
-        focused_actions, max_patterns=max_patterns, keep_tmp_file=keep_tmp_file)
+        focused_actions, keep_tmp_file=keep_tmp_file)
 
     # Using find_all_patterns_iter
     pattern_iterator = u.find_all_patterns_iter(
-        focused_actions, max_patterns=max_patterns, keep_tmp_file=keep_tmp_file)
+        focused_actions, keep_tmp_file=keep_tmp_file)
     iter_results = list(pattern_iterator)
 
     # Comparing the results
@@ -214,7 +214,7 @@ def test_fault_tolerance():
     # system_prefix = u.system[u.system.rfind('system')]
     # u.system = system_prefix +'\n' + 'system battery1, battery2, wire1, wire2, wire3, wire4, relay1, relay2, relay3, load, v1, v2, controller_scan_first, scanner;'
 
-    safety_enents = ['relay1_off', 'relay2_off', 'relay3_off']  # safety operation
+    safety_events = ['relay1_off', 'relay2_off', 'relay3_off']  # safety operation
     sigma_f: List[str] = ['fault_relay1_stuck_on', 'fault_relay1_stuck_off',
                           'fault_relay2_stuck_on', 'fault_relay2_stuck_off',
                           'fault_relay3_stuck_on', 'fault_relay3_stuck_off',
@@ -223,21 +223,21 @@ def test_fault_tolerance():
                           'relay2_on', 'relay2_off', 'relay3_on', 'relay3_off']
 
     # test for fault_tolerance
-    res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn'], safety_events=safety_enents,
+    res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn'], safety_events=safety_events,
                             sigma_f=sigma_f, sigma_c=sigma_c,
                             control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
     # print(str(res) )
     assert ("Fault can be tolerated" in res)
 
     res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn', 'fault_battery2_burn'],
-                            safety_events=safety_enents,
+                            safety_events=safety_events,
                             sigma_f=sigma_f, sigma_c=sigma_c,
                             control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
     # print(str(res))
     assert ("Fault can NOT be tolerated" in res)
 
     res = u.fault_tolerance(target_state='load.working', identified_faults=['fault_battery1_burn', 'fault_relay1_stuck_off'],
-                            safety_events=safety_enents,
+                            safety_events=safety_events,
                             sigma_f=sigma_f, sigma_c=sigma_c,
                             control_length=CONTROL_LENGTH, keep_tmp_file=keep_tmp_file)
     # print(str(res))

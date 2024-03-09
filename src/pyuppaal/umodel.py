@@ -384,6 +384,7 @@ system Process;
         Returns:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
         """
+        # print(verify_options)
         if "-t" not in verify_options:
             err_info = '"-t" must be set in verify_options, '
             err_info += f"current verify_options: {verify_options}."
@@ -740,18 +741,16 @@ system Process;
     def find_all_patterns(
         self,
         focused_actions: List[str] = None,
-        max_patterns: int = None,
         verify_options: str = "-t 1",
         keep_tmp_file: bool = True,
     ) -> List[SimTrace]:
         """Find all patterns of the first query in the model, if the number of patterns is finite.
-        If the number of patterns is infinite, it will loop forever. You can set `max_patterns` to limit the number of patterns.
+        If the number of patterns is infinite, it will loop forever.
         It will always search the shortest patterns first, i.e., `verify_options: str = "-t 1"`.
         If you want the fastest patterns first, you can let `verify_options: str = "-t 2"`.
 
         Args:
             focused_actions (List[str], optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, it will automatically extract all events from current model.
-            max_patterns (int, optional): the maximum number of patterns to find. If None, then all patterns will be found. Defaults to None.
             verify_options: (str, optional): model checking options of verifyta. Get more details by verifyta -h. Defaults to `-t 1`, and it will search from shortest pattern. Other options, `-t 2` from the fastest pattern.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
 
@@ -1212,7 +1211,7 @@ system Process;
         all_patterns = []
         monitor_id = 0
 
-        for new_pattern in self.find_all_patterns_iter(focused_actions, keep_tmp_file):
+        for new_pattern in self.find_all_patterns_iter(focused_actions=focused_actions, keep_tmp_file=keep_tmp_file):
             all_patterns.append(new_pattern)
 
             monitor_id += 1
