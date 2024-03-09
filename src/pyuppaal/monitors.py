@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from .nta import Template, Location, Edge
 
@@ -482,7 +482,7 @@ class Monitors:
         return res
 
     @staticmethod
-    def input_template(name: str, signals: List[str] | List[Tuple[str, str, str]], init_ref: int) -> Template:
+    def input_template(name: str, signals: Union[List[str], List[Tuple[str, str, str]]], init_ref: int) -> Template:
         """ input_template
 
         >>> monitor = Template.construct_input_template(xxx)
@@ -492,7 +492,7 @@ class Monitors:
 
         Args:
             name (str): 
-            signals (List[str] | List[Tuple[str, str, str]]): input signals, can accept discrete event sequence (List[str]), or timed event sequence (List[Tuple[str, str, str]])
+            signals (Union[List[str], List[Tuple[str, str, str]]]): input signals, can accept discrete event sequence (List[str]), or timed event sequence (List[Tuple[str, str, str]])
                 List[str] xxxx discrete event sequence, example: ['a', 'b', 'c']
                 List[Tuple[str, str, str]] xxxx timed event sequence, stands for `List[(action_name, guard, invariant)]`
                     example: `[('a', 't>=10', 't<=10'), ('b', 't>=20', 't<=20'), ('c', 't>=30', 't<=30')]`
