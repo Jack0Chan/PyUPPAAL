@@ -252,7 +252,7 @@ class Verifyta:
         """
 
         if not isinstance(model_path, str):
-            raise ValueError(f'List input is not supported anymore, please use for loop. mdel_path: {model_path}, verify_options: {option}')
+            raise ValueError(f'List input is not supported anymore, please use for loop. mdel_path: {model_path}, verify_options: {verify_options}')
 
         if verify_options is None:
             verify_options = "-t 1"
