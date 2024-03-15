@@ -12,7 +12,7 @@
 ![](https://img.shields.io/badge/platform-MacOS-blue)
 
 
-> NOTICE: 1. There are bugs for `python<=3.9`, please use `python>=3.10`. 2. Optimization has been implemented for the exponential method `UModel.fault_diagnosability()` and we are testing. 3. Check [issue30](https://github.com/Jack0Chan/PyUPPAAL/issues/30#issue-2187601734) for more info.
+> NOTICE: 1. There are bugs for `python<=3.9`, please use `python>=3.10`. 2. Optimization has been implemented for the exponential method `UModel.fault_diagnosability()` with mathematical theories, and we are testing (accelerate from 10 hours to 100 seconds, model states $10^8\sim 10^{10}$). 3. Check [issue30](https://github.com/Jack0Chan/PyUPPAAL/issues/30#issue-2187601734) for more info.
 
 `PyUPPAAL` is a research tool that helps you do most things that you can do with UPPAAL GUI. Basic coding flow is:
 
