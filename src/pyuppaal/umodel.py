@@ -375,7 +375,7 @@ system Process;
     def easy_verify(
         self, verify_options: str = "-t 1", keep_tmp_file=True
     ) -> SimTrace | None:
-        """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return the SimTrace (if exists).
+        """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return parsed counter example as `SimTrace` (if exists). You can do easy_verify with only ONE query each time.
 
         Args:
             verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
@@ -384,28 +384,29 @@ system Process;
         Returns:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
         """
-        # print(verify_options)
-        if "-t" not in verify_options:
-            err_info = '"-t" must be set in verify_options, '
-            err_info += f"current verify_options: {verify_options}."
+        if len(self.queries) != 1:
+            err_info = f'You can do easy_verify with only ONE query, current number of queries is: {len(self.queries)}, they are: {self.queries}.'
             raise ValueError(err_info)
 
-        if Verifyta().get_uppaal_version() == 4:
+        # print(verify_options)
+        if "-t" not in verify_options:
+            err_info = f'"-t" must be set in verify_options, current verify_options: {verify_options}.'
+            raise ValueError(err_info)
+
+        if Verifyta().get_uppaal_version() == 4:  # uppaal4.x
             xtr_trace_path = self.model_path.replace(".xml", ".xtr")
             verify_cmd_res = Verifyta().verify(
                 self.model_path, xtr_trace_path, verify_options=verify_options
             )
 
             # print(verify_cmd_res)
-
             xtr_trace_path = xtr_trace_path.replace(".xtr", "-1.xtr")
             if "Writing example trace to" in verify_cmd_res or "Writing counter example to" in verify_cmd_res:
                 res = self.load_xtr_trace(xtr_trace_path)
                 if not keep_tmp_file:
                     os.remove(xtr_trace_path)
                 return res
-
-        else:
+        else:  # uppaal5.x
             xtr_trace_path = self.model_path.replace(".xml", "_xtr")
             verify_cmd_res = Verifyta().verify(
                 self.model_path, xtr_trace_path, verify_options=verify_options
