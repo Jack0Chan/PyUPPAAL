@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<nta>
+<declaration>clock gclk;
+broadcast chan sigIn;
+broadcast chan actNode;
+broadcast chan actPathStartsI;
+broadcast chan sigOut;
+broadcast chan actPath;
+
+const int tERPMinodeI = 0;
+const int tERPMaxodeI = 100;
+const int tERPMinodeA = 0;
+const int tERPMaxodeA = 0;
+const int tCondMinathIA = 0;
+const int tCondMaxathIA = 50;</declaration><template><name>path</name><declaration>clock t;</declaration><location id="id0" x="-153" y="-127" /><location id="id1" x="8" y="-51"><name x="-8" y="-42">Conducting</name><label kind="invariant" x="0" y="-17">t &lt;= 50</label></location><init ref="id0" /><transition><source ref="id1" /><target ref="id0" /><label kind="guard" x="-135" y="-85">t &gt;= 0</label><label kind="synchronisation" x="-135" y="-68">actNode!</label><nail x="-153" y="-51" /></transition><transition><source ref="id0" /><target ref="id1" /><label kind="synchronisation" x="-135" y="-144">actPath?</label><label kind="assignment" x="-135" y="-127">t = 0</label><nail x="8" y="-127" /></transition></template><template><name>nodeInput</name><declaration>clock t;</declaration><location id="id2" x="-331" y="-17" /><location id="id3" x="-178" y="-110"><name x="-204" y="-144">Refratory</name><label kind="invariant" x="-170" y="-102">t &lt;= 100</label></location><location id="id4" x="-331" y="-110"><committed /></location><init ref="id2" /><transition><source ref="id4" /><target ref="id3" /><label kind="synchronisation" x="-280" y="-127">actPath!</label></transition><transition><source ref="id3" /><target ref="id2" /><label kind="guard" x="-170" y="-76">t &gt;= 0</label><nail x="-178" y="-17" /></transition><transition><source ref="id2" /><target ref="id4" /><label kind="synchronisation" x="-331" y="-68">sigIn?</label><label kind="assignment" x="-323" y="-85">t=0</label></transition></template><template><name>nodeOut</name><location id="id5" x="-391" y="-93" /><location id="id6" x="-272" y="-93"><committed /></location><init ref="id5" /><transition><source ref="id6" /><target ref="id5" /><label kind="synchronisation" x="-348" y="-76">sigOut!</label><nail x="-331" y="-76" /></transition><transition><source ref="id5" /><target ref="id6" /><label kind="synchronisation" x="-365" y="-136">actNode?</label><nail x="-331" y="-110" /></transition></template><system>system nodeInput, path, nodeOut;</system><queries><query><formula>E&lt;&gt; Monitor0.pass</formula><comment /></query></queries></nta>

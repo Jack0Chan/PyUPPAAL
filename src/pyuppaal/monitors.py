@@ -482,7 +482,7 @@ class Monitors:
         return res
 
     @staticmethod
-    def input_template(name: str, signals: Union[List[str], List[Tuple[str, str, str]]], init_ref: int) -> Template:
+    def input_template(name: str, signals: List[Tuple[str, str, str]], init_ref: int) -> Template:
         """ input_template
 
         >>> monitor = Template.construct_input_template(xxx)
@@ -502,8 +502,11 @@ class Monitors:
         Returns:
             Template: monitor template
         """
-        if isinstance(signals[0], str):
-            signals = [(signal, '', '') for signal in signals]
+        if not signals[0][0].endswith("!"):
+            print(signals[0][0])
+            raise ValueError(f"Input signals should end with '!', e.g., signals[0][0].endswith('!'), current: {signals}")
+        # if isinstance(signals[0], str):
+        #     signals = [(signal, '', '') for signal in signals]
 
         # 创建locations
         locations = []
@@ -518,23 +521,26 @@ class Monitors:
                         target_location_id=init_ref + i + 1,
                         source_location_pos=location_pos,
                         target_location_pos=(location_pos[0]+300, 200),
-                        guard=signal_i[1], sync=signal_i[0]+'!')
+                        guard=signal_i[1], sync=signal_i[0])
             edges.append(edge)
         # 需要多一个尾巴location
         location = Location(location_id=init_ref + len(signals), location_pos=(300 * len(signals), 200), name='pass')
         locations.append(location)
 
         # 获得clock name并创建declaration
-        clk_name = signals[0][1].split('>')[0]
-        declaration = f'clock {clk_name};'
+        # clk_name = signals[0][1].split('>')[0]
+        # declaration = f'clock {clk_name};'
+        declaration = None
         input_temp = Template(name=name, locations=locations,
                               init_ref=init_ref, edges=edges, declaration=declaration)
         return input_temp
 
     @staticmethod
-    def observer_template(name: str, signals: List[Tuple[str, str, str]], observe_action: List[str],
+    def observer_template(name: str, signals: List[Tuple[str, str, str]], sigma_o: List[str],
                           init_ref: int, strict: bool = False, allpattern: bool = False) -> Template:
         """ observer_template
+
+        sigma_o: the set of observable events
 
         >>> monitor = Template.construct_observer_template(xxx)
         >>> umodel = UModel(xxx)
@@ -547,6 +553,8 @@ class Monitors:
             <transition> </transition>
         </template>
         """
+        if not signals[0][0].endswith("?"):
+            raise ValueError(f"Observation signals should end with '?', e.g., signals[0][0].endswith('?'), current: {signals}")
         # 创建locations
         locations = []
         for i, signal_i in enumerate(signals):
@@ -568,12 +576,12 @@ class Monitors:
             edge = Edge(source_location_id=init_ref + i, target_location_id=init_ref + i + 1,
                         source_location_pos=(i * 300 + 100, 200),
                         target_location_pos=(i * 300 + 100, 260),
-                        guard=guard, sync=signals[i][0]+'?')
+                        guard=guard, sync=signals[i][0])
             edges.append(edge)
 
         # 如果是strict，需要给每个location创建fail location，并且构建对应transitions边指向对应的fail location
         if strict:
-            pruned_observation_action = list(set(observe_action))
+            pruned_observation_action = list(set(sigma_o))
 
             # 构建指向fail的transitions
             for i, signal_i in enumerate(signals):
@@ -595,16 +603,16 @@ class Monitors:
                         transition = Edge(source_location_id=init_ref + i, target_location_id=fail_location_id,
                                           source_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -100),
                                           target_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -60),
-                                          guard=None, sync=action_j+'?', nails=[])
+                                          guard=None, sync=f"{action_j}?", nails=[])
                     else:
                         transition = Edge(source_location_id=init_ref + i, target_location_id=fail_location_id,
                                           source_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -100),
                                           target_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -60),
-                                          guard=guard, sync=action_j+'?', nails=[])
+                                          guard=guard, sync=f"{action_j}?", nails=[])
 
                     edges.append(transition)
         # 获得clock name并创建declaration
-        clk_name = signals[0][1].split('>')[0]
-        declaration = None if allpattern else f'clock {clk_name};'
+        # clk_name = signals[0][1].split('>')[0]
+        declaration = None # if allpattern else f'clock {clk_name};'
         res = Template(name=name, locations=locations, init_ref=init_ref, edges=edges, declaration=declaration)
         return res

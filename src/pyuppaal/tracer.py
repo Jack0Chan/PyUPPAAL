@@ -442,6 +442,11 @@ class ClockZone:
     def __repr__(self):
         return self.__str__()
 
+    def __getitem__(self, index: int | slice | List[int]) -> ClockZone:
+        if isinstance(index, int):
+            return [self.__clockzones[index]]
+        return ClockZone(self.__clockzones[index])
+
     @property
     def clockzones(self) -> List[OneClockZone]:
         """`List` of `OneClockZone`.

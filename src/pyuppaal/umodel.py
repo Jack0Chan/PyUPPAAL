@@ -551,8 +551,8 @@ system Process;
 
     def add_observer_monitor(
         self,
-        observations: List[str] | List[tuple[str, str, str]],
-        focused_actions: List[str] | None = None,
+        observations: List[tuple[str, str, str]],
+        sigma_o: List[str],
         template_name: str = "Observer",
         is_strict: bool = True,
         all_patterns: bool = False,
@@ -565,7 +565,7 @@ system Process;
             observations (List[str] | List[tuple[str, str, str]]): observed actions.
                 If List[str], then it is a list of actions.
                 If List[tuple[str,str,str]], then it is a list of (action, lower_bound, upper_bound).
-            focused_actions (List[str] | None, optional): the set of actions you are focused on. Only events in `focused_actions` will be analyzed when `find_all_patterns`. Defaults to None, taking all the events of the current model.
+            sigma_o (List[str]): the set of observable actions.
             template_name (str, optional): the name of the template. Defaults to 'observer'.
             is_strict (bool, optional): if strict, any other observations will be illegal.
                 For example, assume you set observations `a1, gclk=1, a2, gclk=3`, and there exists trace T: `a1, gclk=1, a2, gclk=2, a2, gclk=3`.
@@ -580,16 +580,16 @@ system Process;
         """
         signals = self.__parse_observations(observations)
 
-        if focused_actions is None:
-            focused_actions = list(
+        if sigma_o is None:
+            sigma_o = list(
                 map(
                     lambda x: x.replace("!", "").replace("?", ""),
                     self.__get_actions(signals),
                 )
             )
 
-        focused_actions = list(
-            map(lambda x: x.replace("!", "").replace("?", ""), focused_actions)
+        sigma_o = list(
+            map(lambda x: x.replace("!", "").replace("?", ""), sigma_o)
         )
 
         if template_name in [template.name for template in self.templates]:
@@ -598,7 +598,7 @@ system Process;
         monitor = Monitors.observer_template(
             name=template_name,
             signals=signals,
-            observe_action=focused_actions,
+            sigma_o=sigma_o,
             init_ref=self.max_location_id + 1,
             strict=is_strict,
             allpattern=all_patterns,
