@@ -2,7 +2,7 @@
 Lumache - Python library for cooks and food lovers.
 """
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 
 class InvalidKindError(Exception):

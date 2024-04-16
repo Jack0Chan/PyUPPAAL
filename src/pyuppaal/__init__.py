@@ -8,4 +8,4 @@ from .tracer import ClockZone, Transition, SimTrace, GlobalVar
 from .build_cg import Mermaid
 from .pyuppaal import *
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'

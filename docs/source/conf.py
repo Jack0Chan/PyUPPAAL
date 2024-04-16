@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('../../src'))
 project = 'pyuppaal'
 copyright = '2023, Jack0Chan, yanglinshu, Uniontake, LZY-0313, DuckyDuck, Tacoin'
 author = 'Jack0Chan, yanglinshu, Uniontake, LZY-0313, DuckyDuck, Tacoin'
-release = '1.2.0'
+release = '1.2.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
