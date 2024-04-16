@@ -582,6 +582,7 @@ class Monitors:
         # 如果是strict，需要给每个location创建fail location，并且构建对应transitions边指向对应的fail location
         if strict:
             pruned_observation_action = list(set(sigma_o))
+            pruned_observation_action = [f"{o}?" for o in sigma_o]
 
             # 构建指向fail的transitions
             for i, signal_i in enumerate(signals):
@@ -603,16 +604,16 @@ class Monitors:
                         transition = Edge(source_location_id=init_ref + i, target_location_id=fail_location_id,
                                           source_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -100),
                                           target_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -60),
-                                          guard=None, sync=f"{action_j}?", nails=[])
+                                          guard=None, sync=action_j, nails=[])
                     else:
                         transition = Edge(source_location_id=init_ref + i, target_location_id=fail_location_id,
                                           source_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -100),
                                           target_location_pos=(i * 300 + (j-len(pruned_observation_action)//2) * actions_length, -60),
-                                          guard=guard, sync=f"{action_j}?", nails=[])
+                                          guard=guard, sync=action_j, nails=[])
 
                     edges.append(transition)
         # 获得clock name并创建declaration
         # clk_name = signals[0][1].split('>')[0]
-        declaration = None # if allpattern else f'clock {clk_name};'
+        declaration = None  # if allpattern else f'clock {clk_name};'
         res = Template(name=name, locations=locations, init_ref=init_ref, edges=edges, declaration=declaration)
         return res

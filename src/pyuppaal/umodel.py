@@ -515,7 +515,7 @@ system Process;
             List[tuple[str,str,str]]: a list of (action, lower_bound, upper_bound).
         """
         if isinstance(observation[0], str):
-            return [(action, "", "") for action in observation]
+            return [(f"{action}?", "", "") for action in observation]
         elif isinstance(observation[0], tuple):
             if isinstance(observation[0][1], int):  # if use int"time" not str"gclk >= time"
                 processed_observations = []
