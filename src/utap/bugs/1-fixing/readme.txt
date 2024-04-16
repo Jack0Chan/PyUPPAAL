@@ -1,0 +1,1 @@
+can not load full, i.e., final state does not contain "rec.End1".
