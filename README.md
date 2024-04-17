@@ -15,19 +15,19 @@ Notice:
 - [todo] Support for *SMC* analyzing.
 
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo1-PipeNet.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.jpg" width="300px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.jpg" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo4-Scripted%20Model%20Construction.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme2.jpg" width="300px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme2.jpg" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo2-Pedestrian.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme3.jpg" width="300px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme3.jpg" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo5-Trace%20Parser.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme4.jpg" width="300px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme4.jpg" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo3-Fault%20Diagnosis.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme5.jpg" width="300px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme5.jpg" width="270px" alt="">
 </a>
 
 # Quickstart
