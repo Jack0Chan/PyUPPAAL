@@ -14,6 +14,8 @@ Notice:
 - more demos for basic & advanced usage will come soon.
 - [todo] Support for *SMC* analyzing.
 
+Demos are provided to help users get familiar with `PyUPPAAL`
+
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo1-PipeNet.ipynb">
     <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.jpg" width="270px" alt="">
 </a>
@@ -162,3 +164,5 @@ Demos are provided to help users get familiar with `PyUPPAAL` (can not be render
         <p style="margin: 0; font-size: 14px;">In this demo, you will analyze the identification and diagnosability of certain fault, wich advanced methods of <code>pyuppaal</code>.</p>
     </div>
 </div>
+
+
