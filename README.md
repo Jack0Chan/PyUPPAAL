@@ -17,7 +17,7 @@ Notice:
 Demos are provided to help users get familiar with `PyUPPAAL`:
 <div style="display: flex; flex-wrap: wrap; align-items: flex-start;">
     <div style="margin: 10px; width: 300px;">
-        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/pipeNetPatterns.png" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/pipeNetPatterns.png" style="width: 300px; height: 200px; object-fit: cover;">
         <h5 style="margin: 0 0 4px 0; font-size: 14px;"><a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo1-PipeNet.ipynb">Demo-PipeNet</a></h5>
         <p style="margin: 0; font-size: 14px;">This demo demonstrates how to</p>
         <ol style="margin: 0; padding-left: 20px; font-size: 14px;">
@@ -28,7 +28,7 @@ Demos are provided to help users get familiar with `PyUPPAAL`:
         </ol>
     </div>
     <div style="margin: 10px; width: 300px;">
-        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_receiver.png" style="width: 100%; height: 200px; object-fit: cover;" alt="描述2">
+        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_receiver.png" style="width: 300px; height: 200px; object-fit: cover;" alt="描述2">
         <h5 style="margin: 0 0 4px 0; font-size: 14px;"><a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo4-Scripted%20Model%20Construction.ipynb">Demo-Scripted Model Construction</a></h5>
         <p style="margin: 0; font-size: 14px;">This demo constructs a model solely with PyUPPAAL APIs, including:</p>
         <ol style="margin: 0; padding-left: 20px; font-size: 14px;">
@@ -38,17 +38,17 @@ Demos are provided to help users get familiar with `PyUPPAAL`:
         </ol>
     </div>
     <div style="margin: 10px; width: 300px;">
-        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/pedestrian_overall.png" style="width: 100%; height: 200px; object-fit: cover;" alt="描述3">
+        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/pedestrian_overall.png" style="width: 300px; height: 200px; object-fit: cover;" alt="描述3">
         <h5 style="margin: 0 0 4px 0; font-size: 14px;"><a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo2-Pedestrian.ipynb">Demo-Pedestrain</a></h5>
         <p style="margin: 0; font-size: 14px;">This demo shows how to identify all event sequences that could result in a fault state, and see you can get ALL possible patterns only with PyUPPAAL <code>find_all_patterns()</code>.</p>
     </div>
     <div style="margin: 10px; width: 300px;">
-        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/npn_monitors.png" style="width: 100%; height: 200px; object-fit: cover;" alt="描述3">
+        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/npn_monitors.png" style="width: 300px; height: 200px; object-fit: cover;" alt="描述3">
         <h5 style="margin: 0 0 4px 0; font-size: 14px;"><a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo5-Trace%20Parser.ipynb">Demo-Trace Parser</a></h5>
         <p style="margin: 0; font-size: 14px; font-size: 14px;">In this demo, you will learn how to model the <code>input</code> and <code>observations</code> events of a descrete event system (DES), and how to extract information from parsed counter example.</p>
     </div>
     <div style="margin: 10px; width: 300px;">
-        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/diagnosis_identification.png" style="width: 100%; height: 200px; object-fit: cover;" alt="描述3">
+        <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/diagnosis_identification.png" style="width: 300px; height: 200px; object-fit: cover;" alt="描述3">
         <h5 style="margin: 0 0 4px 0; font-size: 14px;"><a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo3-Fault%20Diagnosis.ipynb">Demo-Fault Identification and Diagnosability</a></h5>
         <p style="margin: 0; font-size: 14px;">In this demo, you will analyze the identification and diagnosability of certain fault, wich advanced methods of <code>pyuppaal</code>.</p>
     </div>
