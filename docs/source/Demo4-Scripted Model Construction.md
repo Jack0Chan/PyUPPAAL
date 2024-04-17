@@ -1,10 +1,8 @@
 # Demo4 - Scripted Model Construction
 
-**Note: we are woking on CAV-2024 tool paper. The documentation will be updated to a structure similar to Demo1-PipeNet before 2024.4.1.**
+This demo illustrates the usage of sripted model consturction of pyuppaal, constructing the [model](https://github.com/Jack0Chan/pyuppaal/blob/main/src/test_unit/constructed_model.xml) shown below:
 
-This demo indicated the usage of pyuppaal.nta, constructing the [model](https://github.com/Jack0Chan/pyuppaal/blob/main/src/test_unit/constructed_model.xml) shown below:
-
-<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/scripted_model_building.png width=1000 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building.png width=800 />
 
 ## 1. Setup Pyuppaal
 
@@ -14,10 +12,12 @@ import os
 import pyuppaal
 from pyuppaal.nta import Template, Location, Edge
 
-pyuppaal.set_verifyta_path(r"C:\Users\Taco\Documents\GitHub\cav2024\bin\uppaal64-4.1.26\bin-Windows\verifyta.exe")
+pyuppaal.set_verifyta_path(r"C:\Users\10262\Documents\GitHub\cav2024\bin\uppaal64-4.1.26\bin-Windows\verifyta.exe")
 ```
 
-## 2. Create New Model
+## 2. Create New Model File with declaration.
+
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_declarations.png width=400 />
 
 
 ```python
@@ -30,7 +30,14 @@ broadcast chan a, b, c;
 int count = 0;
 int sender_count = 0;
 const int rec_end = 10;\n"""
+```
 
+## 3. Construct Receiver Template
+
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_receiver.png width=500 />
+
+
+```python
 # region: 构建tempaltes，一共两个
 # region: 构建第1个template
 template0 = Template(name="Receiver",
@@ -88,7 +95,14 @@ e5 = Edge(source_location_id=0, source_location_pos=(-391, -102),
 template0.edges = [e0, e1, e2, e3, e4, e5]
 # template0.branch_points = [bp0]
 # endregion
+```
 
+## 4. Construct Sender Template
+
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_sender.png width=500 />
+
+
+```python
 # region: 构建第2个template
 template1 = Template(name="Sender",
                         locations=[],
@@ -133,6 +147,15 @@ template1.edges = [e6, e7, e8]
 # endregion 构造templates
 
 umodel.templates = [template0, template1]
+```
+
+## 5. Set System and Queries
+
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_systems.png width=400 />
+<img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building_queries.png width=400 />
+
+
+```python
 umodel.system = """// Place template instantiations here.
 rec = Receiver(a, b, 10, rec_end);
 sender = Sender(a, b);
@@ -145,7 +168,65 @@ umodel.queries = ["E<> sender_count == 10",
                     "A[] not deadlock"]
 ```
 
-## 3. Check for Correctness
+## 6. Verify and Easy Verify
+
+
+```python
+print("umodel.verify() results: ")
+print(umodel.verify())
+
+print("umodel.easy_verify().untime_pattern: (easy_verify() will only return the trace of the FIRST query.)")
+# easy_verify() only aceepts ONE query.
+tmp_new_model = umodel.copy_as('tmp_new.xml')
+tmp_new_model.queries = "E<> rec.End1"
+print(tmp_new_model.queries)
+st = tmp_new_model.easy_verify(keep_tmp_file=True).raw
+print(st)
+# assert last state of st is rec.End1
+# os.remove('tmp_new.xml')
+```
+
+    umodel.verify() results: 
+    Writing example trace to constructed_model-2.xtr
+    Writing example trace to constructed_model-3.xtr
+    Writing example trace to constructed_model-4.xtr
+    Writing counter example to constructed_model-5.xtr
+    Options for the verification:
+      Generating shortest trace
+      Search order is breadth first
+      Using conservative space optimisation
+      Seed is 1713259465
+      State space representation uses minimal constraint systems
+    [2K
+    Verifying formula 1 at /nta/queries/query[1]/formula
+    [2K -- Formula is NOT satisfied.
+    [2K
+    Verifying formula 2 at /nta/queries/query[2]/formula
+    [2K -- Formula is satisfied.
+    [2K
+    Verifying formula 3 at /nta/queries/query[3]/formula
+    [2K -- Formula is satisfied.
+    [2K
+    Verifying formula 4 at /nta/queries/query[4]/formula
+    [2K -- Formula is satisfied.
+    [2K
+    Verifying formula 5 at /nta/queries/query[5]/formula
+    [2K -- Formula is NOT satisfied.
+    
+    umodel.easy_verify().untime_pattern: (easy_verify() will only return the trace of the FIRST query.)
+    ['E<> rec.End1']
+    
+    State: rec.Start sender.Start count=0 sender_count=0 rec.inv_start=10 rec.guard_start=10 t(0)-rec.t<=0 rec.t-t(0)<=10 
+    
+    Transition: rec._id2 -> rec.End2 {1; param2?; t = 888;} 
+    
+    State: rec._id1 sender.Start count=1 sender_count=0 rec.inv_start=10 rec.guard_start=10 t(0)-rec.t<=-10 rec.t-t(0)<=200 
+    
+    Transition: rec._id1 -> rec._id3 {1; 0; 1, 1;} rec.Start -> rec._id1 {t >= guard_start; 0; count++;} 
+    
+    
+
+## 7. Check Correctness
 
 
 ```python
