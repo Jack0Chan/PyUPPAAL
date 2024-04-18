@@ -74,6 +74,38 @@ print(f"untime pattern: {simulation_trace.untime_pattern}")
 print(f"full trace: {simulation_trace}")
 ```
 
+    pyuppaal version: 1.2.1
+    
+    ======== terminal res ========
+    Writing example trace to demo-1.xtr
+    Options for the verification:
+      Generating shortest trace
+      Search order is breadth first
+      Using conservative space optimisation
+      Seed is 1713425560
+      State space representation uses minimal constraint systems
+    [2K
+    Verifying formula 1 at /nta/queries/query[1]/formula
+    [2K -- Formula is satisfied.
+    
+    ======== parsed res ========
+    untime pattern: ['a', 'b']
+    full trace: State [0]: ['P1.start']
+    global_variables [0]: None
+    Clock_constraints [0]: [t(0) - P1.t ≤ 0; P1.t - t(0) ≤ 10; ]
+    transitions [0]: a: P1 -> ; P1.start -> P1._id2;
+    -----------------------------------
+    State [1]: ['P1._id2']
+    global_variables [1]: None
+    Clock_constraints [1]: [t(0) - P1.t ≤ -10; ]
+    transitions [1]: b: P1 -> ; P1._id2 -> P1.pass;
+    -----------------------------------
+    State [2]: ['P1.pass']
+    global_variables [2]: None
+    Clock_constraints [2]: [t(0) - P1.t ≤ -10; ]
+    
+    
+
 ## 4. Find all patterns
 
 Now we want find all possible patterns that leads to `P1.pass`. The red line is pattern1, and the green line is pattern2.
@@ -85,6 +117,10 @@ Now we want find all possible patterns that leads to `P1.pass`. The red line is 
 for i, st in enumerate(umodel.find_all_patterns()):
     print(f'pattern{i+1}: ', st.untime_pattern)
 ```
+
+    pattern1:  ['a', 'b']
+    pattern2:  ['c', 'd']
+    
 
 ## 4. Verify with Multi-threads
 
@@ -114,6 +150,11 @@ p.starmap(pyu.Verifyta().verify, zip(model_path_list, trace_path_list))
 print(f'Verify with multi-threads, time usage {time.time() - t0}')
 
 ```
+
+    1.2.1
+    Verify with for loop, time usage 9.384526014328003
+    Verify with multi-threads, time usage 1.61281418800354
+    
 
 ## 5. Get Communication Graph
 

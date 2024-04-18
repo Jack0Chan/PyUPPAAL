@@ -1,6 +1,6 @@
 # Demo4 - Scripted Model Construction
 
-This demo illustrates the usage of sripted model consturction of pyuppaal, constructing the [model](https://github.com/Jack0Chan/pyuppaal/blob/main/src/test_unit/constructed_model.xml) shown below:
+This demo illustrates the usage of sripted model consturction of pyuppaal, constructing the [model](https://github.com/Jack0Chan/pyuppaal/blob/main/src/test_unit/constructed_model1.xml) shown below:
 
 <img src=https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/scripted_model_building.png width=800 />
 
@@ -21,7 +21,7 @@ pyuppaal.set_verifyta_path(r"C:\Users\10262\Documents\GitHub\cav2024\bin\uppaal6
 
 
 ```python
-model_path = 'constructed_model.xml'
+model_path = 'constructed_model1.xml'
 os.remove(model_path)
 umodel = pyuppaal.UModel.new(model_path)
 
@@ -187,15 +187,15 @@ print(st)
 ```
 
     umodel.verify() results: 
-    Writing example trace to constructed_model-2.xtr
-    Writing example trace to constructed_model-3.xtr
-    Writing example trace to constructed_model-4.xtr
-    Writing counter example to constructed_model-5.xtr
+    Writing example trace to constructed_model1-2.xtr
+    Writing example trace to constructed_model1-3.xtr
+    Writing example trace to constructed_model1-4.xtr
+    Writing counter example to constructed_model1-5.xtr
     Options for the verification:
       Generating shortest trace
       Search order is breadth first
       Using conservative space optimisation
-      Seed is 1713259465
+      Seed is 1713421808
       State space representation uses minimal constraint systems
     [2K
     Verifying formula 1 at /nta/queries/query[1]/formula
