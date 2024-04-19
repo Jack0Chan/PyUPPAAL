@@ -16,12 +16,7 @@ Notice:
 
 Demos are provided to help users get familiar with `PyUPPAAL`:
 
-<a href="">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.png" width="270px" alt="">
-</a>
-<a href="">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme2.png" width="270px" alt="">
-</a>
+
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo4-Scripted%20Model%20Construction.ipynb">
     <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme3.png" width="270px" alt="">
 </a>
@@ -36,6 +31,12 @@ Demos are provided to help users get familiar with `PyUPPAAL`:
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo3-Fault%20Diagnosis.ipynb">
     <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme7.png" width="270px" alt="">
+</a>
+<a href="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.png" width="270px" alt="">
+</a>
+<a href="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme2.png" width="270px" alt="">
 </a>
 
 # Quickstart
