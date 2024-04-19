@@ -16,7 +16,7 @@ Notice:
 
 Demos are provided to help users get familiar with `PyUPPAAL`:
 
-<a href="https://www.sciencedirect.com/science/article/abs/pii/S0957417424002367">
+<a href="">
     <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.png" width="270px" alt="">
 </a>
 <a href="">
