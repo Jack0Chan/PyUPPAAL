@@ -6,7 +6,7 @@
 [![Licence](https://img.shields.io/github/license/jack0chan/pyuppaal)](https://opensource.org/licenses/mit-license.php)
 ![](https://img.shields.io/badge/platform-Windows,%20Linux,%20Darwin-blue) 
 
-`PyUPPAAL` is a python package developed basically for reflecting UPPAAL's model editing, verification, and counter-example parsing operations into scripts. 
+`PyUPPAAL` is a python package developed basically for reflecting UPPAAL's model editing, verification, and counter-example parsing operations into scripts. Implementing iterative model checking workflow is a typical application of pyuppaal, such as CEGAR, CEGIS, fault diagnosis, risk analysis, ect. We will add references and case studies for these problems. Some function have been implemented such as `find_all_patterns()`, `fault_diagnosability()`, `fault_identification()`, and `fault_tolerance()`.
 
 Notice: 
 
@@ -14,22 +14,28 @@ Notice:
 - more demos for basic & advanced usage will come soon.
 - [todo] Support for *SMC* analyzing.
 
-Demos are provided to help users get familiar with `PyUPPAAL`
+Demos are provided to help users get familiar with `PyUPPAAL`:
 
-<a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo1-PipeNet.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.jpg" width="270px" alt="">
+<a href="https://www.sciencedirect.com/science/article/abs/pii/S0957417424002367">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme1.png" width="270px" alt="">
+</a>
+<a href="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme2.png" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo4-Scripted%20Model%20Construction.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme2.jpg" width="270px" alt="">
-</a>
-<a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo2-Pedestrian.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme3.jpg" width="270px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme3.png" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo5-Trace%20Parser.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme4.jpg" width="270px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme4.png" width="270px" alt="">
+</a>
+<a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo1-PipeNet.ipynb">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme5.png" width="270px" alt="">
+</a>
+<a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo2-Pedestrian.ipynb">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme6.png" width="270px" alt="">
 </a>
 <a href="https://github.com/Jack0Chan/PyUPPAAL/blob/main/src/test_demos/Demo3-Fault%20Diagnosis.ipynb">
-    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme5.jpg" width="270px" alt="">
+    <img src="https://raw.githubusercontent.com/Jack0Chan/pyuppaal/main/src/test_demos/figs/readme7.png" width="270px" alt="">
 </a>
 
 # Quickstart
