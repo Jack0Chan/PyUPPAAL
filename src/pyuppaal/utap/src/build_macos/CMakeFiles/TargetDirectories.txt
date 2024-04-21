@@ -1,0 +1,3 @@
+/Users/taco/Desktop/GitRepo/tracer_custom/src/build_macos/CMakeFiles/tracer_darwin.dir
+/Users/taco/Desktop/GitRepo/tracer_custom/src/build_macos/CMakeFiles/edit_cache.dir
+/Users/taco/Desktop/GitRepo/tracer_custom/src/build_macos/CMakeFiles/rebuild_cache.dir

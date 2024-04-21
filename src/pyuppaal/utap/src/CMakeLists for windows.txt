@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.5)
+project(Tracer VERSION 1.1.0)
+
+# Specify the C++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Add the executable
+add_executable(tracer tracer_custom.cpp)
+
+# Include directories
+target_include_directories(tracer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# If there are any libraries you need to link to, use the following command
+# target_link_libraries(tracer PRIVATE some_library)

@@ -1,0 +1,3 @@
+C:/Users/Taco/Documents/GitHub/tracer_custom/src/build_win/CMakeFiles/tracer.dir
+C:/Users/Taco/Documents/GitHub/tracer_custom/src/build_win/CMakeFiles/ALL_BUILD.dir
+C:/Users/Taco/Documents/GitHub/tracer_custom/src/build_win/CMakeFiles/ZERO_CHECK.dir

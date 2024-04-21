@@ -1,0 +1,3 @@
+/mnt/c/Users/Taco/Documents/GitHub/tracer_custom/src/build_linux/CMakeFiles/tracer_linux.dir
+/mnt/c/Users/Taco/Documents/GitHub/tracer_custom/src/build_linux/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Taco/Documents/GitHub/tracer_custom/src/build_linux/CMakeFiles/rebuild_cache.dir
