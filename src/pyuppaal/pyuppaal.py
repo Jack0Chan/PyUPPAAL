@@ -20,7 +20,7 @@ class DeveloperTools:
     给开发者用的开发工具, 用于内部测试, 可以在多平台进行测试。 普通用户无法使用。
     """
     @staticmethod
-    def get_verifyta_path_dev(uppaal_version: int = 4):
+    def get_verifyta_path_dev(uppaal_version: int = 5):
         import os
 
         curr_dir = os.path.dirname(os.path.abspath(__file__))
