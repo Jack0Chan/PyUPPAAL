@@ -2,6 +2,7 @@
 """
 from .verifyta import Verifyta
 
+
 def set_verifyta_path(verifyta_path: str):
     """Set verifyta path, and you will get tips if `verifyta_path` is invalid.
     This function will check whether `verifyta_path` is valid by following steps:
@@ -12,6 +13,7 @@ def set_verifyta_path(verifyta_path: str):
         verifyta_path (str): absolute path to `verifyta`
     """
     Verifyta().set_verifyta_path(verifyta_path)
+
 
 class DeveloperTools:
     """
@@ -24,9 +26,11 @@ class DeveloperTools:
         curr_dir = os.path.dirname(os.path.abspath(__file__))
 
         if uppaal_version == 4:
-            uppaal_dir = os.path.join(curr_dir, '../../bin/uppaal64-4.1.26')
+            # 和github desktop的根目录相同
+            uppaal_dir = os.path.join(curr_dir, '../../../uppaal64-4.1.26')
         elif uppaal_version == 5:
-            uppaal_dir = os.path.join(curr_dir, '../../bin/uppaal64-5.0.0')
+            # 和github desktop的根目录相同
+            uppaal_dir = os.path.join(curr_dir, '../../../uppaal64-5.0.0')
         else:
             raise ValueError("uppaal_version must be 4 or 5.\n Currently tested versions are 4.1.26 and 5.0.0")
 
