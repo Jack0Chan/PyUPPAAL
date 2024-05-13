@@ -31,6 +31,8 @@ setuptools.setup(
     python_requires=">=3.6",
     include_package_data=True,
     install_requires=[
+        "requests>=2.25.1",
+        "anytree>=2.8.0",
         #   'myst_parser',# 'Sphinx -> markdown'
           # ^^^ Not sure if this is needed on readthedocs.org
           # 'something else?',

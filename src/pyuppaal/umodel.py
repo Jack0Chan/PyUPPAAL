@@ -920,13 +920,13 @@ system Process;
     # fault_diagnosability_ER+TC
     # fault_diagnosability_ER+TC+MT
     def fault_diagnosability(
-        self,
-        fault: str,
-        n: int,
-        sigma_o: List[str],
-        sigma_un: List[str],
-        visual=False,
-        keep_tmp_file=True,
+    self,
+    fault: str,
+    n: int,
+    sigma_o: List[str],
+    sigma_un: List[str],
+    visual=False,
+    keep_tmp_file=True,
     ) -> (bool, SimTrace):
         """Determine whether the `fault` is `n` diagnosable.
 
@@ -946,55 +946,37 @@ system Process;
                 bool: whether the fault is n-diagnosable.
                 SimTrace: if is not n-diagnosable, a `SimTrace` will be returend as a proof.
         """
+        total_processes = len(sigma_o) ** n
+        block_size = total_processes // 10
+        blocks_printed = 0
+
+        if (visual):
+            print("Progress: [ ]", end='')  # 10 spaces inside brackets
+            print('\b' * 12, end='', flush=True)  # Move cursor back to start after '['
+
+        for process_counter, suffix in enumerate(product(sigma_o, repeat=n), 1):
+            suffix = list(suffix)
+            # Update progress bar based on the number of iterations
+            while (process_counter > (blocks_printed + 1) * block_size) and visual:
+                print('█', end='', flush=True)
+                blocks_printed += 1
+
+            if self.__is_valid_suffix(sigma_o, sigma_un, fault, suffix, keep_tmp_file)[0]:
+                verify_res, trace = self.fault_identification(
+                    suffix, fault, sigma_o, sigma_un, keep_tmp_file
+                )
+                if verify_res:
+                    continue
+                else:
+                    if visual:
+                        print(']' + ' ' * (10 - blocks_printed) + ' Early Return!')  # Finish the progress bar
+                    return False, trace
+            else:
+                continue
         if visual:
-            from tqdm import tqdm
-
-            for suffix in tqdm(
-                product(sigma_o, repeat=n),
-                total=len(sigma_o) ** n,
-                desc=f"   {n}-diagnosability for '{fault}'",
-            ):
-                suffix = list(suffix)
-                if self.__is_valid_suffix(
-                    sigma_o, sigma_un, fault, suffix, keep_tmp_file
-                )[0]:
-                    # print('    valid_suffix: ', suffix)
-                    # Note: tmp_model is removed. So if you need the trace, set keep_tmp_file = True
-                    verify_res, trace = self.fault_identification(
-                        suffix, fault, sigma_o, sigma_un, keep_tmp_file
-                    )
-
-                    if verify_res:
-                        continue
-                    else:
-                        # print(f"   '{fault}' is NOT {n}-diagnosable because of the suffix {suffix}.")
-                        return False, trace
-                else:
-                    # print('NOT valid suffix: ', suffix)
-                    continue
-        else:
-            # for suffix in list(product()):
-            for suffix in product(sigma_o, repeat=n):
-                suffix = list(suffix)
-                if self.__is_valid_suffix(
-                    sigma_o, sigma_un, fault, suffix, keep_tmp_file
-                )[0]:
-                    # print('    valid_suffix: ', suffix)
-
-                    # tmp_model is removed. So if you need the trace, set keep_tmp_file = True
-                    verify_res, trace = self.fault_identification(
-                        suffix, fault, sigma_o, sigma_un, keep_tmp_file
-                    )
-                    if verify_res:
-                        continue
-                    else:
-                        # print(f"   '{fault}' is NOT {n}-diagnosable because of the suffix {suffix}.")
-                        return False, trace
-                else:
-                    # print('NOT valid suffix: ', suffix)
-                    continue
-        # print(f"   {fault} is {n}-diagnosable.")
+            print(']' + ' ' * (10 - blocks_printed) + ' Complete!')  # Finish the progress bar
         return True, None
+
 
     def fault_diagnosability_optimized(
         self,
