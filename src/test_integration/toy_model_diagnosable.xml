@@ -1,5 +1,180 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <nta>
-<declaration>broadcast chan a,b,c;
+    
+
+    <declaration>broadcast chan a,b,c;
 broadcast chan obf;
-broadcast chan f, action;</declaration><template><name>NotDiagnosable</name><declaration>// Place local declarations here.</declaration><location id="id0" x="110" y="85"><name x="85" y="59">L6</name></location><location id="id1" x="0" y="85"><name x="-26" y="59">L5</name></location><location id="id2" x="-77" y="85"><name x="-102" y="59">L3</name></location><location id="id3" x="-77" y="25"><name x="-102" y="0">L2</name></location><location id="id4" x="0" y="25"><name x="-26" y="0">L4</name></location><location id="id5" x="-77" y="-34"><name x="-102" y="-59">L1</name></location><init ref="id5" /><transition><source ref="id0" /><target ref="id0" /><label kind="synchronisation" x="102" y="102">b!</label><nail x="85" y="119" /><nail x="136" y="119" /></transition><transition><source ref="id1" /><target ref="id1" /><label kind="synchronisation" x="-8" y="102">a!</label><nail x="-25" y="119" /><nail x="25" y="119" /></transition><transition><source ref="id2" /><target ref="id3" /><label kind="synchronisation" x="-136" y="51">b!</label><nail x="-119" y="85" /><nail x="-119" y="85" /><nail x="-119" y="51" /><nail x="-110" y="42" /></transition><transition><source ref="id1" /><target ref="id4" /><label kind="synchronisation" x="-42" y="68">b!</label><nail x="-51" y="85" /><nail x="-51" y="59" /></transition><transition><source ref="id1" /><target ref="id0" /><label kind="synchronisation" x="33" y="68">action?</label></transition><transition><source ref="id4" /><target ref="id1" /><label kind="synchronisation" x="8" y="42">a!</label></transition><transition><source ref="id3" /><target ref="id4" /><label kind="synchronisation" x="-51" y="9">f!</label></transition><transition><source ref="id3" /><target ref="id2" /><label kind="synchronisation" x="-94" y="42">a!</label></transition><transition><source ref="id5" /><target ref="id3" /><label kind="synchronisation" x="-77" y="-17">c!</label></transition></template><template><name>Controller</name><location id="id6" x="0" y="0" /><init ref="id6" /><transition><source ref="id6" /><target ref="id6" /><label kind="synchronisation" x="-67" y="-17">action!</label><nail x="-85" y="0" /><nail x="-85" y="42" /></transition></template><template><name>Diagnosable</name><location id="id7" x="102" y="51"><name x="77" y="25">L6</name></location><location id="id8" x="-8" y="51"><name x="-34" y="25">L5</name></location><location id="id9" x="-85" y="51"><name x="-110" y="25">L3</name></location><location id="id10" x="-85" y="-9"><name x="-110" y="-34">L2</name></location><location id="id11" x="-8" y="-9"><name x="-34" y="-34">L4</name></location><location id="id12" x="-85" y="-68"><name x="-110" y="-93">L1</name></location><init ref="id12" /><transition><source ref="id7" /><target ref="id7" /><label kind="synchronisation" x="94" y="68">b!</label><nail x="77" y="85" /><nail x="128" y="85" /></transition><transition><source ref="id8" /><target ref="id8" /><label kind="synchronisation" x="-16" y="68">a!</label><nail x="-33" y="85" /><nail x="17" y="85" /></transition><transition><source ref="id9" /><target ref="id9" /><label kind="synchronisation" x="-93" y="67">b!</label><nail x="-110" y="84" /><nail x="-59" y="84" /></transition><transition><source ref="id8" /><target ref="id11" /><label kind="synchronisation" x="-50" y="34">b!</label><nail x="-59" y="51" /><nail x="-59" y="25" /></transition><transition><source ref="id8" /><target ref="id7" /><label kind="synchronisation" x="25" y="34">action?</label></transition><transition><source ref="id11" /><target ref="id8" /><label kind="synchronisation" x="0" y="8">a!</label></transition><transition><source ref="id10" /><target ref="id11" /><label kind="synchronisation" x="-59" y="-25">f!</label></transition><transition><source ref="id10" /><target ref="id9" /><label kind="synchronisation" x="-102" y="8">a!</label></transition><transition><source ref="id12" /><target ref="id10" /><label kind="synchronisation" x="-85" y="-51">c!</label></transition></template><system>system Diagnosable;</system><queries><query><formula /><comment /></query></queries></nta>
+broadcast chan f, action;</declaration>
+    <template>
+        <name>NotDiagnosable</name>
+        <declaration>// Place local declarations here.</declaration>
+        <location id="id0" x="110" y="85">
+            <name x="85" y="59">L6</name>
+        </location>
+        <location id="id1" x="0" y="85">
+            <name x="-26" y="59">L5</name>
+        </location>
+        <location id="id2" x="-77" y="85">
+            <name x="-102" y="59">L3</name>
+        </location>
+        <location id="id3" x="-77" y="25">
+            <name x="-102" y="0">L2</name>
+        </location>
+        <location id="id4" x="0" y="25">
+            <name x="-26" y="0">L4</name>
+        </location>
+        <location id="id5" x="-77" y="-34">
+            <name x="-102" y="-59">L1</name>
+        </location>
+        <init ref="id5"/>
+        <transition>
+            <source ref="id0"/>
+            <target ref="id0"/>
+            <label kind="synchronisation" x="102" y="102">b!</label>
+            <nail x="85" y="119"/>
+            <nail x="136" y="119"/>
+        </transition>
+        <transition>
+            <source ref="id1"/>
+            <target ref="id1"/>
+            <label kind="synchronisation" x="-8" y="102">a!</label>
+            <nail x="-25" y="119"/>
+            <nail x="25" y="119"/>
+        </transition>
+        <transition>
+            <source ref="id2"/>
+            <target ref="id3"/>
+            <label kind="synchronisation" x="-136" y="51">b!</label>
+            <nail x="-119" y="85"/>
+            <nail x="-119" y="85"/>
+            <nail x="-119" y="51"/>
+            <nail x="-110" y="42"/>
+        </transition>
+        <transition>
+            <source ref="id1"/>
+            <target ref="id4"/>
+            <label kind="synchronisation" x="-42" y="68">b!</label>
+            <nail x="-51" y="85"/>
+            <nail x="-51" y="59"/>
+        </transition>
+        <transition>
+            <source ref="id1"/>
+            <target ref="id0"/>
+            <label kind="synchronisation" x="33" y="68">action?</label>
+        </transition>
+        <transition>
+            <source ref="id4"/>
+            <target ref="id1"/>
+            <label kind="synchronisation" x="8" y="42">a!</label>
+        </transition>
+        <transition>
+            <source ref="id3"/>
+            <target ref="id4"/>
+            <label kind="synchronisation" x="-51" y="9">f!</label>
+        </transition>
+        <transition>
+            <source ref="id3"/>
+            <target ref="id2"/>
+            <label kind="synchronisation" x="-94" y="42">a!</label>
+        </transition>
+        <transition>
+            <source ref="id5"/>
+            <target ref="id3"/>
+            <label kind="synchronisation" x="-77" y="-17">c!</label>
+        </transition>
+    </template>
+    <template>
+        <name>Controller</name>
+        <location id="id6" x="0" y="0"/>
+        <init ref="id6"/>
+        <transition>
+            <source ref="id6"/>
+            <target ref="id6"/>
+            <label kind="synchronisation" x="-67" y="-17">action!</label>
+            <nail x="-85" y="0"/>
+            <nail x="-85" y="42"/>
+        </transition>
+    </template>
+    <template>
+        <name>Diagnosable</name>
+        <location id="id7" x="102" y="51">
+            <name x="77" y="25">L6</name>
+        </location>
+        <location id="id8" x="-8" y="51">
+            <name x="-34" y="25">L5</name>
+        </location>
+        <location id="id9" x="-85" y="51">
+            <name x="-110" y="25">L3</name>
+        </location>
+        <location id="id10" x="-85" y="-9">
+            <name x="-110" y="-34">L2</name>
+        </location>
+        <location id="id11" x="-8" y="-9">
+            <name x="-34" y="-34">L4</name>
+        </location>
+        <location id="id12" x="-85" y="-68">
+            <name x="-110" y="-93">L1</name>
+        </location>
+        <init ref="id12"/>
+        <transition>
+            <source ref="id7"/>
+            <target ref="id7"/>
+            <label kind="synchronisation" x="94" y="68">b!</label>
+            <nail x="77" y="85"/>
+            <nail x="128" y="85"/>
+        </transition>
+        <transition>
+            <source ref="id8"/>
+            <target ref="id8"/>
+            <label kind="synchronisation" x="-16" y="68">a!</label>
+            <nail x="-33" y="85"/>
+            <nail x="17" y="85"/>
+        </transition>
+        <transition>
+            <source ref="id9"/>
+            <target ref="id9"/>
+            <label kind="synchronisation" x="-93" y="67">b!</label>
+            <nail x="-110" y="84"/>
+            <nail x="-59" y="84"/>
+        </transition>
+        <transition>
+            <source ref="id8"/>
+            <target ref="id11"/>
+            <label kind="synchronisation" x="-50" y="34">b!</label>
+            <nail x="-59" y="51"/>
+            <nail x="-59" y="25"/>
+        </transition>
+        <transition>
+            <source ref="id8"/>
+            <target ref="id7"/>
+            <label kind="synchronisation" x="25" y="34">action?</label>
+        </transition>
+        <transition>
+            <source ref="id11"/>
+            <target ref="id8"/>
+            <label kind="synchronisation" x="0" y="8">a!</label>
+        </transition>
+        <transition>
+            <source ref="id10"/>
+            <target ref="id11"/>
+            <label kind="synchronisation" x="-59" y="-25">f!</label>
+        </transition>
+        <transition>
+            <source ref="id10"/>
+            <target ref="id9"/>
+            <label kind="synchronisation" x="-102" y="8">a!</label>
+        </transition>
+        <transition>
+            <source ref="id12"/>
+            <target ref="id10"/>
+            <label kind="synchronisation" x="-85" y="-51">c!</label>
+        </transition>
+    </template>
+    <system>system Diagnosable;</system>
+    <queries>
+        <query>
+            <formula/>
+            <comment/>
+        </query>
+    </queries>
+</nta>

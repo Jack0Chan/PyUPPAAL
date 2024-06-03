@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from typing import List
 from itertools import product
 import uuid
-from copy import deepcopy
+# from copy import deepcopy
 from tempfile import NamedTemporaryFile
 import xml.dom.minidom
 # from anytree import PostOrderIter, NodeMixin
@@ -324,14 +324,14 @@ system Process;
 
     def write_xml_tree(self, path: str, indent: int) -> None:
         """Write the xml tree to disk
-        
+
         Args:
             path (str): target xml file storing the model
             indent (int): indentation of the xml, must >= 0
         Returns:
             None.
         """
-        
+
         if indent != 0:
             with NamedTemporaryFile(suffix="-unformatted.xml", mode="w", delete=False) as tmp_file:
                 self.ElementTree.write(tmp_file.name, encoding="utf-8", xml_declaration=True)
@@ -339,7 +339,7 @@ system Process;
             xml_str = dom.toprettyxml(indent=indent*" ")
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(xml_str)
-        else: 
+        else:
             self.ElementTree.write(path, encoding="utf-8", xml_declaration=True)
 
     def save_as(self, new_path: str, indent=4) -> UModel:
@@ -373,7 +373,7 @@ system Process;
         Returns:
             UModel: new copied instance.
         """
-        
+
         self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_path)
 
@@ -941,13 +941,13 @@ system Process;
     # fault_diagnosability_ER+TC
     # fault_diagnosability_ER+TC+MT
     def fault_diagnosability(
-    self,
-    fault: str,
-    n: int,
-    sigma_o: List[str],
-    sigma_un: List[str],
-    visual=False,
-    keep_tmp_file=True,
+        self,
+        fault: str,
+        n: int,
+        sigma_o: List[str],
+        sigma_un: List[str],
+        visual=False,
+        keep_tmp_file=True,
     ) -> (bool, SimTrace):
         """Determine whether the `fault` is `n` diagnosable.
 
@@ -997,7 +997,6 @@ system Process;
         if visual:
             print(']' + ' ' * (10 - blocks_printed) + ' Complete!')  # Finish the progress bar
         return True, None
-
 
     def fault_diagnosability_optimized(
         self,

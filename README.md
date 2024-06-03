@@ -47,7 +47,8 @@ Demos are provided to help users get familiar with `PyUPPAAL`:
 
 ## 2. Before Coding
 
-Be sure to set the `verifyta_path` in your first line of code, which serves as model checking engine: [Download UPPAAL4.x/5.x](https://uppaal.org/downloads/).
+1. Be sure to set the `verifyta_path` in your first line of code, which serves as model checking engine: [Download UPPAAL4.x/5.x](https://uppaal.org/downloads/).
+2. You should activate UPPAAL, e.g., verify a model with UPPAAL GUI before use pyuppaal, to make sure that you have UPPAAL backend actiavted.
 
 `pyuppaal.set_verifyta_path("your/path/to//verifyta.exe")`
 
