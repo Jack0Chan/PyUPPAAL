@@ -7,7 +7,9 @@ import xml.etree.ElementTree as ET
 from typing import List
 from itertools import product
 import uuid
-
+from copy import deepcopy
+from tempfile import NamedTemporaryFile
+import xml.dom.minidom
 # from anytree import PostOrderIter, NodeMixin
 
 # from pyuppaal.iTools.new_factory import Template, Location, Edge
@@ -320,17 +322,36 @@ system Process;
         res = UModel(model_path=model_path)
         return res
 
-    def save_as(self, new_path: str) -> UModel:
+    def write_xml_tree(self, path: str, indent: int) -> None:
+        """Write the xml tree to disk
+        
+        Args:
+            path (str): target xml file storing the model
+            indent (int): indentation of the xml, must >= 0
+        Returns:
+            None.
+        """
+        
+        if indent != 0:
+            with NamedTemporaryFile(suffix="-unformatted.xml", mode="w", delete=False) as tmp_file:
+                self.ElementTree.write(tmp_file.name, encoding="utf-8", xml_declaration=True)
+            dom = xml.dom.minidom.parse(tmp_file.name)
+            xml_str = dom.toprettyxml(indent=indent*" ")
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(xml_str)
+        else: 
+            self.ElementTree.write(path, encoding="utf-8", xml_declaration=True)
+
+    def save_as(self, new_path: str, indent=4) -> UModel:
         """Save the model to a new path with `self.model_path` changed to `new_model_path`.
 
         Args:
-            new_path (str): target model path.
-
+            new_path (str): target model path
+            indent (int): indentation of the created xml
         Returns:
             UModel: self.
         """
-        with open(new_path, "w", encoding="utf-8") as f:
-            self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
+        self.write_xml_tree(new_path, indent)
         self.__model_path = new_path
 
         return self
@@ -352,8 +373,8 @@ system Process;
         Returns:
             UModel: new copied instance.
         """
-        with open(new_path, "w", encoding="utf-8") as f:
-            self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
+        
+        self.ElementTree.write(new_path, encoding="utf-8", xml_declaration=True)
         return UModel(new_path)
 
     # endregion 基础的文件保存功能
