@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.11, 3.12]
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
       max-parallel: 5
 
     steps:
@@ -23,9 +23,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Create and activate conda environment
       run: |
-        conda env create --file environment.yml --name myenv
-        echo "conda activate myenv" >> ~/.bashrc
+        conda config --set always_yes yes
+        conda info -a
+        conda env create --file /home/runner/work/PyUPPAAL/PyUPPAAL/environment.yml --name myenv
+        conda init bash
         source ~/.bashrc
+        conda activate myenv
     - name: Install pyuppaal
       run: pip install pyuppaal
     - name: Lint with flake8
