@@ -302,8 +302,10 @@ class SimTrace:
             param_elememt: ET.Element | None = template.find(
                 "parameter")  # uppaal guaranteed this to have only one
             if param_elememt is not None:
-                param_map[name] = list(map(lambda item: item.strip().split(' ')[-1].replace('&', ''),
-                                           param_elememt.text.split(',')))  # remove type and ref annotation
+                def process_item(item):
+                    return item.strip().split(' ')[-1].replace('&', '')
+                # param_elememt.text.split('//')[0].strip() 去掉注释
+                param_map[name] = [process_item(item) for item in param_elememt.text.split('//')[0].strip().split(',')]
             else:
                 param_map[name] = []
 

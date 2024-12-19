@@ -37,7 +37,7 @@ class DeveloperTools:
         path_dir = {
             'Windows': os.path.join(uppaal_dir, 'bin-Windows/verifyta.exe'),
             'Linux': os.path.join(uppaal_dir, 'bin-Linux/verifyta'),
-            'Darwin': os.path.join(uppaal_dir, 'bin-Darwin/verifyta')
+            'Darwin': '/Applications/UPPAAL-5.0.0.app/Contents/Resources/uppaal/bin/verifyta'#os.path.join(uppaal_dir, 'bin-Darwin/verifyta')
         }
         return path_dir[Verifyta.get_env()]
 
