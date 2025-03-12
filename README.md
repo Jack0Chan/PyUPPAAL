@@ -214,4 +214,6 @@ Demos are provided to help users get familiar with `PyUPPAAL` (can not be render
     </div>
 </div>
 
+# Star History
 
+[![Star History Chart](https://api.star-history.com/svg?repos=Jack0Chan/PyUPPAAL&type=Date)](https://www.star-history.com/#Jack0Chan/PyUPPAAL&Date)
