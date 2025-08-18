@@ -7,7 +7,6 @@ from __future__ import annotations
 import platform
 import os
 import subprocess
-from typing import List
 
 
 class Verifyta:
@@ -28,9 +27,9 @@ class Verifyta:
             return
         self.__is_first_init = False
 
-        self.__verifyta_path: str = None
+        self.__verifyta_path: str | None = None
 
-        self.__verifyta_version: int = None
+        self.__verifyta_version: int | None = None
 
         self.__operating_system: str = self.get_env()
 
@@ -41,7 +40,7 @@ class Verifyta:
         Returns:
             str: current verifyta path.
         """
-        return self.__verifyta_path
+        return self.__verifyta_path or ""
 
     @staticmethod
     def get_env() -> str:  # operation system
@@ -221,7 +220,7 @@ class Verifyta:
 
         return if_path
 
-    def verify(self, model_path: str, trace_path: str = None, verify_options: str = "-t 1", keep_tmp_file=True) -> str:
+    def verify(self, model_path: str, trace_path: str | None = None, verify_options: str = "-t 1", keep_tmp_file=True) -> str:
         """
         Verify model and return the verify result as list.
         This is designed for advanced UPPAAL user.
