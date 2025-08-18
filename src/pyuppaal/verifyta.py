@@ -27,9 +27,9 @@ class Verifyta:
             return
         self.__is_first_init = False
 
-        self.__verifyta_path: str | None = None
+        self.__verifyta_path: str = None
 
-        self.__verifyta_version: int | None = None
+        self.__verifyta_version: int = None
 
         self.__operating_system: str = self.get_env()
 
@@ -40,7 +40,7 @@ class Verifyta:
         Returns:
             str: current verifyta path.
         """
-        return self.__verifyta_path or ""
+        return self.__verifyta_path
 
     @staticmethod
     def get_env() -> str:  # operation system
@@ -113,12 +113,12 @@ class Verifyta:
             raise ValueError(
                 f"Invalid verifyta_path: {verifyta_path}.\n{example_info} \nVerifyta Not Found!.")
 
-    def cmd(self, cmd: str, timeout: float | None = None) -> str:
+    def cmd(self, cmd: str, timeout: float = None) -> str:
         """Run common command with cmd, you can easily ignore the verifyta path.
 
         Args:
             cmd (str): command to run.
-            timeout (float | None): timeout in seconds for the command execution.
+            timeout (float, optional): timeout in seconds for the command execution.
 
         Raises:
             ValueError: if verifyta_path is not set.
@@ -225,7 +225,7 @@ class Verifyta:
 
         return if_path
 
-    def verify(self, model_path: str, trace_path: str | None = None, verify_options: str = "-t 1", keep_tmp_file=True, timeout: float | None = None) -> str:
+    def verify(self, model_path: str, trace_path: str = None, verify_options: str = "-t 1", keep_tmp_file=True, timeout: float = None) -> str:
         """
         Verify model and return the verify result as list.
         This is designed for advanced UPPAAL user.
@@ -248,7 +248,7 @@ class Verifyta:
             verify_options (str, optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
                 Defaults to '-t 1', returning the shortest trace.
             keep_tmp_file (bool, optional): whether to keep temporary trace files. Defaults to True.
-            timeout (Optional[float], optional): timeout in seconds for the verification command execution.
+            timeout (float, optional): timeout in seconds for the verification command execution.
 
         Raises:
             ValueError: if tracer file is not `xml` or `xtr`.
