@@ -7,7 +7,6 @@ from __future__ import annotations
 import platform
 import os
 import subprocess
-from typing import List
 
 
 class Verifyta:
@@ -114,15 +113,17 @@ class Verifyta:
             raise ValueError(
                 f"Invalid verifyta_path: {verifyta_path}.\n{example_info} \nVerifyta Not Found!.")
 
-    def cmd(self, cmd: str) -> str:
+    def cmd(self, cmd: str, timeout: float = None) -> str:
         """Run common command with cmd, you can easily ignore the verifyta path.
 
         Args:
             cmd (str): command to run.
+            timeout (float, optional): timeout in seconds for the command execution.
 
         Raises:
             ValueError: if verifyta_path is not set.
             ValueError: if cmd got stderr and not as expected.
+            TimeoutError: if command execution times out.
 
         Returns:
             str: the output of the input command.
@@ -135,7 +136,10 @@ class Verifyta:
 
         # Run the command and check for errors. Use shell because we set env var and && is used.
         # macos and windows use shell, linux not use
-        cmd_res = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=False)
+        try:
+            cmd_res = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=False, timeout=timeout)
+        except subprocess.TimeoutExpired as e:
+            raise TimeoutError(f"Command '{cmd}' timed out after {timeout} seconds") from e
 
         if cmd_res.stderr is not None and cmd_res.stderr != '':
             if "Writing example trace to" in cmd_res.stderr:
@@ -221,7 +225,7 @@ class Verifyta:
 
         return if_path
 
-    def verify(self, model_path: str, trace_path: str = None, verify_options: str = "-t 1", keep_tmp_file=True) -> str:
+    def verify(self, model_path: str, trace_path: str = None, verify_options: str = "-t 1", keep_tmp_file=True, timeout: float = None) -> str:
         """
         Verify model and return the verify result as list.
         This is designed for advanced UPPAAL user.
@@ -243,9 +247,12 @@ class Verifyta:
                 Defaults to None, which will create `.xtr` path.
             verify_options (str, optional): verify options that are proveded by `verifyta`, and you can get details by run `verifyta -h` in your terminal.
                 Defaults to '-t 1', returning the shortest trace.
+            keep_tmp_file (bool, optional): whether to keep temporary trace files. Defaults to True.
+            timeout (float, optional): timeout in seconds for the verification command execution.
 
         Raises:
             ValueError: if tracer file is not `xml` or `xtr`.
+            TimeoutError: if verification command times out.
 
         Returns:
             str: terminal verify results for `.xml` model.
@@ -300,7 +307,7 @@ class Verifyta:
 
         # 构造命令
         cmd = f'{cmd_env}&&{self.__verifyta_path} {model_path} {option}'
-        res = self.cmd(cmd)
+        res = self.cmd(cmd, timeout=timeout)
 
         # remove tmp file
         if not keep_tmp_file:

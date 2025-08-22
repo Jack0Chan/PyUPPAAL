@@ -380,27 +380,29 @@ system Process;
     # endregion 基础的文件保存功能
 
     # region 验证相关
-    def verify(self, trace_path: str = None, verify_options: str = None, keep_tmp_file: bool = True) -> str:
+    def verify(self, trace_path: str = None, verify_options: str = None, keep_tmp_file: bool = True, timeout: float = None) -> str:
         """Verify and return the verify result. If `trace_path` is not given, it wll return the terminal result.
 
         Args:
             trace_path (str, optional): the path to save the trace file. Defaults to None.
             verify_options (str, optional): options for verifyta, such as ` -t 0 -o 0`. Defaults to None.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
+            timeout (float, optional): timeout in seconds for the verification command execution.
 
         Returns:
             str: terminal verify results for `self`.
         """
-        return Verifyta().verify(self.model_path, trace_path, verify_options, keep_tmp_file)
+        return Verifyta().verify(self.model_path, trace_path, verify_options, keep_tmp_file, timeout=timeout)
 
     def easy_verify(
-        self, verify_options: str = "-t 1", keep_tmp_file=True
+        self, verify_options: str = "-t 1", keep_tmp_file=True, timeout: float = None
     ) -> SimTrace | None:
         """Easily verify current model, create a `.xtr` trace file that has the same name as `self.model_path`, and return parsed counter example as `SimTrace` (if exists). You can do easy_verify with only ONE query each time.
 
         Args:
             verify_options (str, optional): verify options, and `-t` must be set because returning a `SimTrace` requires a `.xtr` trace file. Defaults to '-t 1', returning the shortest trace.
             keep_tmp_file (bool, optional): whether to keep the temp file such as `xtr` or in-process `xml`. Defaults to True.
+            timeout (float, optional): timeout in seconds for the verification command execution.
 
         Returns:
             SimTrace | None: if exists a counter example, return a SimTrace, else return None.
@@ -417,7 +419,7 @@ system Process;
         if Verifyta().get_uppaal_version() == 4:  # uppaal4.x
             xtr_trace_path = self.model_path.replace(".xml", ".xtr")
             verify_cmd_res = Verifyta().verify(
-                self.model_path, xtr_trace_path, verify_options=verify_options
+                self.model_path, xtr_trace_path, verify_options=verify_options, timeout=timeout
             )
 
             # print(verify_cmd_res)
@@ -430,7 +432,7 @@ system Process;
         else:  # uppaal5.x
             xtr_trace_path = self.model_path.replace(".xml", "_xtr")
             verify_cmd_res = Verifyta().verify(
-                self.model_path, xtr_trace_path, verify_options=verify_options
+                self.model_path, xtr_trace_path, verify_options=verify_options, timeout=timeout
             )
 
             xtr_trace_path = xtr_trace_path.replace("_xtr", "_xtr-1")
